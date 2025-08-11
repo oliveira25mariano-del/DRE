@@ -394,8 +394,8 @@ export default function Contracts() {
                 ...selectedContract,
                 categories: selectedContract.categories || [],
                 tags: selectedContract.tags || [],
-                monthlyValues: selectedContract.monthlyValues || {},
-                totalValues: selectedContract.totalValues || {},
+                monthlyValues: (selectedContract.monthlyValues || {}) as Record<string, string>,
+                totalValues: (selectedContract.totalValues || {}) as Record<string, string>,
               }}
               isLoading={updateMutation.isPending}
             />
