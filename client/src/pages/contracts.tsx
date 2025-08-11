@@ -30,6 +30,8 @@ export default function Contracts() {
     queryKey: ["/api/contracts"],
     refetchOnMount: true,
     refetchOnWindowFocus: true,
+    staleTime: 0,
+    gcTime: 0,
   });
 
   const createMutation = useMutation({
@@ -38,6 +40,7 @@ export default function Contracts() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/contracts"] });
+      queryClient.refetchQueries({ queryKey: ["/api/contracts"] });
       setIsCreateDialogOpen(false);
       toast({
         title: "Sucesso",
