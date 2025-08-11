@@ -307,18 +307,32 @@ export default function AdminPanel() {
                         name="role"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-white">Tipo de Acesso</FormLabel>
+                            <FormLabel className="text-white">Tipo de Usuário</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
                                 <SelectTrigger className="bg-blue-800 border-blue-600 text-white">
-                                  <SelectValue placeholder="Selecione o tipo de acesso" />
+                                  <SelectValue placeholder="Selecione o tipo de usuário" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="edit">Edição Completa</SelectItem>
-                                <SelectItem value="visualization">Somente Visualização</SelectItem>
+                                <SelectItem value="edit">
+                                  <div className="flex items-center gap-2">
+                                    <Shield className="w-4 h-4" />
+                                    <span>Administrador</span>
+                                  </div>
+                                </SelectItem>
+                                <SelectItem value="visualization">
+                                  <div className="flex items-center gap-2">
+                                    <Eye className="w-4 h-4" />
+                                    <span>Usuário</span>
+                                  </div>
+                                </SelectItem>
                               </SelectContent>
                             </Select>
+                            <div className="text-xs text-blue-300 mt-1">
+                              <strong>Administrador:</strong> Acesso completo ao sistema<br/>
+                              <strong>Usuário:</strong> Apenas visualização de relatórios
+                            </div>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -378,12 +392,12 @@ export default function AdminPanel() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-green-300">Com Edição</p>
+                    <p className="text-sm text-green-300">Administradores</p>
                     <p className="text-2xl font-bold text-white">
                       {users.filter(u => u.role === "edit").length}
                     </p>
                   </div>
-                  <Key className="w-8 h-8 text-green-400" />
+                  <Shield className="w-8 h-8 text-green-400" />
                 </div>
               </CardContent>
             </Card>
@@ -391,7 +405,7 @@ export default function AdminPanel() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-yellow-300">Somente Visualização</p>
+                    <p className="text-sm text-yellow-300">Usuários</p>
                     <p className="text-2xl font-bold text-white">
                       {users.filter(u => u.role === "visualization").length}
                     </p>
@@ -409,7 +423,7 @@ export default function AdminPanel() {
                 <TableRow className="border-blue-600/30 hover:bg-blue-700/20">
                   <TableHead className="text-blue-200">Nome</TableHead>
                   <TableHead className="text-blue-200">Email</TableHead>
-                  <TableHead className="text-blue-200">Tipo de Acesso</TableHead>
+                  <TableHead className="text-blue-200">Tipo de Usuário</TableHead>
                   <TableHead className="text-blue-200">Data de Criação</TableHead>
                   <TableHead className="text-blue-200 text-right">Ações</TableHead>
                 </TableRow>
@@ -429,7 +443,7 @@ export default function AdminPanel() {
                           : "bg-yellow-600 hover:bg-yellow-700"
                         }
                       >
-                        {user.role === "edit" ? "Edição Completa" : "Somente Visualização"}
+                        {user.role === "edit" ? "Administrador" : "Usuário"}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-blue-100">
@@ -525,7 +539,7 @@ export default function AdminPanel() {
                 name="role"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-white">Tipo de Acesso</FormLabel>
+                    <FormLabel className="text-white">Tipo de Usuário</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger className="bg-blue-800 border-blue-600 text-white">
@@ -533,10 +547,24 @@ export default function AdminPanel() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="edit">Edição Completa</SelectItem>
-                        <SelectItem value="visualization">Somente Visualização</SelectItem>
+                        <SelectItem value="edit">
+                          <div className="flex items-center gap-2">
+                            <Shield className="w-4 h-4" />
+                            <span>Administrador</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="visualization">
+                          <div className="flex items-center gap-2">
+                            <Eye className="w-4 h-4" />
+                            <span>Usuário</span>
+                          </div>
+                        </SelectItem>
                       </SelectContent>
                     </Select>
+                    <div className="text-xs text-blue-300 mt-1">
+                      <strong>Administrador:</strong> Acesso completo ao sistema<br/>
+                      <strong>Usuário:</strong> Apenas visualização de relatórios
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}
