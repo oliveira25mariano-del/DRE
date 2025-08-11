@@ -1,11 +1,11 @@
-import { Bell, User, Settings, Camera, Upload } from "lucide-react";
+import { Bell, User, Settings, Camera, Upload, LogOut } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Header() {
@@ -13,7 +13,7 @@ export default function Header() {
     queryKey: ["/api/alerts"],
   });
   
-  const [userName, setUserName] = useState("João Silva");
+  const [userName, setUserName] = useState("Usuário");
   const [userRole, setUserRole] = useState("Administrador");
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -21,15 +21,46 @@ export default function Header() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
+  // Carregar dados do perfil do localStorage ao inicializar
+  useEffect(() => {
+    const savedProfile = localStorage.getItem('userProfile');
+    if (savedProfile) {
+      const profile = JSON.parse(savedProfile);
+      setUserName(profile.name || "Usuário");
+      setUserRole(profile.role || "Administrador");
+      setProfilePhoto(profile.photo || null);
+    }
+  }, []);
+
+  // Salvar dados do perfil no localStorage
+  const saveProfileToStorage = (name: string, role: string, photo: string | null) => {
+    const profile = { name, role, photo };
+    localStorage.setItem('userProfile', JSON.stringify(profile));
+  };
+
   const unreadAlerts = alerts.filter((alert: any) => !alert.read);
   const criticalAlerts = unreadAlerts.filter((alert: any) => alert.severity === "critical");
 
   const handleProfileSave = () => {
+    saveProfileToStorage(userName, userRole, profilePhoto);
     toast({
       title: "Perfil atualizado",
       description: "Suas informações foram salvas com sucesso.",
     });
     setIsProfileOpen(false);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('userProfile');
+    setUserName("Usuário");
+    setUserRole("Administrador");
+    setProfilePhoto(null);
+    toast({
+      title: "Logout realizado",
+      description: "Você foi desconectado com sucesso.",
+    });
+    // Forçar reload da página para mostrar tela de login
+    window.location.reload();
   };
 
   const handleNotificationClick = () => {
@@ -212,6 +243,7 @@ export default function Header() {
                     value={userName}
                     onChange={(e) => setUserName(e.target.value)}
                     className="col-span-3"
+                    placeholder="Digite seu nome completo"
                   />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
@@ -221,16 +253,27 @@ export default function Header() {
                     value={userRole}
                     onChange={(e) => setUserRole(e.target.value)}
                     className="col-span-3"
+                    placeholder="Ex: Administrador, Gerente, etc."
                   />
                 </div>
               </div>
-              <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setIsProfileOpen(false)}>
-                  Cancelar
+              <div className="flex justify-between">
+                <Button 
+                  variant="outline" 
+                  onClick={handleLogout}
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
                 </Button>
-                <Button onClick={handleProfileSave}>
-                  Salvar
-                </Button>
+                <div className="flex space-x-2">
+                  <Button variant="outline" onClick={() => setIsProfileOpen(false)}>
+                    Cancelar
+                  </Button>
+                  <Button onClick={handleProfileSave}>
+                    Salvar
+                  </Button>
+                </div>
               </div>
             </DialogContent>
           </Dialog>

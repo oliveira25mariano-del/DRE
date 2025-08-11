@@ -3,7 +3,9 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { useState, useEffect } from "react";
 import Layout from "./components/layout";
+import Login from "./components/login";
 import Dashboard from "./pages/dashboard";
 import Contracts from "./pages/contracts";
 import Glosas from "./pages/glosas";
@@ -16,6 +18,29 @@ import Reports from "./pages/reports";
 import NotFound from "./pages/not-found";
 
 function Router() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // Verificar se há dados de perfil salvos (simula login persistente)
+  useEffect(() => {
+    const savedProfile = localStorage.getItem('userProfile');
+    setIsLoggedIn(!!savedProfile);
+  }, []);
+
+  const handleLogin = (userData: { name: string; role: string; photo?: string }) => {
+    // Salvar dados do usuário no localStorage
+    const profile = { 
+      name: userData.name, 
+      role: userData.role, 
+      photo: userData.photo || null 
+    };
+    localStorage.setItem('userProfile', JSON.stringify(profile));
+    setIsLoggedIn(true);
+  };
+
+  if (!isLoggedIn) {
+    return <Login onLogin={handleLogin} />;
+  }
+
   return (
     <Layout>
       <Switch>
