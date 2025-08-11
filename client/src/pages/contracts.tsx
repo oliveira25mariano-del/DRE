@@ -43,10 +43,7 @@ export default function Contracts() {
     return () => clearTimeout(timer);
   }, [refetch]);
 
-  // Debug logging (can be removed in production)
-  if (contracts.length > 0 && !isLoading) {
-    console.log("✅ Contratos carregados com sucesso:", contracts.length);
-  }
+
 
   const createMutation = useMutation({
     mutationFn: async (data: InsertContract) => {
@@ -124,6 +121,17 @@ export default function Contracts() {
     const matchesStatus = !selectedStatus || selectedStatus === "all" || contract.status === selectedStatus;
     
     return matchesSearch && matchesCategory && matchesStatus;
+  });
+
+  // Enhanced debug logging
+  console.log("🔍 Estado completo:", {
+    contratos: contracts.length,
+    filtrados: filteredContracts.length,
+    carregando: isLoading,
+    busca: searchTerm,
+    categoria: selectedCategory,
+    status: selectedStatus,
+    primeiroContrato: contracts[0]?.name || "Nenhum"
   });
 
   const getStatusColor = (status: string) => {
@@ -288,6 +296,17 @@ export default function Contracts() {
                 <p>Nenhum contrato encontrado</p>
                 <p className="text-xs mt-2">Total de contratos brutos: {contracts.length}</p>
                 <p className="text-xs">Filtros aplicados - Busca: "{searchTerm}", Categoria: "{selectedCategory}", Status: "{selectedStatus}"</p>
+                <p className="text-xs">Contratos filtrados: {filteredContracts.length}</p>
+                {contracts.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-xs">Debug: Primeiros contratos carregados:</p>
+                    <ul className="text-xs">
+                      {contracts.slice(0, 3).map((c, i) => (
+                        <li key={i}>• {c.name} - {c.category} - {c.status}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="overflow-x-auto">
