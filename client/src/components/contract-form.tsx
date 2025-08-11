@@ -15,6 +15,29 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 
+// Função para formatar valor monetário
+const formatCurrency = (value: string): string => {
+  // Remove tudo que não é dígito
+  const numbers = value.replace(/\D/g, '')
+  
+  // Se vazio, retorna vazio
+  if (!numbers) return ''
+  
+  // Converte para centavos
+  const cents = parseInt(numbers)
+  
+  // Formata com vírgula para centavos
+  const formatted = (cents / 100).toFixed(2).replace('.', ',')
+  
+  return formatted
+}
+
+// Função para converter valor formatado para número
+const parseCurrency = (value: string): number => {
+  if (!value) return 0
+  return parseFloat(value.replace(',', '.')) || 0
+}
+
 interface ContractFormProps {
   onSubmit: (data: InsertContract) => void;
   defaultValues?: Partial<InsertContract>;
@@ -23,6 +46,8 @@ interface ContractFormProps {
 
 export default function ContractForm({ onSubmit, defaultValues, isLoading }: ContractFormProps) {
   const [showAdditionalContract, setShowAdditionalContract] = useState(false);
+  const [monthlyValueFormatted, setMonthlyValueFormatted] = useState("");
+  const [totalValueFormatted, setTotalValueFormatted] = useState("");
   
   const form = useForm<InsertContract>({
     resolver: zodResolver(insertContractSchema),
@@ -161,11 +186,18 @@ export default function ContractForm({ onSubmit, defaultValues, isLoading }: Con
                 <FormLabel className="text-white">Valor Mensal (R$)</FormLabel>
                 <FormControl>
                   <Input 
-                    type="number" 
-                    step="0.01"
+                    type="text"
                     placeholder="0,00" 
                     className="bg-blue-800 border-blue-600 text-white placeholder:text-blue-300"
-                    {...field} 
+                    value={monthlyValueFormatted}
+                    onChange={(e) => {
+                      const formatted = formatCurrency(e.target.value);
+                      setMonthlyValueFormatted(formatted);
+                      const numericValue = parseCurrency(formatted);
+                      field.onChange(numericValue.toString());
+                    }}
+                    onBlur={field.onBlur}
+                    name={field.name}
                   />
                 </FormControl>
                 <FormMessage />
@@ -181,11 +213,18 @@ export default function ContractForm({ onSubmit, defaultValues, isLoading }: Con
                 <FormLabel className="text-white">Valor Total (R$)</FormLabel>
                 <FormControl>
                   <Input 
-                    type="number" 
-                    step="0.01"
+                    type="text"
                     placeholder="0,00" 
                     className="bg-blue-800 border-blue-600 text-white placeholder:text-blue-300"
-                    {...field} 
+                    value={totalValueFormatted}
+                    onChange={(e) => {
+                      const formatted = formatCurrency(e.target.value);
+                      setTotalValueFormatted(formatted);
+                      const numericValue = parseCurrency(formatted);
+                      field.onChange(numericValue.toString());
+                    }}
+                    onBlur={field.onBlur}
+                    name={field.name}
                   />
                 </FormControl>
                 <FormMessage />
