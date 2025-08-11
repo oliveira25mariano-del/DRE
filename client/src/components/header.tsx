@@ -32,6 +32,22 @@ export default function Header() {
     }
   }, []);
 
+  // Escutar mudanças no localStorage (para quando login acontecer)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const savedProfile = localStorage.getItem('userProfile');
+      if (savedProfile) {
+        const profile = JSON.parse(savedProfile);
+        setUserName(profile.name || "Usuário");
+        setUserRole(profile.role || "Administrador");
+        setProfilePhoto(profile.photo || null);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   // Salvar dados do perfil no localStorage
   const saveProfileToStorage = (name: string, role: string, photo: string | null) => {
     const profile = { name, role, photo };

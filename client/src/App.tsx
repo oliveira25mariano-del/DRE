@@ -26,12 +26,13 @@ function Router() {
     setIsLoggedIn(!!savedProfile);
   }, []);
 
-  const handleLogin = (userData: { name: string; role: string; photo?: string }) => {
+  const handleLogin = (userData: { name: string; role: string; photo?: string | null }) => {
     // Salvar dados do usuário no localStorage
     const profile = { 
       name: userData.name, 
       role: userData.role, 
-      photo: userData.photo || null 
+      photo: userData.photo || null,
+      loginTime: new Date().toISOString()
     };
     localStorage.setItem('userProfile', JSON.stringify(profile));
     setIsLoggedIn(true);

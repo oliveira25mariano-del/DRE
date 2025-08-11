@@ -24,16 +24,41 @@ export default function Login({ onLogin }: LoginProps) {
     // Simular autenticação
     setTimeout(() => {
       if (email && password) {
-        const userData = {
-          name: "João Silva",
-          role: "Administrador",
-          photo: undefined
-        };
+        // Determinar dados do usuário baseado no email
+        let userData;
+        if (email.toLowerCase().includes('admin') || email.toLowerCase().includes('joao')) {
+          userData = {
+            name: "João Silva",
+            role: "Administrador",
+            photo: null
+          };
+        } else if (email.toLowerCase().includes('maria')) {
+          userData = {
+            name: "Maria Santos",
+            role: "Gerente Financeiro",
+            photo: null
+          };
+        } else if (email.toLowerCase().includes('pedro')) {
+          userData = {
+            name: "Pedro Oliveira",
+            role: "Analista Sênior",
+            photo: null
+          };
+        } else {
+          // Extrair nome do email se possível
+          const emailName = email.split('@')[0];
+          const formattedName = emailName.charAt(0).toUpperCase() + emailName.slice(1);
+          userData = {
+            name: formattedName,
+            role: "Administrador",
+            photo: null
+          };
+        }
         
         onLogin(userData);
         toast({
           title: "Login realizado",
-          description: "Bem-vindo ao sistema DRE!",
+          description: `Bem-vindo, ${userData.name}!`,
         });
       } else {
         toast({
@@ -109,9 +134,13 @@ export default function Login({ onLogin }: LoginProps) {
             <p className="text-sm text-blue-800 dark:text-blue-200 font-medium">
               Demo - Use qualquer email e senha
             </p>
-            <p className="text-xs text-blue-600 dark:text-blue-300 mt-1">
-              Após o login, você pode editar seu perfil no canto superior direito
-            </p>
+            <div className="text-xs text-blue-600 dark:text-blue-300 mt-2 space-y-1">
+              <p><strong>Exemplos:</strong></p>
+              <p>• admin@opus.com → João Silva (Administrador)</p>
+              <p>• maria@opus.com → Maria Santos (Gerente Financeiro)</p>
+              <p>• pedro@opus.com → Pedro Oliveira (Analista Sênior)</p>
+              <p className="mt-2">Após o login, edite seu perfil no canto superior direito</p>
+            </div>
           </div>
         </CardContent>
       </Card>
