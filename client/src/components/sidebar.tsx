@@ -34,16 +34,16 @@ export default function Sidebar() {
   return (
     <div className="w-64 sidebar-gradient shadow-xl">
       <div className="p-6">
-        <div className="flex flex-col items-start space-y-3">
-          <div className="flex items-center">
+        <div className="flex flex-col items-center space-y-4 w-full">
+          <div className="flex items-center justify-center w-full">
             <img 
               src={opusLogo} 
               alt="Grupo Opus" 
-              className="h-10 w-auto max-w-[160px]"
+              className="h-14 w-auto max-w-[180px]"
               style={{ objectFit: 'contain' }}
             />
           </div>
-          <div>
+          <div className="text-center">
             <p className="text-white text-sm font-medium">DRE - Gestão Financeira</p>
           </div>
         </div>
