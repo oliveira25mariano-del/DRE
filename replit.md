@@ -10,6 +10,8 @@ This is a comprehensive financial management system (Sistema DRE) built with Rea
 
 **User Management Enhancement (Aug 11, 2025):** Administrative panel user creation improved with clear role selection. Users can now choose between "Administrador" (full system access) and "Usuário" (view-only access) with visual icons and explanatory descriptions. Interface includes updated statistics, table headers, and badges using consistent "Administrador/Usuário" terminology instead of technical role names.
 
+**Real-time Metrics Dashboard (Aug 11, 2025):** Comprehensive real-time dashboard implemented with interactive charts using Recharts library. Features live financial KPIs with trend indicators, automated updates every 30-60 seconds, connectivity status monitoring, and ability to pause/resume real-time updates. Includes area charts for monthly trends, pie charts for contract distribution, bar charts for category performance, and line charts for KPI evolution. All data updates automatically with realistic simulated financial metrics.
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
