@@ -13,8 +13,8 @@ export default function Header() {
     queryKey: ["/api/alerts"],
   });
   
-  const [userName, setUserName] = useState("Usuário");
-  const [userRole, setUserRole] = useState("Administrador");
+  const [userName, setUserName] = useState("Nome do Usuário");
+  const [userRole, setUserRole] = useState("Administrador(a)");
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -26,8 +26,8 @@ export default function Header() {
     const savedProfile = localStorage.getItem('userProfile');
     if (savedProfile) {
       const profile = JSON.parse(savedProfile);
-      setUserName(profile.name || "Usuário");
-      setUserRole(profile.role || "Administrador");
+      setUserName(profile.name || "Nome do Usuário");
+      setUserRole(profile.role || "Administrador(a)");
       setProfilePhoto(profile.photo || null);
     }
   }, []);
@@ -38,8 +38,8 @@ export default function Header() {
       const savedProfile = localStorage.getItem('userProfile');
       if (savedProfile) {
         const profile = JSON.parse(savedProfile);
-        setUserName(profile.name || "Usuário");
-        setUserRole(profile.role || "Administrador");
+        setUserName(profile.name || "Nome do Usuário");
+        setUserRole(profile.role || "Administrador(a)");
         setProfilePhoto(profile.photo || null);
       }
     };
@@ -68,8 +68,8 @@ export default function Header() {
 
   const handleLogout = () => {
     localStorage.removeItem('userProfile');
-    setUserName("Usuário");
-    setUserRole("Administrador");
+    setUserName("Nome do Usuário");
+    setUserRole("Administrador(a)");
     setProfilePhoto(null);
     toast({
       title: "Logout realizado",
@@ -269,7 +269,7 @@ export default function Header() {
                     value={userRole}
                     onChange={(e) => setUserRole(e.target.value)}
                     className="col-span-3"
-                    placeholder="Ex: Administrador, Gerente, etc."
+                    placeholder="Ex: Administrador(a), Gerente, etc."
                   />
                 </div>
               </div>

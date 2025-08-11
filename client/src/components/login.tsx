@@ -35,21 +35,34 @@ export default function Login({ onLogin }: LoginProps) {
         } else if (email.toLowerCase().includes('maria')) {
           userData = {
             name: "Maria Santos",
-            role: "Gerente Financeiro",
+            role: "Administradora",
             photo: null
           };
         } else if (email.toLowerCase().includes('pedro')) {
           userData = {
             name: "Pedro Oliveira",
-            role: "Analista Sênior",
+            role: "Administrador",
+            photo: null
+          };
+        } else if (email.toLowerCase().includes('ana')) {
+          userData = {
+            name: "Ana Costa",
+            role: "Administradora",
+            photo: null
+          };
+        } else if (email.toLowerCase().includes('carlos')) {
+          userData = {
+            name: "Carlos Mendes",
+            role: "Administrador",
             photo: null
           };
         } else {
-          // Extrair nome do email se possível
+          // Extrair nome do email e criar nome completo
           const emailName = email.split('@')[0];
-          const formattedName = emailName.charAt(0).toUpperCase() + emailName.slice(1);
+          const firstName = emailName.charAt(0).toUpperCase() + emailName.slice(1);
+          const lastName = "Silva"; // Sobrenome padrão
           userData = {
-            name: formattedName,
+            name: `${firstName} ${lastName}`,
             role: "Administrador",
             photo: null
           };
@@ -137,9 +150,11 @@ export default function Login({ onLogin }: LoginProps) {
             <div className="text-xs text-blue-600 dark:text-blue-300 mt-2 space-y-1">
               <p><strong>Exemplos:</strong></p>
               <p>• admin@opus.com → João Silva (Administrador)</p>
-              <p>• maria@opus.com → Maria Santos (Gerente Financeiro)</p>
-              <p>• pedro@opus.com → Pedro Oliveira (Analista Sênior)</p>
-              <p className="mt-2">Após o login, edite seu perfil no canto superior direito</p>
+              <p>• maria@opus.com → Maria Santos (Administradora)</p>
+              <p>• pedro@opus.com → Pedro Oliveira (Administrador)</p>
+              <p>• ana@opus.com → Ana Costa (Administradora)</p>
+              <p>• carlos@opus.com → Carlos Mendes (Administrador)</p>
+              <p className="mt-2">Nome e foto aparecem automaticamente no header após login</p>
             </div>
           </div>
         </CardContent>
