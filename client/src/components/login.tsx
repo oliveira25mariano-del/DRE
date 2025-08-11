@@ -9,9 +9,10 @@ import opusLogo from "@assets/Logo-Grupo-Opus_1754948245317.png";
 
 interface LoginProps {
   onLogin: (userData: { name: string; role: string; photo?: string }) => void;
+  onSwitchToRegister?: () => void;
 }
 
-export default function Login({ onLogin }: LoginProps) {
+export default function Login({ onLogin, onSwitchToRegister }: LoginProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -156,6 +157,19 @@ export default function Login({ onLogin }: LoginProps) {
             </Button>
           </form>
           
+          {onSwitchToRegister && (
+            <div className="text-center pt-4 border-t border-slate-200 dark:border-slate-700">
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                Não tem uma conta?{" "}
+                <button 
+                  onClick={onSwitchToRegister}
+                  className="text-blue-600 hover:text-blue-700 font-medium hover:underline"
+                >
+                  Criar conta
+                </button>
+              </p>
+            </div>
+          )}
 
         </CardContent>
       </Card>

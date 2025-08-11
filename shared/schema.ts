@@ -144,6 +144,23 @@ export const categories = pgTable("categories", {
   createdAt: timestamp("created_at").default(sql`now()`),
 });
 
+// Users
+export const users = pgTable("users", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  email: text("email").notNull().unique(),
+  password: text("password").notNull(),
+  name: text("name").notNull(),
+  role: text("role").notNull().default("user"),
+  company: text("company"),
+  phone: text("phone"),
+  profilePhoto: text("profile_photo"),
+  active: boolean("active").default(true),
+  emailVerified: boolean("email_verified").default(false),
+  lastLogin: timestamp("last_login"),
+  createdAt: timestamp("created_at").default(sql`now()`),
+  updatedAt: timestamp("updated_at").default(sql`now()`),
+});
+
 // Insert schemas
 export const insertContractSchema = createInsertSchema(contracts, {
   startDate: z.coerce.date(),
@@ -206,6 +223,17 @@ export const insertCategorySchema = createInsertSchema(categories).omit({
   createdAt: true,
 });
 
+export const insertUserSchema = createInsertSchema(users, {
+  email: z.string().email("Email inválido"),
+  password: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
+  name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
+}).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  lastLogin: true,
+});
+
 // Types
 export type Contract = typeof contracts.$inferSelect;
 export type InsertContract = z.infer<typeof insertContractSchema>;
@@ -227,3 +255,5 @@ export type Report = typeof reports.$inferSelect;
 export type InsertReport = z.infer<typeof insertReportSchema>;
 export type Category = typeof categories.$inferSelect;
 export type InsertCategory = z.infer<typeof insertCategorySchema>;
+export type User = typeof users.$inferSelect;
+export type InsertUser = z.infer<typeof insertUserSchema>;

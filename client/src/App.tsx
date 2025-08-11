@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useState, useEffect } from "react";
 import Layout from "./components/layout";
 import Login from "./components/login";
+import Register from "./components/register";
 import Dashboard from "./pages/dashboard";
 import Contracts from "./pages/contracts";
 import Glosas from "./pages/glosas";
@@ -19,6 +20,7 @@ import NotFound from "./pages/not-found";
 
 function Router() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
 
   // Verificar se há dados de perfil salvos (simula login persistente)
   useEffect(() => {
@@ -44,8 +46,25 @@ function Router() {
     setIsLoggedIn(true);
   };
 
+  const handleRegisterSuccess = () => {
+    setShowRegister(false);
+  };
+
   if (!isLoggedIn) {
-    return <Login onLogin={handleLogin} />;
+    if (showRegister) {
+      return (
+        <Register 
+          onRegisterSuccess={handleRegisterSuccess}
+          onSwitchToLogin={() => setShowRegister(false)}
+        />
+      );
+    }
+    return (
+      <Login 
+        onLogin={handleLogin} 
+        onSwitchToRegister={() => setShowRegister(true)}
+      />
+    );
   }
 
   return (

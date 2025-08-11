@@ -8,9 +8,14 @@ import {
   type AuditLog, type InsertAuditLog,
   type Alert, type InsertAlert,
   type Report, type InsertReport,
-  type Category, type InsertCategory
+  type Category, type InsertCategory,
+  type User, type InsertUser
 } from "@shared/schema";
 import { randomUUID } from "crypto";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
+import bcrypt from "bcryptjs";
+import { users } from "@shared/schema";
 
 export interface IStorage {
   // Contracts
@@ -83,6 +88,15 @@ export interface IStorage {
   // Analytics
   getDREData(year: number, month: number): Promise<any>;
   getKPIData(): Promise<any>;
+
+  // Users
+  getUsers(): Promise<User[]>;
+  getUser(id: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  updateUser(id: string, user: Partial<InsertUser>): Promise<User>;
+  authenticateUser(email: string, password: string): Promise<User | null>;
+  updateLastLogin(id: string): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -96,6 +110,7 @@ export class MemStorage implements IStorage {
   private alerts: Map<string, Alert> = new Map();
   private reports: Map<string, Report> = new Map();
   private categories: Map<string, Category> = new Map();
+  private users: Map<string, User> = new Map();
 
   constructor() {
     this.initializeDefaultData();
@@ -669,6 +684,70 @@ export class MemStorage implements IStorage {
       marginImprovement: 4.1,
     };
   }
+
+  // User methods
+  async getUsers(): Promise<User[]> {
+    return Array.from(this.users.values());
+  }
+
+  async getUser(id: string): Promise<User | undefined> {
+    return this.users.get(id);
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(user => user.email === email);
+  }
+
+  async createUser(userData: InsertUser): Promise<User> {
+    const id = randomUUID();
+    const now = new Date();
+    const user: User = {
+      id,
+      ...userData,
+      active: userData.active ?? true,
+      emailVerified: userData.emailVerified ?? false,
+      lastLogin: null,
+      createdAt: now,
+      updatedAt: now,
+    };
+    this.users.set(id, user);
+    return user;
+  }
+
+  async updateUser(id: string, userData: Partial<InsertUser>): Promise<User> {
+    const existingUser = this.users.get(id);
+    if (!existingUser) {
+      throw new Error("User not found");
+    }
+    
+    const updatedUser: User = {
+      ...existingUser,
+      ...userData,
+      updatedAt: new Date()
+    };
+    
+    this.users.set(id, updatedUser);
+    return updatedUser;
+  }
+
+  async authenticateUser(email: string, password: string): Promise<User | null> {
+    const user = await this.getUserByEmail(email);
+    if (!user) return null;
+    
+    // For demo, compare plain text (not secure, should use bcrypt in production)
+    if (user.password !== password) return null;
+    
+    return user;
+  }
+
+  async updateLastLogin(id: string): Promise<void> {
+    const user = this.users.get(id);
+    if (user) {
+      user.lastLogin = new Date();
+      this.users.set(id, user);
+    }
+  }
 }
 
+// Use database storage for production
 export const storage = new MemStorage();

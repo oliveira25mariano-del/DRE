@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { registerUserRoutes } from "./userRoutes";
 import { 
   insertContractSchema, insertBudgetSchema, insertActualSchema,
   insertEmployeeSchema, insertGlosaSchema, insertPredictionSchema,
@@ -9,6 +10,8 @@ import {
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Register user routes
+  registerUserRoutes(app);
   
   // Audit middleware
   const auditMiddleware = async (req: any, res: any, next: any) => {
