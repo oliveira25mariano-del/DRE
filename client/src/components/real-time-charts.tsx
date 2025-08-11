@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ConnectivityStatus from "@/components/connectivity-status";
+import ThemeCustomizer from "@/components/theme-customizer";
+import { useTheme, useThemeClasses } from "@/hooks/useTheme";
 
 // Cores do tema
 const CHART_COLORS = {
@@ -40,17 +42,20 @@ export default function RealtimeCharts() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastUpdate, setLastUpdate] = useState(new Date());
   const [isRealtime, setIsRealtime] = useState(true);
+  
+  const { config, shouldAutoRefresh, shouldShowTrends } = useTheme();
+  const { getLayoutClasses, getCardClasses, getChartTheme } = useThemeClasses();
 
   // Query para métricas em tempo real
   const { data: metrics, refetch: refetchMetrics } = useQuery<RealtimeMetrics>({
     queryKey: ['/api/analytics/realtime-metrics'],
-    refetchInterval: isRealtime ? 30000 : false, // Atualiza a cada 30 segundos se ativo
+    refetchInterval: (isRealtime && shouldAutoRefresh) ? 30000 : false,
   });
 
   // Query para dados dos gráficos
   const { data: chartData, refetch: refetchCharts } = useQuery<ChartData>({
     queryKey: ['/api/analytics/chart-data'],
-    refetchInterval: isRealtime ? 60000 : false, // Atualiza a cada minuto se ativo
+    refetchInterval: (isRealtime && shouldAutoRefresh) ? 60000 : false,
   });
 
   // Atualizar timestamp quando dados chegarem
@@ -101,36 +106,41 @@ export default function RealtimeCharts() {
             />
           </div>
         </div>
-        <Button
-          onClick={handleRefresh}
-          disabled={isRefreshing}
-          className="bg-blue-600 hover:bg-blue-700 text-white"
-        >
-          <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-          {isRefreshing ? 'Atualizando...' : 'Atualizar'}
-        </Button>
+        <div className="flex gap-2">
+          <ThemeCustomizer />
+          <Button
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+            {isRefreshing ? 'Atualizando...' : 'Atualizar'}
+          </Button>
+        </div>
       </div>
 
       {/* KPIs em Tempo Real */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="glass-effect border-blue-200/20">
-          <CardContent className="p-6">
+      <div className={getLayoutClasses()}>
+        <Card className={getCardClasses()}>
+          <CardContent className={config.compactCards ? "p-4" : "p-6"}>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-blue-300">Receita Total</p>
                 <p className="text-2xl font-bold text-white">
                   {formatCurrency(metrics?.revenue.current || 0)}
                 </p>
-                <div className="flex items-center mt-2">
-                  {(metrics?.revenue.change || 0) >= 0 ? (
-                    <TrendingUp className="w-4 h-4 text-green-400 mr-1" />
-                  ) : (
-                    <TrendingDown className="w-4 h-4 text-red-400 mr-1" />
-                  )}
-                  <span className={`text-sm ${(metrics?.revenue.change || 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                    {formatPercent(Math.abs(metrics?.revenue.change || 0))}
-                  </span>
-                </div>
+                {shouldShowTrends && (
+                  <div className="flex items-center mt-2">
+                    {(metrics?.revenue.change || 0) >= 0 ? (
+                      <TrendingUp className="w-4 h-4 text-green-400 mr-1" />
+                    ) : (
+                      <TrendingDown className="w-4 h-4 text-red-400 mr-1" />
+                    )}
+                    <span className={`text-sm ${(metrics?.revenue.change || 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                      {formatPercent(Math.abs(metrics?.revenue.change || 0))}
+                    </span>
+                  </div>
+                )}
               </div>
               <DollarSign className="w-8 h-8 text-green-400" />
             </div>
