@@ -146,20 +146,7 @@ export default function Login({ onLogin }: LoginProps) {
             </Button>
           </form>
           
-          <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
-            <p className="text-sm text-blue-800 dark:text-blue-200 font-medium">
-              Demo - Use qualquer email e senha
-            </p>
-            <div className="text-xs text-blue-600 dark:text-blue-300 mt-2 space-y-1">
-              <p><strong>Exemplos:</strong></p>
-              <p>• admin@opus.com → João Silva (Administrador)</p>
-              <p>• maria@opus.com → Maria Santos (Administradora)</p>
-              <p>• pedro@opus.com → Pedro Oliveira (Administrador)</p>
-              <p>• ana@opus.com → Ana Costa (Administradora)</p>
-              <p>• carlos@opus.com → Carlos Mendes (Administrador)</p>
-              <p className="mt-2">Nome e foto aparecem automaticamente no header após login</p>
-            </div>
-          </div>
+
         </CardContent>
       </Card>
     </div>
