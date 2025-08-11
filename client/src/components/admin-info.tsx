@@ -21,10 +21,8 @@ export default function AdminInfo() {
             Atalho Secreto
           </h3>
           <p className="text-blue-100 text-sm">
-            Pressione <Badge variant="secondary" className="mx-1">Ctrl</Badge> + 
-            <Badge variant="secondary" className="mx-1">Shift</Badge> + 
-            <Badge variant="secondary" className="mx-1">Alt</Badge> + 
-            <Badge variant="secondary" className="mx-1">A</Badge> em qualquer tela do sistema
+            Pressione <Badge variant="secondary" className="mx-1">Windows</Badge> + 
+            <Badge variant="secondary" className="mx-1">M</Badge> em qualquer tela do sistema
           </p>
         </div>
 
