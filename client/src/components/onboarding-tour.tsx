@@ -339,79 +339,74 @@ const OnboardingTour: React.FC<OnboardingTourProps> = ({ isOpen, onClose, userRo
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-md max-h-[85vh] overflow-auto">
+        <DialogHeader className="pb-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               {currentStepData.icon}
-              <DialogTitle>{currentStepData.title}</DialogTitle>
+              <DialogTitle className="text-lg">{currentStepData.title}</DialogTitle>
             </div>
             <Button
               variant="ghost"
               size="sm"
               onClick={skipTour}
-              className="text-slate-500 hover:text-slate-700"
+              className="text-slate-500 hover:text-slate-700 h-6 w-6 p-0"
             >
-              <X className="w-4 h-4" />
+              <X className="w-3 h-3" />
             </Button>
+          </div>
+          <div className="flex items-center gap-3 pt-2">
+            {/* Progress Bar */}
+            <div className="flex-1 bg-slate-200 rounded-full h-1.5">
+              <div 
+                className="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
+                style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
+              ></div>
+            </div>
+            {/* Step Counter */}
+            <Badge variant="outline" className="text-xs px-2 py-0.5">
+              {currentStep + 1}/{steps.length}
+            </Badge>
           </div>
         </DialogHeader>
         
-        <div className="space-y-4">
-          {/* Progress Bar */}
-          <div className="w-full bg-slate-200 rounded-full h-2">
-            <div 
-              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
-            ></div>
-          </div>
-
-          {/* Step Counter */}
-          <div className="text-center">
-            <Badge variant="outline">
-              {currentStep + 1} de {steps.length}
-            </Badge>
-          </div>
-
+        <div className="space-y-3">
           {/* Step Content */}
-          <Card>
-            <CardHeader className="pb-3">
-              <p className="text-sm text-slate-600">{currentStepData.description}</p>
-            </CardHeader>
-            <CardContent>
+          <div className="bg-slate-50 rounded-lg p-3">
+            <p className="text-sm text-slate-700 mb-3">{currentStepData.description}</p>
+            <div className="text-sm">
               {currentStepData.content}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Navigation */}
-          <div className="flex justify-between items-center pt-4">
+          <div className="flex justify-between items-center pt-2">
             <Button
               variant="outline"
               onClick={prevStep}
               disabled={currentStep === 0}
-              className="flex items-center gap-2"
+              size="sm"
+              className="flex items-center gap-1"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-3 h-3" />
               Anterior
             </Button>
 
-            <Button
-              onClick={nextStep}
-              className="flex items-center gap-2"
-            >
-              {currentStep === steps.length - 1 ? "Finalizar" : "Próximo"}
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-          </div>
-
-          {/* Skip Option */}
-          <div className="text-center pt-2 border-t">
             <button
               onClick={skipTour}
-              className="text-sm text-slate-500 hover:text-slate-700 underline"
+              className="text-xs text-slate-500 hover:text-slate-700 underline"
             >
-              Pular tour
+              Pular
             </button>
+
+            <Button
+              onClick={nextStep}
+              size="sm"
+              className="flex items-center gap-1"
+            >
+              {currentStep === steps.length - 1 ? "Finalizar" : "Próximo"}
+              <ChevronRight className="w-3 h-3" />
+            </Button>
           </div>
         </div>
       </DialogContent>
