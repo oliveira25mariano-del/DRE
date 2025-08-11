@@ -35,18 +35,18 @@ export default function Sidebar() {
       <div className="p-6">
         <div className="flex flex-col items-start space-y-3">
           <div className="flex items-center">
-            <svg width="160" height="48" viewBox="0 0 320 96" className="h-12 w-auto">
-              {/* Círculo do logo - versão corrigida */}
+            <svg width="180" height="50" viewBox="0 0 360 100" className="h-12 w-auto">
+              {/* Círculo do logo - recriando formato da imagem original */}
               <g>
-                <circle cx="32" cy="32" r="28" fill="none" stroke="#7A9BC4" strokeWidth="8" 
-                        strokeDasharray="88 88" strokeDashoffset="22" transform="rotate(-90 32 32)" />
-                <circle cx="32" cy="32" r="28" fill="none" stroke="#A8BDD6" strokeWidth="8"
-                        strokeDasharray="88 88" strokeDashoffset="-66" transform="rotate(-90 32 32)" />
+                {/* Semicírculo superior direito - azul mais claro */}
+                <path d="M 40 20 A 20 20 0 0 1 80 40 A 20 20 0 0 1 40 60 Z" fill="#8BA8C8" />
+                {/* Semicírculo inferior esquerdo - azul mais escuro */}
+                <path d="M 40 60 A 20 20 0 0 1 0 40 A 20 20 0 0 1 40 20 Z" fill="#6B8DB5" />
               </g>
-              {/* Texto "grupo" */}
-              <text x="80" y="28" fill="#7A9BC4" fontSize="18" fontFamily="Arial, sans-serif" fontWeight="normal" letterSpacing="1px">grupo</text>
-              {/* Texto "opus" */}
-              <text x="80" y="52" fill="#5A7BA4" fontSize="32" fontFamily="Arial, sans-serif" fontWeight="bold" letterSpacing="1px">opus</text>
+              {/* Texto "grupo" - menor e mais discreto */}
+              <text x="95" y="35" fill="#6B8DB5" fontSize="16" fontFamily="Arial, sans-serif" fontWeight="400">grupo</text>
+              {/* Texto "opus" - maior e bold */}
+              <text x="95" y="65" fill="#4A6B8A" fontSize="42" fontFamily="Arial, sans-serif" fontWeight="700">opus</text>
             </svg>
           </div>
           <div>
