@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Search, Download, Eye, Edit, Trash2, FileText } from "lucide-react";
 import { queryClient } from "@/lib/queryClient";
@@ -18,6 +19,7 @@ export default function Contracts() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [showCancelAlert, setShowCancelAlert] = useState(false);
   const { toast } = useToast();
 
   const { data: contracts = [], isLoading } = useQuery({
@@ -97,7 +99,17 @@ export default function Contracts() {
               <p className="text-sm text-blue-200">Visualize e gerencie todos os contratos ativos</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3">
-              <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+              <Dialog 
+                open={isCreateDialogOpen} 
+                onOpenChange={(open) => {
+                  if (!open) {
+                    // Se tentando fechar o dialog, mostra alerta de confirmação
+                    setShowCancelAlert(true);
+                  } else {
+                    setIsCreateDialogOpen(true);
+                  }
+                }}
+              >
                 <DialogTrigger asChild>
                   <Button className="bg-blue-600 hover:bg-blue-700 text-white">
                     <Plus className="w-4 h-4 mr-2" />
@@ -111,11 +123,41 @@ export default function Contracts() {
                   <div className="flex-1 overflow-y-auto pr-2">
                     <ContractForm 
                       onSubmit={(data) => createMutation.mutate(data)}
+                      onCancel={() => setShowCancelAlert(true)}
                       isLoading={createMutation.isPending}
                     />
                   </div>
                 </DialogContent>
               </Dialog>
+
+              {/* Alerta de Confirmação para Cancelar */}
+              <AlertDialog open={showCancelAlert} onOpenChange={setShowCancelAlert}>
+                <AlertDialogContent className="bg-blue-bg border-blue-400/30">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="text-white">Cancelar Cadastro</AlertDialogTitle>
+                    <AlertDialogDescription className="text-blue-200">
+                      Tem certeza que deseja cancelar o cadastro do contrato? Todos os dados preenchidos serão perdidos.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel 
+                      className="bg-gray-600 hover:bg-gray-700 text-white border-gray-500"
+                      onClick={() => setShowCancelAlert(false)}
+                    >
+                      Continuar Editando
+                    </AlertDialogCancel>
+                    <AlertDialogAction 
+                      className="bg-red-600 hover:bg-red-700 text-white"
+                      onClick={() => {
+                        setShowCancelAlert(false);
+                        setIsCreateDialogOpen(false);
+                      }}
+                    >
+                      Sim, Cancelar
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
               <Button variant="outline" className="border-blue-400/30 text-white hover:bg-blue-600/30">
                 <Download className="w-4 h-4 mr-2" />
                 Exportar

@@ -47,11 +47,12 @@ const parseCurrency = (value: string): number => {
 
 interface ContractFormProps {
   onSubmit: (data: InsertContract) => void;
+  onCancel?: () => void;
   defaultValues?: Partial<InsertContract>;
   isLoading?: boolean;
 }
 
-export default function ContractForm({ onSubmit, defaultValues, isLoading }: ContractFormProps) {
+export default function ContractForm({ onSubmit, onCancel, defaultValues, isLoading }: ContractFormProps) {
   const [showAdditionalContract, setShowAdditionalContract] = useState(false);
   const [monthlyValueFormatted, setMonthlyValueFormatted] = useState("");
   const [totalValueFormatted, setTotalValueFormatted] = useState("");
@@ -424,7 +425,12 @@ export default function ContractForm({ onSubmit, defaultValues, isLoading }: Con
         </Collapsible>
 
         <div className="flex justify-end space-x-4">
-          <Button type="button" variant="outline" className="border-blue-400/30 text-white hover:bg-blue-600/30">
+          <Button 
+            type="button" 
+            variant="outline" 
+            className="border-blue-400/30 text-white hover:bg-blue-600/30"
+            onClick={onCancel}
+          >
             Cancelar
           </Button>
           <Button type="submit" disabled={isLoading} className="bg-blue-600 hover:bg-blue-700">
