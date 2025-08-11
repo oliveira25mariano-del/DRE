@@ -11,6 +11,7 @@ import {
   Bell, 
   FileBarChart 
 } from "lucide-react";
+import opusLogo from "@assets/Logo-Grupo-Opus_1754948245317.png";
 
 const menuItems = [
   { path: "/dashboard", label: "Dashboard", icon: BarChart3 },
@@ -36,7 +37,7 @@ export default function Sidebar() {
         <div className="flex flex-col items-start space-y-3">
           <div className="flex items-center">
             <img 
-              src="/attached_assets/Logo-Grupo-Opus_1754948245317.png" 
+              src={opusLogo} 
               alt="Grupo Opus" 
               className="h-10 w-auto max-w-[160px]"
               style={{ objectFit: 'contain' }}
