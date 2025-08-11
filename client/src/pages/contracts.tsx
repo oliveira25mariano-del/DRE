@@ -97,7 +97,7 @@ export default function Contracts() {
     },
   });
 
-  const filteredContracts = contracts.filter((contract: Contract) => {
+  const filteredContracts = (contracts as Contract[]).filter((contract: Contract) => {
     const matchesSearch = contract.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          contract.client.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = !selectedCategory || selectedCategory === "all" || contract.category === selectedCategory;
@@ -390,7 +390,13 @@ export default function Contracts() {
                 updateMutation.mutate({ id: selectedContract.id, data });
               }}
               onCancel={() => setIsEditDialogOpen(false)}
-              initialData={selectedContract}
+              defaultValues={{
+                ...selectedContract,
+                categories: selectedContract.categories || [],
+                tags: selectedContract.tags || [],
+                monthlyValues: selectedContract.monthlyValues || {},
+                totalValues: selectedContract.totalValues || {},
+              }}
               isLoading={updateMutation.isPending}
             />
           )}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertContractSchema, type InsertContract } from "@shared/schema";
@@ -59,25 +59,75 @@ export default function ContractForm({ onSubmit, onCancel, defaultValues, isLoad
   const [monthlyValue2Formatted, setMonthlyValue2Formatted] = useState("");
   const [totalValue2Formatted, setTotalValue2Formatted] = useState("");
   
+  // Prepare initial form values
+  const initialValues = {
+    name: "",
+    description: "",
+    client: "",
+    contact: "",
+    category: "",
+    status: "active" as const,
+    monthlyValue: "0",
+    totalValue: "0",
+    startDate: new Date(),
+    tags: [],
+    categories: [],
+    monthlyValues: {},
+    totalValues: {},
+    ...defaultValues,
+    // Convert dates properly for editing
+    ...(defaultValues?.startDate && {
+      startDate: typeof defaultValues.startDate === 'string' 
+        ? new Date(defaultValues.startDate) 
+        : defaultValues.startDate
+    }),
+    ...(defaultValues?.endDate && {
+      endDate: typeof defaultValues.endDate === 'string' 
+        ? new Date(defaultValues.endDate) 
+        : defaultValues.endDate
+    }),
+  };
+  
   const form = useForm<InsertContract>({
     resolver: zodResolver(insertContractSchema),
-    defaultValues: {
-      name: "",
-      description: "",
-      client: "",
-      contact: "",
-      category: "",
-      status: "active",
-      monthlyValue: "0",
-      totalValue: "0",
-      startDate: new Date(),
-      tags: [],
-      categories: [],
-      monthlyValues: {},
-      totalValues: {},
-      ...defaultValues,
-    },
+    defaultValues: initialValues,
   });
+
+  // Reset form when defaultValues change (for editing)
+  useEffect(() => {
+    if (defaultValues) {
+      const resetValues = {
+        ...initialValues,
+        ...defaultValues,
+        // Ensure arrays are not null
+        categories: defaultValues.categories || [],
+        tags: defaultValues.tags || [],
+        monthlyValues: defaultValues.monthlyValues || {},
+        totalValues: defaultValues.totalValues || {},
+        // Convert dates properly
+        startDate: defaultValues.startDate 
+          ? (typeof defaultValues.startDate === 'string' 
+              ? new Date(defaultValues.startDate) 
+              : defaultValues.startDate)
+          : new Date(),
+        endDate: defaultValues.endDate 
+          ? (typeof defaultValues.endDate === 'string' 
+              ? new Date(defaultValues.endDate) 
+              : defaultValues.endDate)
+          : undefined,
+      };
+      
+      form.reset(resetValues);
+      
+      // Update formatted values for display
+      if (defaultValues.monthlyValue) {
+        setMonthlyValueFormatted(formatCurrency(defaultValues.monthlyValue));
+      }
+      if (defaultValues.totalValue) {
+        setTotalValueFormatted(formatCurrency(defaultValues.totalValue));
+      }
+    }
+  }, [defaultValues]);
 
   const handleFormSubmit = (data: InsertContract) => {
     // Combinar valores principais com valores adicionais se existirem
