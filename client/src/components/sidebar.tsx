@@ -33,17 +33,16 @@ export default function Sidebar() {
   return (
     <div className="w-64 sidebar-gradient shadow-xl">
       <div className="p-6">
-        <div className="flex flex-col items-start space-y-2">
+        <div className="flex flex-col items-start space-y-3">
           <div className="flex items-center">
             <img 
-              src="/attached_assets/Logo-Grupo-Opus_1754947354406.png" 
+              src="/attached_assets/Logo-Grupo-Opus_1754947519798.png" 
               alt="Grupo Opus" 
-              className="h-8 w-auto"
-              style={{ filter: 'brightness(0) invert(1)' }}
+              className="h-12 w-auto"
             />
           </div>
           <div>
-            <p className="text-blue-200 text-sm font-medium">DRE - Gestão Financeira</p>
+            <p className="text-white text-sm font-medium">DRE - Gestão Financeira</p>
           </div>
         </div>
       </div>
