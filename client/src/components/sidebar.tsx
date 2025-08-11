@@ -35,19 +35,12 @@ export default function Sidebar() {
       <div className="p-6">
         <div className="flex flex-col items-start space-y-3">
           <div className="flex items-center">
-            <svg width="200" height="50" viewBox="0 0 400 100" className="h-12 w-auto">
-              {/* Logo Opus - círculo com abertura como na imagem original */}
-              <g>
-                {/* Parte superior do círculo - azul claro */}
-                <path d="M 15 40 A 25 25 0 1 1 65 40" fill="none" stroke="#A8BDD6" strokeWidth="10" strokeLinecap="round" />
-                {/* Parte inferior do círculo - azul escuro */}
-                <path d="M 65 40 A 25 25 0 1 1 15 40" fill="none" stroke="#6B8DB5" strokeWidth="10" strokeLinecap="round" />
-              </g>
-              {/* Texto "grupo" */}
-              <text x="90" y="32" fill="#6B8DB5" fontSize="18" fontFamily="Arial, sans-serif" fontWeight="300">grupo</text>
-              {/* Texto "opus" */}
-              <text x="90" y="58" fill="#4A6B8A" fontSize="36" fontFamily="Arial, sans-serif" fontWeight="600">opus</text>
-            </svg>
+            <img 
+              src="/attached_assets/Logo-Grupo-Opus_1754948245317.png" 
+              alt="Grupo Opus" 
+              className="h-10 w-auto max-w-[160px]"
+              style={{ objectFit: 'contain' }}
+            />
           </div>
           <div>
             <p className="text-white text-sm font-medium">DRE - Gestão Financeira</p>
