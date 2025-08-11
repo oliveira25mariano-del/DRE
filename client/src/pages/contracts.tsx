@@ -104,14 +104,16 @@ export default function Contracts() {
                     Novo Contrato
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-4xl bg-blue-bg border-blue-400/30">
-                  <DialogHeader>
+                <DialogContent className="max-w-4xl max-h-[85vh] bg-blue-bg border-blue-400/30 overflow-hidden flex flex-col">
+                  <DialogHeader className="flex-shrink-0">
                     <DialogTitle className="text-white">Criar Novo Contrato</DialogTitle>
                   </DialogHeader>
-                  <ContractForm 
-                    onSubmit={(data) => createMutation.mutate(data)}
-                    isLoading={createMutation.isPending}
-                  />
+                  <div className="flex-1 overflow-y-auto pr-2">
+                    <ContractForm 
+                      onSubmit={(data) => createMutation.mutate(data)}
+                      isLoading={createMutation.isPending}
+                    />
+                  </div>
                 </DialogContent>
               </Dialog>
               <Button variant="outline" className="border-blue-400/30 text-white hover:bg-blue-600/30">
