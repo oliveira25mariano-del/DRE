@@ -33,11 +33,13 @@ function Router() {
     setIsLoggedIn(!!savedProfile);
   }, []);
 
-  const handleLogin = (userData: { name: string; role: string; photo?: string | null }) => {
+  const handleLogin = (userData: { name: string; role: string; photo?: string | null; id: string; email: string }) => {
     // Salvar dados do usuário no localStorage
     const profile = { 
+      id: userData.id,
       name: userData.name, 
       role: userData.role, 
+      email: userData.email,
       photo: userData.photo || null,
       loginTime: new Date().toISOString()
     };
@@ -55,25 +57,24 @@ function Router() {
     setShowRegister(false);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('userProfile');
+    window.dispatchEvent(new CustomEvent('userProfileUpdate', { 
+      detail: null 
+    }));
+    setIsLoggedIn(false);
+  };
+
   if (!isLoggedIn) {
-    if (showRegister) {
-      return (
-        <Register 
-          onRegisterSuccess={handleRegisterSuccess}
-          onSwitchToLogin={() => setShowRegister(false)}
-        />
-      );
-    }
     return (
       <Login 
         onLogin={handleLogin} 
-        onSwitchToRegister={() => setShowRegister(true)}
       />
     );
   }
 
   return (
-    <Layout>
+    <Layout onLogout={handleLogout}>
       <Switch>
         <Route path="/" component={Dashboard} />
         <Route path="/dashboard" component={Dashboard} />

@@ -8,7 +8,11 @@ import { Label } from "@/components/ui/label";
 import { useState, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 
-export default function Header() {
+interface HeaderProps {
+  onLogout?: () => void;
+}
+
+export default function Header({ onLogout }: HeaderProps) {
   const { data: alerts = [] } = useQuery({
     queryKey: ["/api/alerts"],
   });
@@ -51,7 +55,7 @@ export default function Header() {
     localStorage.setItem('userProfile', JSON.stringify(profile));
   };
 
-  const unreadAlerts = alerts.filter((alert: any) => !alert.read);
+  const unreadAlerts = (alerts as any[]).filter((alert: any) => !alert.read);
   const criticalAlerts = unreadAlerts.filter((alert: any) => alert.severity === "critical");
 
   const handleProfileSave = () => {
@@ -64,15 +68,13 @@ export default function Header() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('userProfile');
-    setUserName("Nome do Usuário");
-    setUserRole("Administrador(a)");
-    setProfilePhoto(null);
     toast({
       title: "Logout realizado",
       description: "Você foi desconectado com sucesso.",
     });
-    // Forçar reload da página para mostrar tela de login
+    if (onLogout) {
+      onLogout();
+    }
     window.location.reload();
   };
 
@@ -139,9 +141,9 @@ export default function Header() {
               <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 z-50">
                 <div className="p-4">
                   <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">Notificações</h3>
-                  {alerts.length > 0 ? (
+                  {(alerts as any[]).length > 0 ? (
                     <div className="space-y-2 max-h-60 overflow-y-auto">
-                      {alerts.slice(0, 5).map((alert: any, index: number) => (
+                      {(alerts as any[]).slice(0, 5).map((alert: any, index: number) => (
                         <div key={index} className="p-3 bg-slate-50 dark:bg-slate-700 rounded-md">
                           <div className="flex justify-between items-start">
                             <div>

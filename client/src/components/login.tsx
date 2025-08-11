@@ -4,11 +4,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { User, Lock } from "lucide-react";
+import { User, Lock, Loader2 } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
 import opusLogo from "@assets/Logo-Grupo-Opus_1754948245317.png";
 
 interface LoginProps {
-  onLogin: (userData: { name: string; role: string; photo?: string }) => void;
+  onLogin: (userData: { name: string; role: string; photo?: string; id: string; email: string }) => void;
   onSwitchToRegister?: () => void;
 }
 
@@ -22,8 +23,7 @@ export default function Login({ onLogin, onSwitchToRegister }: LoginProps) {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simular autenticação
-    setTimeout(() => {
+    try {
       if (!email || !password) {
         toast({
           title: "Erro no login",
@@ -34,49 +34,36 @@ export default function Login({ onLogin, onSwitchToRegister }: LoginProps) {
         return;
       }
 
-      // Validar senha (mínimo 3 caracteres para demo)
-      if (password.length < 3) {
-        toast({
-          title: "Senha incorreta",
-          description: "A senha deve ter pelo menos 3 caracteres.",
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
-      }
-
-      // Determinar dados do usuário baseado no email (demo)
-      let userData;
-      if (email.toLowerCase().includes('admin') || email.toLowerCase().includes('joao')) {
-        userData = {
-          name: "João Silva",
-          role: "edit", // Pode editar
-          photo: null
-        };
-      } else if (email.toLowerCase().includes('maria')) {
-        userData = {
-          name: "Maria Santos", 
-          role: "visualization", // Somente visualização
-          photo: null
-        };
-      } else {
-        // Padrão: somente visualização
-        const emailName = email.split('@')[0];
-        const firstName = emailName.charAt(0).toUpperCase() + emailName.slice(1);
-        userData = {
-          name: `${firstName} Silva`,
-          role: "visualization",
-          photo: null
-        };
-      }
-      
-      onLogin(userData);
-      toast({
-        title: "Login realizado",
-        description: `Bem-vindo, ${userData.name}!`,
+      // Chamar API de autenticação
+      const response = await apiRequest("/api/admin/authenticate", {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
       });
+
+      const userData = {
+        id: response.id,
+        name: `${response.firstName} ${response.lastName}`,
+        role: response.role,
+        email: response.email,
+        photo: undefined
+      };
+
+      toast({
+        title: "Login realizado!",
+        description: `Bem-vindo(a), ${userData.name}!`,
+      });
+
+      onLogin(userData);
+    } catch (error: any) {
+      console.error("Erro no login:", error);
+      toast({
+        title: "Erro no login",
+        description: error.message || "Email ou senha incorretos.",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -138,19 +125,7 @@ export default function Login({ onLogin, onSwitchToRegister }: LoginProps) {
             </Button>
           </form>
           
-          {onSwitchToRegister && (
-            <div className="text-center pt-4 border-t border-slate-200 dark:border-slate-700">
-              <p className="text-sm text-slate-600 dark:text-slate-400">
-                Não tem uma conta?{" "}
-                <button 
-                  onClick={onSwitchToRegister}
-                  className="text-blue-600 hover:text-blue-700 font-medium hover:underline"
-                >
-                  Criar conta
-                </button>
-              </p>
-            </div>
-          )}
+
 
         </CardContent>
       </Card>

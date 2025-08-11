@@ -180,10 +180,10 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
-  // Função auxiliar para autenticação (usada pelo login)
-  app.get("/api/admin/authenticate", async (req, res) => {
+  // Autenticação de usuários para login no sistema
+  app.post("/api/admin/authenticate", async (req, res) => {
     try {
-      const { email, password } = req.query as { email: string; password: string };
+      const { email, password } = req.body;
       
       if (!email || !password) {
         return res.status(400).json({ message: "Email e senha são obrigatórios" });
