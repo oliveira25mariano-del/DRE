@@ -96,7 +96,7 @@ export default function Contracts() {
                 <FileText className="w-5 h-5 mr-2" />
                 Gestão de Contratos
               </CardTitle>
-              <p className="text-sm text-blue-200">Visualize e gerencie todos os contratos ativos</p>
+              <p className="text-sm text-gray-300">Visualize e gerencie todos os contratos ativos</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3">
               <Dialog 
@@ -222,22 +222,22 @@ export default function Contracts() {
                 <table className="min-w-full divide-y divide-blue-400/20">
                   <thead className="bg-blue-500/20">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">
                         Contrato
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">
                         Cliente
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">
                         Categoria
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">
                         Valor Mensal
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">
                         Status
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-200 uppercase tracking-wider">
                         Ações
                       </th>
                     </tr>
@@ -254,22 +254,22 @@ export default function Contracts() {
                             </div>
                             <div className="ml-4">
                               <div className="text-sm font-medium text-white">{contract.name}</div>
-                              <div className="text-sm text-blue-200">{contract.description}</div>
+                              <div className="text-sm text-gray-300">{contract.description}</div>
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-white">{contract.client}</div>
-                          <div className="text-sm text-blue-200">{contract.contact}</div>
+                          <div className="text-sm font-medium text-white">{contract.client}</div>
+                          <div className="text-sm text-gray-300">{contract.contact}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <Badge className={getCategoryColor(contract.category)}>
                             {contract.category}
                           </Badge>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                          <div className="font-medium">{formatCurrency(contract.monthlyValue)}</div>
-                          <div className="text-blue-200">Total: {formatCurrency(contract.totalValue)}</div>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <div className="font-medium text-green-400">{formatCurrency(contract.monthlyValue)}</div>
+                          <div className="text-gray-300">Total: {formatCurrency(contract.totalValue)}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <Badge className={getStatusColor(contract.status)}>
@@ -279,13 +279,13 @@ export default function Contracts() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex space-x-2">
-                            <Button size="sm" variant="ghost" className="text-blue-300 hover:text-blue-100">
+                            <Button size="sm" variant="ghost" className="text-blue-400 hover:text-blue-200 hover:bg-blue-500/20">
                               <Eye className="w-4 h-4" />
                             </Button>
-                            <Button size="sm" variant="ghost" className="text-yellow-300 hover:text-yellow-100">
+                            <Button size="sm" variant="ghost" className="text-yellow-400 hover:text-yellow-200 hover:bg-yellow-500/20">
                               <Edit className="w-4 h-4" />
                             </Button>
-                            <Button size="sm" variant="ghost" className="text-red-300 hover:text-red-100">
+                            <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-200 hover:bg-red-500/20">
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
