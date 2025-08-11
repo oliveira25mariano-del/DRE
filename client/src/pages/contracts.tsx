@@ -68,6 +68,7 @@ export default function Contracts() {
       case "Desenvolvimento": return "bg-blue-500/20 text-blue-300";
       case "Consultoria": return "bg-purple-500/20 text-purple-300";
       case "Suporte": return "bg-orange-500/20 text-orange-300";
+      case "Manutenção e Facilities": return "bg-green-500/20 text-green-300";
       default: return "bg-gray-500/20 text-gray-300";
     }
   };
@@ -140,6 +141,7 @@ export default function Contracts() {
                 <SelectItem value="Desenvolvimento">Desenvolvimento</SelectItem>
                 <SelectItem value="Consultoria">Consultoria</SelectItem>
                 <SelectItem value="Suporte">Suporte</SelectItem>
+                <SelectItem value="Manutenção e Facilities">Manutenção e Facilities</SelectItem>
               </SelectContent>
             </Select>
             <Select value={selectedStatus} onValueChange={setSelectedStatus}>
