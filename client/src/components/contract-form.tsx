@@ -205,8 +205,8 @@ export default function ContractForm({ onSubmit, defaultValues, isLoading }: Con
                       <Button
                         variant={"outline"}
                         className={cn(
-                          "w-full pl-3 text-left font-normal bg-blue-600/30 border-blue-400/30 text-white",
-                          !field.value && "text-blue-200"
+                          "w-full pl-3 text-left font-normal bg-blue-800 border-blue-600 text-white",
+                          !field.value && "text-blue-300"
                         )}
                       >
                         {field.value ? (
@@ -247,8 +247,8 @@ export default function ContractForm({ onSubmit, defaultValues, isLoading }: Con
                       <Button
                         variant={"outline"}
                         className={cn(
-                          "w-full pl-3 text-left font-normal bg-blue-600/30 border-blue-400/30 text-white",
-                          !field.value && "text-blue-200"
+                          "w-full pl-3 text-left font-normal bg-blue-800 border-blue-600 text-white",
+                          !field.value && "text-blue-300"
                         )}
                       >
                         {field.value ? (
