@@ -7,6 +7,8 @@ This is a comprehensive financial management system (Sistema DRE) built with Rea
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Interface language: Portuguese (Brazil) - All system interfaces and documentation should be in Portuguese.
+User requires: Complete understanding of Replit configuration and navigation in Portuguese.
 
 ## System Architecture
 
