@@ -34,8 +34,13 @@ export default function Sidebar() {
     <div className="w-64 sidebar-gradient shadow-xl">
       <div className="p-6">
         <div className="flex items-center space-x-3">
-          <div className="bg-blue-600 p-2 rounded-lg">
-            <BarChart3 className="text-white text-xl w-6 h-6" />
+          <div className="flex items-center">
+            <img 
+              src="/attached_assets/Logo-Grupo-Opus_1754947354406.png" 
+              alt="Grupo Opus" 
+              className="h-10 w-auto"
+              style={{ filter: 'brightness(0) invert(1)' }}
+            />
           </div>
           <div>
             <h1 className="text-xl font-bold text-white">Sistema DRE</h1>
