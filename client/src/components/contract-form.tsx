@@ -26,16 +26,23 @@ const formatCurrency = (value: string): string => {
   // Converte para centavos
   const cents = parseInt(numbers)
   
-  // Formata com vírgula para centavos
-  const formatted = (cents / 100).toFixed(2).replace('.', ',')
+  // Formata o valor
+  const reais = Math.floor(cents / 100)
+  const centavos = cents % 100
   
-  return formatted
+  // Adiciona pontos para separar milhares
+  const formattedReais = reais.toLocaleString('pt-BR')
+  
+  // Retorna com vírgula para centavos
+  return `${formattedReais},${centavos.toString().padStart(2, '0')}`
 }
 
 // Função para converter valor formatado para número
 const parseCurrency = (value: string): number => {
   if (!value) return 0
-  return parseFloat(value.replace(',', '.')) || 0
+  // Remove pontos (separadores de milhares) e substitui vírgula por ponto
+  const cleanValue = value.replace(/\./g, '').replace(',', '.')
+  return parseFloat(cleanValue) || 0
 }
 
 interface ContractFormProps {
@@ -48,6 +55,8 @@ export default function ContractForm({ onSubmit, defaultValues, isLoading }: Con
   const [showAdditionalContract, setShowAdditionalContract] = useState(false);
   const [monthlyValueFormatted, setMonthlyValueFormatted] = useState("");
   const [totalValueFormatted, setTotalValueFormatted] = useState("");
+  const [monthlyValue2Formatted, setMonthlyValue2Formatted] = useState("");
+  const [totalValue2Formatted, setTotalValue2Formatted] = useState("");
   
   const form = useForm<InsertContract>({
     resolver: zodResolver(insertContractSchema),
@@ -375,22 +384,32 @@ export default function ContractForm({ onSubmit, defaultValues, isLoading }: Con
                 <div>
                   <label className="text-white text-sm font-medium block mb-2">Valor Mensal 2 (R$)</label>
                   <Input 
-                    type="number" 
-                    step="0.01"
+                    type="text"
                     placeholder="0,00"
                     className="bg-blue-800 border-blue-600 text-white placeholder:text-blue-300"
-                    onChange={(e) => form.setValue("monthlyValue2" as any, e.target.value)}
+                    value={monthlyValue2Formatted}
+                    onChange={(e) => {
+                      const formatted = formatCurrency(e.target.value);
+                      setMonthlyValue2Formatted(formatted);
+                      const numericValue = parseCurrency(formatted);
+                      form.setValue("monthlyValue2" as any, numericValue.toString());
+                    }}
                   />
                 </div>
 
                 <div>
                   <label className="text-white text-sm font-medium block mb-2">Valor Total 2 (R$)</label>
                   <Input 
-                    type="number" 
-                    step="0.01"
+                    type="text"
                     placeholder="0,00"
                     className="bg-blue-800 border-blue-600 text-white placeholder:text-blue-300"
-                    onChange={(e) => form.setValue("totalValue2" as any, e.target.value)}
+                    value={totalValue2Formatted}
+                    onChange={(e) => {
+                      const formatted = formatCurrency(e.target.value);
+                      setTotalValue2Formatted(formatted);
+                      const numericValue = parseCurrency(formatted);
+                      form.setValue("totalValue2" as any, numericValue.toString());
+                    }}
                   />
                 </div>
               </div>
