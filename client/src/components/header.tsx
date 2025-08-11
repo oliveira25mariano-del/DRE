@@ -32,8 +32,15 @@ export default function Header() {
     }
   }, []);
 
-  // Escutar mudanças no localStorage (para quando login acontecer)
+  // Escutar eventos de atualização do perfil
   useEffect(() => {
+    const handleProfileUpdate = (event: any) => {
+      const profile = event.detail;
+      setUserName(profile.name);
+      setUserRole(profile.role);
+      setProfilePhoto(profile.photo || null);
+    };
+
     const handleStorageChange = () => {
       const savedProfile = localStorage.getItem('userProfile');
       if (savedProfile) {
@@ -44,8 +51,13 @@ export default function Header() {
       }
     };
 
+    window.addEventListener('userProfileUpdate', handleProfileUpdate);
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('userProfileUpdate', handleProfileUpdate);
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   // Salvar dados do perfil no localStorage

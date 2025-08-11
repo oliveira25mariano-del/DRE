@@ -35,6 +35,12 @@ function Router() {
       loginTime: new Date().toISOString()
     };
     localStorage.setItem('userProfile', JSON.stringify(profile));
+    
+    // Disparar evento customizado para notificar o header
+    window.dispatchEvent(new CustomEvent('userProfileUpdate', { 
+      detail: profile 
+    }));
+    
     setIsLoggedIn(true);
   };
 

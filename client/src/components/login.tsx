@@ -68,6 +68,9 @@ export default function Login({ onLogin }: LoginProps) {
           };
         }
         
+        // Garantir que os dados estão corretos
+        console.log('Dados do usuário no login:', userData);
+        
         onLogin(userData);
         toast({
           title: "Login realizado",
