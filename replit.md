@@ -6,6 +6,8 @@ This is a comprehensive financial management system (Sistema DRE) built with Rea
 
 **Recent Completion (Aug 11, 2025):** Complete authentication system implemented with database-connected login, restricted access control, and administrative panel integration. All access now requires user registration through the admin panel. Authentication connects to real PostgreSQL database with role-based permissions ("edit" vs "view_only"). Secret admin access via Ctrl+Alt+A shortcut remains functional. Logout system corrected to prevent code display errors.
 
+**Onboarding System (Aug 11, 2025):** Interactive onboarding tour implemented for new administrative panel users. Features welcome screen, guided tour with role-based content (admin vs view-only), and focus on cadastros (registrations) and indicadores (financial indicators). Tour is compact, fits entirely on screen without scrolling, and excludes secret panel references. Includes "Tour do Sistema" button in sidebar for manual restart. User preferences persisted in localStorage.
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
