@@ -47,29 +47,33 @@ const OnboardingTour: React.FC<OnboardingTourProps> = ({ isOpen, onClose, userRo
       )
     },
     {
-      id: "users",
-      title: "Gerenciamento de Usuários",
-      description: "Gerencie usuários do sistema com permissões específicas",
+      id: "data-input",
+      title: "Entrada de Dados",
+      description: "Como inserir e organizar informações financeiras",
       icon: <Users className="w-6 h-6" />,
-      targetElement: "#sidebar-users",
       position: "right",
       content: (
         <div className="space-y-4">
           <p className="text-sm text-slate-600">
-            Aqui você pode adicionar, editar e remover usuários do sistema.
+            Aprenda as melhores práticas para cadastrar dados financeiros no sistema.
           </p>
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary">Criar</Badge>
-              <span className="text-sm">Adicionar novos usuários</span>
+          <div className="space-y-3">
+            <div className="bg-cyan-50 p-3 rounded-lg">
+              <p className="text-sm font-medium text-cyan-900 mb-2">🎯 Fluxo Recomendado</p>
+              <ol className="text-xs text-cyan-800 space-y-1 list-decimal list-inside">
+                <li>Cadastre o contrato principal</li>
+                <li>Configure tipos de receita</li>
+                <li>Registre custos mensais</li>
+                <li>Acompanhe indicadores</li>
+              </ol>
             </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary">Editar</Badge>
-              <span className="text-sm">Alterar permissões e dados</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary">Excluir</Badge>
-              <span className="text-sm">Remover usuários inativos</span>
+            <div className="bg-orange-50 p-3 rounded-lg">
+              <p className="text-sm font-medium text-orange-900 mb-2">⚠️ Dicas Importantes</p>
+              <ul className="text-xs text-orange-800 space-y-1">
+                <li>• Use datas consistentes</li>
+                <li>• Categorize custos corretamente</li>
+                <li>• Revise dados antes de salvar</li>
+              </ul>
             </div>
           </div>
         </div>
@@ -78,31 +82,36 @@ const OnboardingTour: React.FC<OnboardingTourProps> = ({ isOpen, onClose, userRo
     {
       id: "dashboard",
       title: "Dashboard Financeiro",
-      description: "Acompanhe KPIs e métricas em tempo real",
+      description: "Visualize indicadores e cadastre novos dados",
       icon: <BarChart3 className="w-6 h-6" />,
       targetElement: "#sidebar-dashboard",
       position: "right",
       content: (
         <div className="space-y-4">
           <p className="text-sm text-slate-600">
-            O dashboard apresenta uma visão geral das métricas financeiras mais importantes.
+            O dashboard combina visualização de indicadores com funcionalidades de cadastro rápido.
           </p>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <div className="bg-emerald-50 p-2 rounded">
-              <strong className="text-emerald-800">Receitas</strong><br/>
-              Acompanhe entradas
+          <div className="space-y-3">
+            <div className="bg-teal-50 p-3 rounded-lg">
+              <p className="text-sm font-medium text-teal-900 mb-2">📈 Indicadores em Tempo Real</p>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="bg-white p-2 rounded border">
+                  <strong className="text-emerald-700">Receitas</strong><br/>
+                  <span className="text-emerald-600">Totais mensais</span>
+                </div>
+                <div className="bg-white p-2 rounded border">
+                  <strong className="text-red-700">Custos</strong><br/>
+                  <span className="text-red-600">Por categoria</span>
+                </div>
+              </div>
             </div>
-            <div className="bg-red-50 p-2 rounded">
-              <strong className="text-red-800">Custos</strong><br/>
-              Monitore gastos
-            </div>
-            <div className="bg-blue-50 p-2 rounded">
-              <strong className="text-blue-800">Margem</strong><br/>
-              Calcule lucros
-            </div>
-            <div className="bg-purple-50 p-2 rounded">
-              <strong className="text-purple-800">Previsões</strong><br/>
-              Analise tendências
+            <div className="bg-indigo-50 p-3 rounded-lg">
+              <p className="text-sm font-medium text-indigo-900 mb-2">⚡ Cadastros Rápidos</p>
+              <ul className="text-xs text-indigo-800 space-y-1">
+                <li>• Botões de ação direta nos cards</li>
+                <li>• Formulários simplificados</li>
+                <li>• Validação automática</li>
+              </ul>
             </div>
           </div>
         </div>
@@ -111,23 +120,34 @@ const OnboardingTour: React.FC<OnboardingTourProps> = ({ isOpen, onClose, userRo
     {
       id: "contracts",
       title: "Contratos",
-      description: "Gerencie contratos e acompanhe performance",
+      description: "Cadastre contratos e acompanhe indicadores",
       icon: <FileText className="w-6 h-6" />,
       targetElement: "#sidebar-contracts",
       position: "right",
       content: (
         <div className="space-y-4">
           <p className="text-sm text-slate-600">
-            Controle todos os contratos da empresa e monitore seu desempenho financeiro.
+            Gerencie o cadastro completo de contratos e visualize indicadores de performance.
           </p>
-          <div className="space-y-2">
-            <p className="text-sm"><strong>Funcionalidades:</strong></p>
-            <ul className="text-sm text-slate-600 space-y-1">
-              <li>• Adicionar novos contratos</li>
-              <li>• Acompanhar receitas por contrato</li>
-              <li>• Monitorar custos associados</li>
-              <li>• Analisar margem de lucro</li>
-            </ul>
+          <div className="space-y-3">
+            <div className="bg-amber-50 p-3 rounded-lg">
+              <p className="text-sm font-medium text-amber-900 mb-2">📝 Como Cadastrar</p>
+              <ul className="text-xs text-amber-800 space-y-1">
+                <li>• Clique em "Novo Contrato"</li>
+                <li>• Preencha dados do cliente</li>
+                <li>• Defina valores e prazos</li>
+                <li>• Configure tipos de receita</li>
+              </ul>
+            </div>
+            <div className="bg-purple-50 p-3 rounded-lg">
+              <p className="text-sm font-medium text-purple-900 mb-2">📊 Indicadores Disponíveis</p>
+              <ul className="text-xs text-purple-800 space-y-1">
+                <li>• Receita total por contrato</li>
+                <li>• Margem de contribuição</li>
+                <li>• Status de pagamentos</li>
+                <li>• Performance vs orçado</li>
+              </ul>
+            </div>
           </div>
         </div>
       )
@@ -162,28 +182,35 @@ const OnboardingTour: React.FC<OnboardingTourProps> = ({ isOpen, onClose, userRo
       )
     },
     {
-      id: "admin-access",
-      title: "Acesso Administrativo",
-      description: "Atalho secreto para funções avançadas",
+      id: "data-management",
+      title: "Gestão de Dados",
+      description: "Como gerenciar informações e cadastros no sistema",
       icon: <Settings className="w-6 h-6" />,
       position: "bottom",
       content: (
         <div className="space-y-4">
           <p className="text-sm text-slate-600">
-            Como administrador, você tem acesso a funcionalidades especiais.
+            Como administrador, você pode gerenciar todos os dados do sistema de forma segura e eficiente.
           </p>
-          <div className="bg-slate-50 p-3 rounded-lg">
-            <p className="text-sm font-medium mb-2">Atalho Secreto:</p>
-            <div className="flex items-center gap-2 bg-white p-2 rounded border">
-              <kbd className="px-2 py-1 bg-slate-200 rounded text-xs">Ctrl</kbd>
-              <span>+</span>
-              <kbd className="px-2 py-1 bg-slate-200 rounded text-xs">Alt</kbd>
-              <span>+</span>
-              <kbd className="px-2 py-1 bg-slate-200 rounded text-xs">A</kbd>
+          <div className="space-y-3">
+            <div className="bg-blue-50 p-3 rounded-lg">
+              <p className="text-sm font-medium text-blue-900 mb-2">📊 Cadastros Financeiros</p>
+              <ul className="text-xs text-blue-800 space-y-1">
+                <li>• Registrar novos contratos</li>
+                <li>• Adicionar receitas mensais</li>
+                <li>• Lançar custos operacionais</li>
+                <li>• Configurar orçamentos</li>
+              </ul>
             </div>
-            <p className="text-xs text-slate-500 mt-2">
-              Use este atalho para acessar o painel administrativo completo
-            </p>
+            <div className="bg-green-50 p-3 rounded-lg">
+              <p className="text-sm font-medium text-green-900 mb-2">📈 Indicadores de Performance</p>
+              <ul className="text-xs text-green-800 space-y-1">
+                <li>• Margem de lucro por contrato</li>
+                <li>• Evolução mensal de receitas</li>
+                <li>• Análise de custos variáveis</li>
+                <li>• Projeções financeiras</li>
+              </ul>
+            </div>
           </div>
         </div>
       )

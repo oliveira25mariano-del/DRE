@@ -83,17 +83,17 @@ const OnboardingWelcome: React.FC<OnboardingWelcomeProps> = ({
             <ul className="text-sm text-blue-800 space-y-1">
               {userRole === "edit" ? (
                 <>
-                  <li>• Como gerenciar usuários e permissões</li>
-                  <li>• Navegação pelos relatórios financeiros</li>
-                  <li>• Sistema de alertas e notificações</li>
-                  <li>• Funcionalidades administrativas especiais</li>
+                  <li>• Como cadastrar contratos e receitas</li>
+                  <li>• Navegação pelos indicadores financeiros</li>
+                  <li>• Sistema de alertas e acompanhamento</li>
+                  <li>• Melhores práticas de entrada de dados</li>
                 </>
               ) : (
                 <>
                   <li>• Como navegar pelos dashboards</li>
-                  <li>• Visualização de relatórios financeiros</li>
-                  <li>• Análise de métricas e KPIs</li>
-                  <li>• Interpretação de gráficos e dados</li>
+                  <li>• Visualização de indicadores financeiros</li>
+                  <li>• Análise de métricas e performance</li>
+                  <li>• Interpretação de gráficos e relatórios</li>
                 </>
               )}
             </ul>
