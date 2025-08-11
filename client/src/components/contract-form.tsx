@@ -164,7 +164,7 @@ export default function ContractForm({ onSubmit, defaultValues, isLoading }: Con
                     type="number" 
                     step="0.01"
                     placeholder="0,00" 
-                    className="bg-blue-600/30 border-blue-400/30 text-blue-900 placeholder:text-blue-400"
+                    className="bg-blue-800 border-blue-600 text-white placeholder:text-blue-300"
                     {...field} 
                   />
                 </FormControl>
