@@ -30,17 +30,27 @@ export default function Contracts() {
     queryKey: ["/api/contracts"],
     refetchOnMount: true,
     refetchOnWindowFocus: true,
-    staleTime: 0,
-    gcTime: 0,
-    refetchInterval: false, // Disable automatic refetch for better performance
+    staleTime: 0, // Always consider data stale
+    gcTime: 0, // Don't cache data
+    refetchInterval: false,
+    refetchOnReconnect: true, // Refetch when reconnecting
+    networkMode: "always", // Always try to fetch
   });
 
-  // Force initial refetch
+  // Force initial refetch and setup refresh mechanism
   useEffect(() => {
     const timer = setTimeout(() => {
       refetch();
     }, 100);
     return () => clearTimeout(timer);
+  }, [refetch]);
+
+  // Add refresh mechanism for external updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refetch();
+    }, 2000); // Refresh every 2 seconds to catch updates
+    return () => clearInterval(interval);
   }, [refetch]);
 
 
@@ -71,9 +81,18 @@ export default function Contracts() {
     mutationFn: async ({ id, data }: { id: string; data: Partial<InsertContract> }) => {
       return await apiRequest("PATCH", `/api/contracts/${id}`, data);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("✅ Contrato atualizado, forçando atualização da lista");
+      // Multiple cache invalidation strategies
       queryClient.invalidateQueries({ queryKey: ["/api/contracts"] });
-      refetch(); // Force immediate refetch
+      queryClient.refetchQueries({ queryKey: ["/api/contracts"] });
+      queryClient.removeQueries({ queryKey: ["/api/contracts"] });
+      
+      // Force immediate refetch with delay to ensure backend is updated
+      setTimeout(() => {
+        refetch();
+      }, 100);
+      
       setIsEditDialogOpen(false);
       setSelectedContract(null);
       toast({
