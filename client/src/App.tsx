@@ -35,16 +35,11 @@ function Router() {
       loginTime: new Date().toISOString()
     };
     localStorage.setItem('userProfile', JSON.stringify(profile));
-    console.log('Perfil salvo no localStorage:', profile);
     
-    // Usar setTimeout para garantir que o header já está montado
-    setTimeout(() => {
-      // Disparar evento customizado para notificar o header
-      window.dispatchEvent(new CustomEvent('userProfileUpdate', { 
-        detail: profile 
-      }));
-      console.log('Evento userProfileUpdate disparado');
-    }, 100);
+    // Disparar evento imediato
+    window.dispatchEvent(new CustomEvent('userProfileUpdate', { 
+      detail: profile 
+    }));
     
     setIsLoggedIn(true);
   };

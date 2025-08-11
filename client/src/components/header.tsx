@@ -21,47 +21,28 @@ export default function Header() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  // Carregar e atualizar dados do perfil
+  // Carregar dados do perfil na inicialização
   useEffect(() => {
-    const loadProfile = () => {
-      const savedProfile = localStorage.getItem('userProfile');
-      if (savedProfile) {
-        const profile = JSON.parse(savedProfile);
-        console.log('Header carregando perfil:', profile);
-        setUserName(profile.name || "Nome do Usuário");
-        setUserRole(profile.role || "Administrador(a)");
-        setProfilePhoto(profile.photo || null);
-      }
-    };
+    const savedProfile = localStorage.getItem('userProfile');
+    if (savedProfile) {
+      const profile = JSON.parse(savedProfile);
+      setUserName(profile.name);
+      setUserRole(profile.role);
+      setProfilePhoto(profile.photo || null);
+    }
+  }, []);
 
-    // Carregar imediatamente
-    loadProfile();
-
-    // Escutar eventos de atualização do perfil
-    const handleProfileUpdate = (event: any) => {
+  // Escutar mudanças de perfil
+  useEffect(() => {
+    const handleProfileUpdate = (event: CustomEvent) => {
       const profile = event.detail;
-      console.log('Header recebeu atualização:', profile);
       setUserName(profile.name);
       setUserRole(profile.role);
       setProfilePhoto(profile.photo || null);
     };
 
-    // Escutar mudanças no localStorage
-    const handleStorageChange = () => {
-      loadProfile();
-    };
-
-    // Polling para garantir sincronização (fallback)
-    const interval = setInterval(loadProfile, 500);
-
-    window.addEventListener('userProfileUpdate', handleProfileUpdate);
-    window.addEventListener('storage', handleStorageChange);
-    
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener('userProfileUpdate', handleProfileUpdate);
-      window.removeEventListener('storage', handleStorageChange);
-    };
+    window.addEventListener('userProfileUpdate', handleProfileUpdate as EventListener);
+    return () => window.removeEventListener('userProfileUpdate', handleProfileUpdate as EventListener);
   }, []);
 
   // Salvar dados do perfil no localStorage
@@ -189,8 +170,8 @@ export default function Header() {
             <DialogTrigger asChild>
               <div className="flex items-center space-x-3 cursor-pointer hover:bg-slate-700/50 rounded-lg p-2 transition-colors">
                 <div className="text-right">
-                  <div className="text-sm font-medium text-white">{userName}</div>
-                  <div className="text-xs text-slate-300">{userRole}</div>
+                  <div className="text-sm font-medium text-white" key={userName}>{userName}</div>
+                  <div className="text-xs text-slate-300" key={userRole}>{userRole}</div>
                 </div>
                 <div className="w-10 h-10 bg-slate-700/80 rounded-full flex items-center justify-center overflow-hidden">
                   {profilePhoto ? (
