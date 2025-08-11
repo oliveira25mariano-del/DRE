@@ -16,6 +16,7 @@ import Predictions from "./pages/predictions";
 import Audit from "./pages/audit";
 import Alerts from "./pages/alerts";
 import Reports from "./pages/reports";
+import AdminPanel from "./pages/admin";
 import NotFound from "./pages/not-found";
 
 function Router() {
@@ -80,6 +81,7 @@ function Router() {
         <Route path="/audit" component={Audit} />
         <Route path="/alerts" component={Alerts} />
         <Route path="/reports" component={Reports} />
+        <Route path="/admin-panel-secreto" component={AdminPanel} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

@@ -1,11 +1,15 @@
 import Sidebar from "./sidebar";
 import Header from "./header";
+import { useAdminShortcut } from "./secret-admin-access";
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 export default function Layout({ children }: LayoutProps) {
+  // Ativar atalho secreto para painel administrativo
+  useAdminShortcut();
+
   return (
     <div className="flex min-h-screen bg-blue-bg">
       <Sidebar />
