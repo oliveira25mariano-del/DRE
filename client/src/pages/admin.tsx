@@ -86,47 +86,17 @@ export default function AdminPanel() {
     },
   });
 
-  // Simular dados de usuários (substituir por API real posteriormente)
-  const mockUsers: User[] = [
-    {
-      id: "1",
-      email: "joao@empresa.com",
-      firstName: "João",
-      lastName: "Silva",
-      role: "edit",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: "2", 
-      email: "maria@empresa.com",
-      firstName: "Maria",
-      lastName: "Santos",
-      role: "visualization",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      id: "3",
-      email: "admin@empresa.com", 
-      firstName: "Admin",
-      lastName: "Sistema",
-      role: "edit",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  ];
-
-  const { data: users = mockUsers, isLoading } = useQuery({
-    queryKey: ["/api/users"],
-    queryFn: () => Promise.resolve(mockUsers),
+  const { data: users = [], isLoading, refetch } = useQuery({
+    queryKey: ["/api/admin/users"],
+    retry: false,
   });
 
   const createMutation = useMutation({
     mutationFn: async (data: UserFormData) => {
-      // Simular criação de usuário (substituir por API real)
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return data;
+      return await apiRequest("/api/admin/users", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
     },
     onSuccess: () => {
       toast({
@@ -135,11 +105,12 @@ export default function AdminPanel() {
       });
       setIsCreateDialogOpen(false);
       form.reset();
+      refetch();
     },
-    onError: () => {
+    onError: (error: any) => {
       toast({
         title: "Erro ao criar usuário",
-        description: "Ocorreu um erro ao cadastrar o usuário.",
+        description: error.message || "Ocorreu um erro ao cadastrar o usuário.",
         variant: "destructive",
       });
     },
@@ -147,9 +118,11 @@ export default function AdminPanel() {
 
   const updateMutation = useMutation({
     mutationFn: async (data: Omit<UserFormData, "password">) => {
-      // Simular atualização de usuário (substituir por API real)
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return data;
+      if (!selectedUser) throw new Error("Usuário não selecionado");
+      return await apiRequest(`/api/admin/users/${selectedUser.id}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+      });
     },
     onSuccess: () => {
       toast({
@@ -159,11 +132,12 @@ export default function AdminPanel() {
       setIsEditDialogOpen(false);
       setSelectedUser(null);
       editForm.reset();
+      refetch();
     },
-    onError: () => {
+    onError: (error: any) => {
       toast({
         title: "Erro ao atualizar usuário",
-        description: "Ocorreu um erro ao atualizar o usuário.",
+        description: error.message || "Ocorreu um erro ao atualizar o usuário.",
         variant: "destructive",
       });
     },
@@ -171,9 +145,9 @@ export default function AdminPanel() {
 
   const deleteMutation = useMutation({
     mutationFn: async (userId: string) => {
-      // Simular exclusão de usuário (substituir por API real)
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return userId;
+      return await apiRequest(`/api/admin/users/${userId}`, {
+        method: "DELETE",
+      });
     },
     onSuccess: () => {
       toast({
@@ -182,11 +156,12 @@ export default function AdminPanel() {
       });
       setIsDeleteDialogOpen(false);
       setUserToDelete(null);
+      refetch();
     },
-    onError: () => {
+    onError: (error: any) => {
       toast({
         title: "Erro ao excluir usuário",
-        description: "Ocorreu um erro ao remover o usuário.",
+        description: error.message || "Ocorreu um erro ao remover o usuário.",
         variant: "destructive",
       });
     },
