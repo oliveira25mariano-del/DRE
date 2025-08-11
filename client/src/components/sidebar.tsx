@@ -35,18 +35,18 @@ export default function Sidebar() {
       <div className="p-6">
         <div className="flex flex-col items-start space-y-3">
           <div className="flex items-center">
-            <svg width="180" height="50" viewBox="0 0 360 100" className="h-12 w-auto">
-              {/* Círculo do logo - recriando formato da imagem original */}
+            <svg width="200" height="50" viewBox="0 0 400 100" className="h-12 w-auto">
+              {/* Logo Opus - círculo com abertura como na imagem original */}
               <g>
-                {/* Semicírculo superior direito - azul mais claro */}
-                <path d="M 40 20 A 20 20 0 0 1 80 40 A 20 20 0 0 1 40 60 Z" fill="#8BA8C8" />
-                {/* Semicírculo inferior esquerdo - azul mais escuro */}
-                <path d="M 40 60 A 20 20 0 0 1 0 40 A 20 20 0 0 1 40 20 Z" fill="#6B8DB5" />
+                {/* Parte superior do círculo - azul claro */}
+                <path d="M 15 40 A 25 25 0 1 1 65 40" fill="none" stroke="#A8BDD6" strokeWidth="10" strokeLinecap="round" />
+                {/* Parte inferior do círculo - azul escuro */}
+                <path d="M 65 40 A 25 25 0 1 1 15 40" fill="none" stroke="#6B8DB5" strokeWidth="10" strokeLinecap="round" />
               </g>
-              {/* Texto "grupo" - menor e mais discreto */}
-              <text x="95" y="35" fill="#6B8DB5" fontSize="16" fontFamily="Arial, sans-serif" fontWeight="400">grupo</text>
-              {/* Texto "opus" - maior e bold */}
-              <text x="95" y="65" fill="#4A6B8A" fontSize="42" fontFamily="Arial, sans-serif" fontWeight="700">opus</text>
+              {/* Texto "grupo" */}
+              <text x="90" y="32" fill="#6B8DB5" fontSize="18" fontFamily="Arial, sans-serif" fontWeight="300">grupo</text>
+              {/* Texto "opus" */}
+              <text x="90" y="58" fill="#4A6B8A" fontSize="36" fontFamily="Arial, sans-serif" fontWeight="600">opus</text>
             </svg>
           </div>
           <div>
