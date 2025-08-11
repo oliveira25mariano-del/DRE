@@ -26,7 +26,7 @@ export default function Contracts() {
   const [contractToDelete, setContractToDelete] = useState<Contract | null>(null);
   const { toast } = useToast();
 
-  const { data: contracts = [], isLoading, refetch } = useQuery({
+  const { data: contracts = [], isLoading, refetch } = useQuery<Contract[]>({
     queryKey: ["/api/contracts"],
     refetchOnMount: true,
     refetchOnWindowFocus: true,
@@ -76,6 +76,7 @@ export default function Contracts() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/contracts"] });
+      refetch(); // Force immediate refetch
       setIsEditDialogOpen(false);
       setSelectedContract(null);
       toast({
@@ -114,15 +115,13 @@ export default function Contracts() {
     },
   });
 
-  const filteredContracts = (contracts as Contract[]).filter((contract: Contract) => {
+  const filteredContracts = contracts.filter((contract: Contract) => {
     const matchesSearch = searchTerm === "" ||
                          contract.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          contract.client.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         contract.description.toLowerCase().includes(searchTerm.toLowerCase());
+                         (contract.description && contract.description.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesCategory = !selectedCategory || selectedCategory === "all" || contract.category === selectedCategory;
     const matchesStatus = !selectedStatus || selectedStatus === "all" || contract.status === selectedStatus;
-    
-    // Debug filtering (can be removed in production)
     
     return matchesSearch && matchesCategory && matchesStatus;
   });
@@ -415,6 +414,7 @@ export default function Contracts() {
               onCancel={() => setIsEditDialogOpen(false)}
               defaultValues={{
                 ...selectedContract,
+                endDate: selectedContract.endDate || undefined,
                 categories: selectedContract.categories || [],
                 tags: selectedContract.tags || [],
                 monthlyValues: (selectedContract.monthlyValues || {}) as Record<string, string>,
