@@ -145,7 +145,17 @@ export const categories = pgTable("categories", {
 });
 
 // Insert schemas
-export const insertContractSchema = createInsertSchema(contracts).omit({
+export const insertContractSchema = createInsertSchema(contracts, {
+  startDate: z.coerce.date(),
+  endDate: z.coerce.date().optional(),
+  monthlyValue: z.coerce.string(),
+  totalValue: z.coerce.string(),
+  margin: z.coerce.string().optional(),
+  categories: z.array(z.string()).optional(),
+  tags: z.array(z.string()).optional(),
+  monthlyValues: z.record(z.string()).nullable().optional(),
+  totalValues: z.record(z.string()).nullable().optional(),
+}).omit({
   id: true,
   createdAt: true,
   updatedAt: true,

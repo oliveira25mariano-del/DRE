@@ -73,8 +73,8 @@ export default function ContractForm({ onSubmit, onCancel, defaultValues, isLoad
       startDate: new Date(),
       tags: [],
       categories: [],
-      monthlyValues: null,
-      totalValues: null,
+      monthlyValues: {},
+      totalValues: {},
       ...defaultValues,
     },
   });
@@ -154,7 +154,8 @@ export default function ContractForm({ onSubmit, onCancel, defaultValues, isLoad
                   <Input 
                     placeholder="Nome do contato principal" 
                     className="bg-blue-800 border-blue-600 text-white placeholder:text-blue-300"
-                    {...field} 
+                    {...field}
+                    value={field.value || ""}
                   />
                 </FormControl>
                 <FormMessage />
@@ -340,7 +341,8 @@ export default function ContractForm({ onSubmit, onCancel, defaultValues, isLoad
                   placeholder="Descrição detalhada do contrato" 
                   className="bg-blue-800 border-blue-600 text-white placeholder:text-blue-300"
                   rows={3}
-                  {...field} 
+                  {...field}
+                  value={field.value || ""}
                 />
               </FormControl>
               <FormMessage />
