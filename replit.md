@@ -12,6 +12,8 @@ This is a comprehensive financial management system (Sistema DRE) built with Rea
 
 **Real-time Metrics Dashboard (Aug 11, 2025):** Comprehensive real-time dashboard implemented with interactive charts using Recharts library. Features live financial KPIs with trend indicators, automated updates every 30-60 seconds, connectivity status monitoring, and ability to pause/resume real-time updates. Includes area charts for monthly trends, pie charts for contract distribution, bar charts for category performance, and line charts for KPI evolution. All data updates automatically with realistic simulated financial metrics.
 
+**Interface Customization System (Aug 11, 2025):** Complete theme personalization system implemented with lateral panel interface. Features 6 color schemes (Blue, Emerald, Purple, Orange, Red, Indigo), 4 layout options (Grid, List, Compact, Detailed), behavior settings (animations, trends display, auto-refresh), and 3 chart styles (Modern, Classic, Minimal). All preferences persist in localStorage with real-time preview and automatic application across the dashboard. Fully integrated with existing components and responsive design.
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
