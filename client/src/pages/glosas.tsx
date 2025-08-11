@@ -367,7 +367,7 @@ export default function Glosas() {
                 <SelectValue placeholder="Todos os contratos" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos os contratos</SelectItem>
+                <SelectItem value="all">Todos os contratos</SelectItem>
                 {contracts.map((contract: any) => (
                   <SelectItem key={contract.id} value={contract.id}>
                     {contract.name}
@@ -380,7 +380,7 @@ export default function Glosas() {
                 <SelectValue placeholder="Todos os status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos os status</SelectItem>
+                <SelectItem value="all">Todos os status</SelectItem>
                 <SelectItem value="pending">Pendente</SelectItem>
                 <SelectItem value="approved">Aprovada</SelectItem>
                 <SelectItem value="rejected">Rejeitada</SelectItem>

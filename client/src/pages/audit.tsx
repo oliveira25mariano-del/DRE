@@ -169,7 +169,7 @@ export default function Audit() {
                 <SelectValue placeholder="Todas as tabelas" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todas as tabelas</SelectItem>
+                <SelectItem value="all">Todas as tabelas</SelectItem>
                 {uniqueTables.map((table: string) => (
                   <SelectItem key={table} value={table}>
                     {table}
@@ -183,7 +183,7 @@ export default function Audit() {
                 <SelectValue placeholder="Todas as operações" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todas as operações</SelectItem>
+                <SelectItem value="all">Todas as operações</SelectItem>
                 <SelectItem value="POST">Criação (POST)</SelectItem>
                 <SelectItem value="PUT">Atualização (PUT)</SelectItem>
                 <SelectItem value="DELETE">Exclusão (DELETE)</SelectItem>
@@ -195,7 +195,7 @@ export default function Audit() {
                 <SelectValue placeholder="Todos os usuários" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos os usuários</SelectItem>
+                <SelectItem value="all">Todos os usuários</SelectItem>
                 {Array.from(new Set(auditLogs.map((log: any) => log.userId))).map((user: string) => (
                   <SelectItem key={user} value={user}>
                     {user}

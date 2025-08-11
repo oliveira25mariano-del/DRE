@@ -3,17 +3,17 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import Layout from "@/components/layout";
-import Dashboard from "@/pages/dashboard";
-import Contracts from "@/pages/contracts";
-import Glosas from "@/pages/glosas";
-import MOE from "@/pages/moe";
-import Fringe from "@/pages/fringe";
-import Predictions from "@/pages/predictions";
-import Audit from "@/pages/audit";
-import Alerts from "@/pages/alerts";
-import Reports from "@/pages/reports";
-import NotFound from "@/pages/not-found";
+import Layout from "./components/layout";
+import Dashboard from "./pages/dashboard";
+import Contracts from "./pages/contracts";
+import Glosas from "./pages/glosas";
+import MOE from "./pages/moe";
+import Fringe from "./pages/fringe";
+import Predictions from "./pages/predictions";
+import Audit from "./pages/audit";
+import Alerts from "./pages/alerts";
+import Reports from "./pages/reports";
+import NotFound from "./pages/not-found";
 
 function Router() {
   return (

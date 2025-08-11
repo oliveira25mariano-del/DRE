@@ -341,7 +341,7 @@ export default function Reports() {
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
-                                    <SelectItem value="">Manual</SelectItem>
+                                    <SelectItem value="all">Manual</SelectItem>
                                     <SelectItem value="daily">Diário</SelectItem>
                                     <SelectItem value="weekly">Semanal</SelectItem>
                                     <SelectItem value="monthly">Mensal</SelectItem>
@@ -481,7 +481,7 @@ export default function Reports() {
                     <SelectValue placeholder="Todos os tipos" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todos os tipos</SelectItem>
+                    <SelectItem value="all">Todos os tipos</SelectItem>
                     <SelectItem value="dre">DRE</SelectItem>
                     <SelectItem value="contracts">Contratos</SelectItem>
                     <SelectItem value="glosas">Glosas</SelectItem>
@@ -495,7 +495,7 @@ export default function Reports() {
                     <SelectValue placeholder="Todos os status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todos os status</SelectItem>
+                    <SelectItem value="all">Todos os status</SelectItem>
                     <SelectItem value="draft">Rascunho</SelectItem>
                     <SelectItem value="active">Ativo</SelectItem>
                     <SelectItem value="archived">Arquivado</SelectItem>

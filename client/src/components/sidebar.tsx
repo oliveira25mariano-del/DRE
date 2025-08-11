@@ -57,16 +57,17 @@ export default function Sidebar() {
             
             return (
               <li key={item.path}>
-                <Link href={item.path}>
-                  <a className={cn(
+                <Link 
+                  href={item.path}
+                  className={cn(
                     "flex items-center px-6 py-3 transition-colors duration-200",
                     isActive 
                       ? "text-white bg-blue-700 border-r-4 border-blue-400" 
                       : "text-blue-200 hover:bg-blue-700 hover:text-white"
-                  )}>
-                    <Icon className="w-5 h-5 mr-3" />
-                    {item.label}
-                  </a>
+                  )}
+                >
+                  <Icon className="w-5 h-5 mr-3" />
+                  {item.label}
                 </Link>
               </li>
             );
@@ -85,16 +86,17 @@ export default function Sidebar() {
             
             return (
               <li key={item.path}>
-                <Link href={item.path}>
-                  <a className={cn(
+                <Link 
+                  href={item.path}
+                  className={cn(
                     "flex items-center px-6 py-3 transition-colors duration-200",
                     isActive 
                       ? "text-white bg-blue-700 border-r-4 border-blue-400" 
                       : "text-blue-200 hover:bg-blue-700 hover:text-white"
-                  )}>
-                    <Icon className="w-5 h-5 mr-3" />
-                    {item.label}
-                  </a>
+                  )}
+                >
+                  <Icon className="w-5 h-5 mr-3" />
+                  {item.label}
                 </Link>
               </li>
             );

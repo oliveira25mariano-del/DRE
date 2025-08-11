@@ -156,7 +156,7 @@ export default function Fringe() {
                 <SelectValue placeholder="Todos os contratos" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos os contratos</SelectItem>
+                <SelectItem value="all">Todos os contratos</SelectItem>
                 {contracts.map((contract: any) => (
                   <SelectItem key={contract.id} value={contract.id}>
                     {contract.name}

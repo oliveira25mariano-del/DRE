@@ -258,7 +258,7 @@ export default function Alerts() {
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  <SelectItem value="">Nenhum contrato</SelectItem>
+                                  <SelectItem value="all">Nenhum contrato</SelectItem>
                                   {contracts.map((contract: any) => (
                                     <SelectItem key={contract.id} value={contract.id}>
                                       {contract.name}
@@ -352,7 +352,7 @@ export default function Alerts() {
                 <SelectValue placeholder="Todas as severidades" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todas as severidades</SelectItem>
+                <SelectItem value="all">Todas as severidades</SelectItem>
                 <SelectItem value="critical">Crítico</SelectItem>
                 <SelectItem value="warning">Aviso</SelectItem>
                 <SelectItem value="info">Info</SelectItem>
@@ -365,7 +365,7 @@ export default function Alerts() {
                 <SelectValue placeholder="Todos os status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos os status</SelectItem>
+                <SelectItem value="all">Todos os status</SelectItem>
                 <SelectItem value="unread">Não lidos</SelectItem>
                 <SelectItem value="read">Lidos</SelectItem>
                 <SelectItem value="unresolved">Não resolvidos</SelectItem>

@@ -392,7 +392,7 @@ export default function MOE() {
                 <SelectValue placeholder="Todos os contratos" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos os contratos</SelectItem>
+                <SelectItem value="all">Todos os contratos</SelectItem>
                 {contracts.map((contract: any) => (
                   <SelectItem key={contract.id} value={contract.id}>
                     {contract.name}
@@ -405,7 +405,7 @@ export default function MOE() {
                 <SelectValue placeholder="Todos os cargos" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos os cargos</SelectItem>
+                <SelectItem value="all">Todos os cargos</SelectItem>
                 {Array.from(new Set(employees.map((emp: Employee) => emp.position))).map((position: string) => (
                   <SelectItem key={position} value={position}>
                     {position}

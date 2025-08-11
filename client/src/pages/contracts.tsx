@@ -48,8 +48,8 @@ export default function Contracts() {
   const filteredContracts = contracts.filter((contract: Contract) => {
     const matchesSearch = contract.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          contract.client.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !selectedCategory || contract.category === selectedCategory;
-    const matchesStatus = !selectedStatus || contract.status === selectedStatus;
+    const matchesCategory = !selectedCategory || selectedCategory === "all" || contract.category === selectedCategory;
+    const matchesStatus = !selectedStatus || selectedStatus === "all" || contract.status === selectedStatus;
     
     return matchesSearch && matchesCategory && matchesStatus;
   });
@@ -136,7 +136,7 @@ export default function Contracts() {
                 <SelectValue placeholder="Todas as categorias" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todas as categorias</SelectItem>
+                <SelectItem value="all">Todas as categorias</SelectItem>
                 <SelectItem value="Desenvolvimento">Desenvolvimento</SelectItem>
                 <SelectItem value="Consultoria">Consultoria</SelectItem>
                 <SelectItem value="Suporte">Suporte</SelectItem>
@@ -147,7 +147,7 @@ export default function Contracts() {
                 <SelectValue placeholder="Todos os status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos os status</SelectItem>
+                <SelectItem value="all">Todos os status</SelectItem>
                 <SelectItem value="active">Ativo</SelectItem>
                 <SelectItem value="suspended">Suspenso</SelectItem>
                 <SelectItem value="finished">Finalizado</SelectItem>
