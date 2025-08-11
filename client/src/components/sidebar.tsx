@@ -9,26 +9,32 @@ import {
   Brain, 
   Search, 
   Bell, 
-  FileBarChart 
+  FileBarChart,
+  HelpCircle
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import opusLogo from "@assets/Logo-Grupo-Opus_1754948245317.png";
 
 const menuItems = [
-  { path: "/dashboard", label: "Dashboard", icon: BarChart3 },
-  { path: "/contracts", label: "Contratos", icon: FileText },
-  { path: "/glosas", label: "Glosas", icon: AlertTriangle },
-  { path: "/moe", label: "MOE", icon: Users },
-  { path: "/fringe", label: "Fringe Benefits", icon: UserPlus },
+  { path: "/dashboard", label: "Dashboard", icon: BarChart3, id: "sidebar-dashboard" },
+  { path: "/contracts", label: "Contratos", icon: FileText, id: "sidebar-contracts" },
+  { path: "/glosas", label: "Glosas", icon: AlertTriangle, id: "sidebar-glosas" },
+  { path: "/moe", label: "MOE", icon: Users, id: "sidebar-moe" },
+  { path: "/fringe", label: "Fringe Benefits", icon: UserPlus, id: "sidebar-fringe" },
 ];
 
 const analysisItems = [
-  { path: "/predictions", label: "Previsões ML", icon: Brain },
-  { path: "/audit", label: "Auditoria", icon: Search },
-  { path: "/alerts", label: "Alertas", icon: Bell },
-  { path: "/reports", label: "Relatórios", icon: FileBarChart },
+  { path: "/predictions", label: "Previsões ML", icon: Brain, id: "sidebar-predictions" },
+  { path: "/audit", label: "Auditoria", icon: Search, id: "sidebar-audit" },
+  { path: "/alerts", label: "Alertas", icon: Bell, id: "sidebar-alerts" },
+  { path: "/reports", label: "Relatórios", icon: FileBarChart, id: "sidebar-reports" },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  onStartOnboarding?: () => void;
+}
+
+export default function Sidebar({ onStartOnboarding }: SidebarProps) {
   const [location] = useLocation();
 
   return (
@@ -61,7 +67,7 @@ export default function Sidebar() {
             const isActive = location === item.path;
             
             return (
-              <li key={item.path}>
+              <li key={item.path} id={item.id}>
                 <Link 
                   href={item.path}
                   className={cn(
@@ -90,7 +96,7 @@ export default function Sidebar() {
             const isActive = location === item.path;
             
             return (
-              <li key={item.path}>
+              <li key={item.path} id={item.id}>
                 <Link 
                   href={item.path}
                   className={cn(
@@ -107,6 +113,19 @@ export default function Sidebar() {
             );
           })}
         </ul>
+
+        {/* Botão de Ajuda/Onboarding */}
+        <div className="px-6 py-4 mt-8 border-t border-blue-700">
+          <Button
+            onClick={onStartOnboarding}
+            variant="outline"
+            size="sm"
+            className="w-full bg-transparent border-blue-400 text-blue-100 hover:bg-blue-700 hover:text-white transition-colors"
+          >
+            <HelpCircle className="w-4 h-4 mr-2" />
+            Tour do Sistema
+          </Button>
+        </div>
       </nav>
     </div>
   );
