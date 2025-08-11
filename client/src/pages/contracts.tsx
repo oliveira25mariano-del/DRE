@@ -24,6 +24,8 @@ export default function Contracts() {
 
   const { data: contracts = [], isLoading } = useQuery({
     queryKey: ["/api/contracts"],
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 
   const createMutation = useMutation({
