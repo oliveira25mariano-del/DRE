@@ -35,11 +35,19 @@ export default function Sidebar() {
       <div className="p-6">
         <div className="flex flex-col items-start space-y-3">
           <div className="flex items-center">
-            <img 
-              src="/attached_assets/Logo-Grupo-Opus_1754947519798.png" 
-              alt="Grupo Opus" 
-              className="h-12 w-auto"
-            />
+            <svg width="160" height="48" viewBox="0 0 320 96" className="h-12 w-auto">
+              {/* Círculo do logo - versão corrigida */}
+              <g>
+                <circle cx="32" cy="32" r="28" fill="none" stroke="#7A9BC4" strokeWidth="8" 
+                        strokeDasharray="88 88" strokeDashoffset="22" transform="rotate(-90 32 32)" />
+                <circle cx="32" cy="32" r="28" fill="none" stroke="#A8BDD6" strokeWidth="8"
+                        strokeDasharray="88 88" strokeDashoffset="-66" transform="rotate(-90 32 32)" />
+              </g>
+              {/* Texto "grupo" */}
+              <text x="80" y="28" fill="#7A9BC4" fontSize="18" fontFamily="Arial, sans-serif" fontWeight="normal" letterSpacing="1px">grupo</text>
+              {/* Texto "opus" */}
+              <text x="80" y="52" fill="#5A7BA4" fontSize="32" fontFamily="Arial, sans-serif" fontWeight="bold" letterSpacing="1px">opus</text>
+            </svg>
           </div>
           <div>
             <p className="text-white text-sm font-medium">DRE - Gestão Financeira</p>
