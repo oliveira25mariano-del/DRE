@@ -102,6 +102,8 @@ export class MemStorage implements IStorage {
   }
 
   private initializeDefaultData() {
+    const now = new Date();
+    
     // Create default categories
     const defaultCategories = [
       { name: "Desenvolvimento", description: "Projetos de desenvolvimento de software", color: "#3B82F6" },
@@ -117,8 +119,173 @@ export class MemStorage implements IStorage {
       this.categories.set(id, {
         id,
         ...cat,
-        createdAt: new Date(),
+        createdAt: now,
       });
+    });
+
+    // Initialize sample contracts
+    const sampleContracts = [
+      {
+        name: "Shopping Curitiba - PR",
+        description: "Contrato de manutenção predial e facilities",
+        client: "Shopping Curitiba",
+        contact: "Edgar Nabarte",
+        category: "Manutenção",
+        categories: ["Manutenção"],
+        status: "active",
+        monthlyValue: "17600.52",
+        totalValue: "211206.24",
+        monthlyValues: {},
+        totalValues: {},
+        startDate: "2025-01-01T00:00:00.000Z",
+        tags: []
+      },
+      {
+        name: "PMOC - Hospital Regional",
+        description: "Plano de Manutenção, Operação e Controle de sistemas de climatização",
+        client: "Hospital Regional Sul",
+        contact: "Dr. Carlos Medeiros",
+        category: "PMOC",
+        categories: ["PMOC"],
+        status: "active",
+        monthlyValue: "12500.00",
+        totalValue: "150000.00",
+        monthlyValues: {},
+        totalValues: {},
+        startDate: "2025-01-15T00:00:00.000Z",
+        tags: []
+      },
+      {
+        name: "Projeto ABC - Sistema Gestão",
+        description: "Desenvolvimento de sistema de gestão empresarial",
+        client: "ABC Tecnologia",
+        contact: "João Silva",
+        category: "Desenvolvimento",
+        categories: ["Desenvolvimento"],
+        status: "active",
+        monthlyValue: "25000.00",
+        totalValue: "300000.00",
+        monthlyValues: {},
+        totalValues: {},
+        startDate: "2025-02-01T00:00:00.000Z",
+        tags: []
+      },
+      {
+        name: "Shopping Santa Maria - RS",
+        description: "Contrato de manutenção predial",
+        client: "Allos",
+        contact: "Edgar Nabarte",
+        category: "PMOC",
+        categories: ["PMOC"],
+        status: "active",
+        monthlyValue: "13500.00",
+        totalValue: "162000.00",
+        monthlyValues: {},
+        totalValues: {},
+        startDate: "2025-01-10T00:00:00.000Z",
+        tags: []
+      },
+      {
+        name: "Shopping Bauru",
+        description: "Contrato de manutenção predial",
+        client: "Shopping Bauru",
+        contact: "Gerente Facilities",
+        category: "Manutenção",
+        categories: ["Manutenção"],
+        status: "active",
+        monthlyValue: "8500.00",
+        totalValue: "102000.00",
+        monthlyValues: {},
+        totalValues: {},
+        startDate: "2025-02-15T00:00:00.000Z",
+        tags: []
+      },
+      {
+        name: "Shopping SBC",
+        description: "Contrato de facilities e manutenção",
+        client: "Shopping São Bernardo",
+        contact: "Coordenador Técnico",
+        category: "Manutenção",
+        categories: ["Manutenção"],
+        status: "active",
+        monthlyValue: "11200.00",
+        totalValue: "134400.00",
+        monthlyValues: {},
+        totalValues: {},
+        startDate: "2025-03-01T00:00:00.000Z",
+        tags: []
+      },
+      {
+        name: "Shopping Goiânia",
+        description: "Contrato de manutenção e facilities",
+        client: "Shopping Goiânia",
+        contact: "Gerente Operacional",
+        category: "Manutenção",
+        categories: ["Manutenção"],
+        status: "active",
+        monthlyValue: "9800.00",
+        totalValue: "117600.00",
+        monthlyValues: {},
+        totalValues: {},
+        startDate: "2025-02-20T00:00:00.000Z",
+        tags: []
+      },
+      {
+        name: "Shopping Cerrado",
+        description: "Serviços de manutenção predial",
+        client: "Shopping Cerrado",
+        contact: "Supervisor Técnico",
+        category: "Manutenção",
+        categories: ["Manutenção"],
+        status: "active",
+        monthlyValue: "7500.00",
+        totalValue: "90000.00",
+        monthlyValues: {},
+        totalValues: {},
+        startDate: "2025-03-10T00:00:00.000Z",
+        tags: []
+      },
+      {
+        name: "Shopping Uberlândia",
+        description: "Manutenção predial e climatização",
+        client: "Shopping Uberlândia",
+        contact: "Coordenador de Facilities",
+        category: "PMOC",
+        categories: ["PMOC"],
+        status: "active",
+        monthlyValue: "14800.00",
+        totalValue: "177600.00",
+        monthlyValues: {},
+        totalValues: {},
+        startDate: "2025-01-25T00:00:00.000Z",
+        tags: []
+      },
+      {
+        name: "Shopping Vila Lobos - SP",
+        description: "Contrato completo de facilities",
+        client: "Shopping Vila Lobos",
+        contact: "Gerente de Operações",
+        category: "Manutenção",
+        categories: ["Manutenção"],
+        status: "active",
+        monthlyValue: "19500.00",
+        totalValue: "234000.00",
+        monthlyValues: {},
+        totalValues: {},
+        startDate: "2025-01-05T00:00:00.000Z",
+        tags: []
+      }
+    ];
+
+    // Add sample contracts to storage
+    sampleContracts.forEach(contractData => {
+      const id = randomUUID();
+      this.contracts.set(id, {
+        ...contractData,
+        id,
+        createdAt: now,
+        updatedAt: now
+      } as Contract);
     });
   }
 

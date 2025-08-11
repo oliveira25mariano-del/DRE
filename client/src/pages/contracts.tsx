@@ -32,7 +32,7 @@ export default function Contracts() {
     refetchOnWindowFocus: true,
     staleTime: 0,
     gcTime: 0,
-    refetchInterval: 2000, // Refetch every 2 seconds to ensure data sync
+    refetchInterval: false, // Disable automatic refetch for better performance
   });
 
   // Force initial refetch
@@ -43,12 +43,10 @@ export default function Contracts() {
     return () => clearTimeout(timer);
   }, [refetch]);
 
-  // Debug logging
-  console.log("🔍 Debug - Contratos carregados:", {
-    quantidade: contracts.length,
-    dados: contracts,
-    carregando: isLoading
-  });
+  // Debug logging (can be removed in production)
+  if (contracts.length > 0 && !isLoading) {
+    console.log("✅ Contratos carregados com sucesso:", contracts.length);
+  }
 
   const createMutation = useMutation({
     mutationFn: async (data: InsertContract) => {
@@ -124,7 +122,7 @@ export default function Contracts() {
     const matchesCategory = !selectedCategory || selectedCategory === "all" || contract.category === selectedCategory;
     const matchesStatus = !selectedStatus || selectedStatus === "all" || contract.status === selectedStatus;
     
-    console.log(`🔍 Filtro - ${contract.name}:`, { matchesSearch, matchesCategory, matchesStatus, searchTerm, selectedCategory, selectedStatus });
+    // Debug filtering (can be removed in production)
     
     return matchesSearch && matchesCategory && matchesStatus;
   });
