@@ -1,9 +1,10 @@
 import KPICards from "@/components/kpi-cards";
 import DRETable from "@/components/dre-table";
+import RealtimeCharts from "@/components/real-time-charts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQuery } from "@tanstack/react-query";
-import { BarChart3, PieChart, Brain, Bell, CheckCircle, AlertTriangle, Clock, Info } from "lucide-react";
+import { BarChart3, PieChart, Brain, Bell, CheckCircle, AlertTriangle, Clock, Info, Activity } from "lucide-react";
 
 export default function Dashboard() {
   const { data: alerts = [] } = useQuery({
@@ -21,8 +22,12 @@ export default function Dashboard() {
     <div className="space-y-8">
       <KPICards />
 
-      <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-5 bg-blue-600/30">
+      <Tabs defaultValue="realtime" className="w-full">
+        <TabsList className="grid w-full grid-cols-6 bg-blue-600/30">
+          <TabsTrigger value="realtime" className="data-[state=active]:bg-blue-600">
+            <Activity className="w-4 h-4 mr-2" />
+            Tempo Real
+          </TabsTrigger>
           <TabsTrigger value="overview" className="data-[state=active]:bg-blue-600">Visão Geral</TabsTrigger>
           <TabsTrigger value="contracts" className="data-[state=active]:bg-blue-600">Contratos</TabsTrigger>
           <TabsTrigger value="glosas" className="data-[state=active]:bg-blue-600">Glosas</TabsTrigger>
@@ -30,6 +35,10 @@ export default function Dashboard() {
           <TabsTrigger value="predictions" className="data-[state=active]:bg-blue-600">Previsões</TabsTrigger>
         </TabsList>
 
+        <TabsContent value="realtime" className="space-y-6">
+          <RealtimeCharts />
+        </TabsContent>
+        
         <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card className="glass-effect border-blue-200/20">

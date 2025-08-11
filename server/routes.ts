@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { registerAdminRoutes } from "./adminRoutes";
 import { registerUserRoutes } from "./userRoutes";
+import { registerAnalyticsRoutes } from "./analyticsRoutes";
 import { 
   insertContractSchema, insertBudgetSchema, insertActualSchema,
   insertEmployeeSchema, insertGlosaSchema, insertPredictionSchema,
@@ -13,6 +14,9 @@ import {
 export async function registerRoutes(app: Express): Promise<Server> {
   // Register user routes
   registerUserRoutes(app);
+  
+  // Register analytics routes
+  registerAnalyticsRoutes(app);
   
   // Audit middleware
   const auditMiddleware = async (req: any, res: any, next: any) => {
