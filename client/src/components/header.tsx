@@ -40,9 +40,16 @@ export default function Header({ onLogout }: HeaderProps) {
   useEffect(() => {
     const handleProfileUpdate = (event: CustomEvent) => {
       const profile = event.detail;
-      setUserName(profile.name);
-      setUserRole(profile.role);
-      setProfilePhoto(profile.photo || null);
+      if (profile) {
+        setUserName(profile.name);
+        setUserRole(profile.role);
+        setProfilePhoto(profile.photo || null);
+      } else {
+        // Perfil foi limpo (logout)
+        setUserName("Nome do Usuário");
+        setUserRole("Administrador(a)");
+        setProfilePhoto(null);
+      }
     };
 
     window.addEventListener('userProfileUpdate', handleProfileUpdate as EventListener);
@@ -51,8 +58,18 @@ export default function Header({ onLogout }: HeaderProps) {
 
   // Salvar dados do perfil no localStorage
   const saveProfileToStorage = (name: string, role: string, photo: string | null) => {
-    const profile = { name, role, photo };
-    localStorage.setItem('userProfile', JSON.stringify(profile));
+    const savedProfile = localStorage.getItem('userProfile');
+    if (savedProfile) {
+      const existingProfile = JSON.parse(savedProfile);
+      const profile = { 
+        ...existingProfile,
+        name, 
+        role, 
+        photo,
+        loginTime: existingProfile.loginTime 
+      };
+      localStorage.setItem('userProfile', JSON.stringify(profile));
+    }
   };
 
   const unreadAlerts = (alerts as any[]).filter((alert: any) => !alert.read);
@@ -73,9 +90,10 @@ export default function Header({ onLogout }: HeaderProps) {
       description: "Você foi desconectado com sucesso.",
     });
     if (onLogout) {
-      onLogout();
+      setTimeout(() => {
+        onLogout();
+      }, 100);
     }
-    window.location.reload();
   };
 
   const handleNotificationClick = () => {
