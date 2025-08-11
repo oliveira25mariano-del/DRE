@@ -69,8 +69,8 @@ export function useAdminShortcut() {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      // Windows + M = Painel Administrativo
-      if (event.metaKey && event.key === 'm') {
+      // Ctrl + Alt + A = Painel Administrativo (funciona em todos os sistemas)
+      if (event.ctrlKey && event.altKey && event.key === 'a') {
         event.preventDefault();
         
         toast({

@@ -9,7 +9,7 @@ This is a comprehensive financial management system (Sistema DRE) built with Rea
 Preferred communication style: Simple, everyday language.
 Interface language: Portuguese (Brazil) - All system interfaces and documentation should be in Portuguese.
 User requires: Complete understanding of Replit configuration and navigation in Portuguese.
-Admin Panel Access: Windows + M shortcut for hidden administrative panel at /admin-panel-secreto
+Admin Panel Access: Ctrl + Alt + A shortcut for hidden administrative panel at /admin-panel-secreto
 
 ## System Architecture
 
