@@ -45,46 +45,27 @@ export default function Login({ onLogin, onSwitchToRegister }: LoginProps) {
         return;
       }
 
-      // Determinar dados do usuário baseado no email
+      // Determinar dados do usuário baseado no email (demo)
       let userData;
       if (email.toLowerCase().includes('admin') || email.toLowerCase().includes('joao')) {
         userData = {
           name: "João Silva",
-          role: "Administrador",
+          role: "edit", // Pode editar
           photo: null
         };
       } else if (email.toLowerCase().includes('maria')) {
         userData = {
-          name: "Maria Santos",
-          role: "Administradora",
-          photo: null
-        };
-      } else if (email.toLowerCase().includes('pedro')) {
-        userData = {
-          name: "Pedro Oliveira",
-          role: "Administrador",
-          photo: null
-        };
-      } else if (email.toLowerCase().includes('ana')) {
-        userData = {
-          name: "Ana Costa",
-          role: "Administradora",
-          photo: null
-        };
-      } else if (email.toLowerCase().includes('carlos')) {
-        userData = {
-          name: "Carlos Mendes",
-          role: "Administrador",
+          name: "Maria Santos", 
+          role: "visualization", // Somente visualização
           photo: null
         };
       } else {
-        // Extrair nome do email e criar nome completo
+        // Padrão: somente visualização
         const emailName = email.split('@')[0];
         const firstName = emailName.charAt(0).toUpperCase() + emailName.slice(1);
-        const lastName = "Silva"; // Sobrenome padrão
         userData = {
-          name: `${firstName} ${lastName}`,
-          role: "Administrador",
+          name: `${firstName} Silva`,
+          role: "visualization",
           photo: null
         };
       }

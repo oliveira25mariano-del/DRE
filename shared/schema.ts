@@ -150,7 +150,7 @@ export const users = pgTable("users", {
   email: text("email").notNull().unique(),
   password: text("password").notNull(),
   name: text("name").notNull(),
-  role: text("role").notNull().default("user"),
+  role: text("role").notNull().default("visualization"),
   company: text("company"),
   phone: text("phone"),
   profilePhoto: text("profile_photo"),
@@ -227,6 +227,9 @@ export const insertUserSchema = createInsertSchema(users, {
   email: z.string().email("Email inválido"),
   password: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
   name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
+  role: z.enum(["visualization", "edit"], {
+    required_error: "Selecione um nível de acesso",
+  }),
 }).omit({
   id: true,
   createdAt: true,

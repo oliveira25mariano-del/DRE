@@ -25,7 +25,7 @@ export function registerUserRoutes(app: Express) {
       const newUser = await storage.createUser({
         ...userData,
         password: hashedPassword,
-        role: 'user' // Papel padrão
+        role: userData.role || 'visualization' // Papel padrão
       });
 
       // Remover senha da resposta

@@ -171,7 +171,9 @@ export default function Header() {
               <div className="flex items-center space-x-3 cursor-pointer hover:bg-slate-700/50 rounded-lg p-2 transition-colors">
                 <div className="text-right">
                   <div className="text-sm font-medium text-white" key={userName}>{userName}</div>
-                  <div className="text-xs text-slate-300" key={userRole}>{userRole}</div>
+                  <div className="text-xs text-slate-300" key={userRole}>
+                    {userRole === "edit" ? "Administrador(a)" : "Somente Visualização"}
+                  </div>
                 </div>
                 <div className="w-10 h-10 bg-slate-700/80 rounded-full flex items-center justify-center overflow-hidden">
                   {profilePhoto ? (

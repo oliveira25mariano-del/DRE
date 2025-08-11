@@ -13,6 +13,7 @@ import { apiRequest } from "@/lib/queryClient";
 import ContractForm from "@/components/contract-form";
 import { type Contract, type InsertContract } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
+import { usePermissions } from "@/hooks/usePermissions";
 
 export default function Contracts() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -25,6 +26,7 @@ export default function Contracts() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [contractToDelete, setContractToDelete] = useState<Contract | null>(null);
   const { toast } = useToast();
+  const { canEdit, isVisualizationOnly } = usePermissions();
 
   const { data: contracts = [], isLoading, refetch } = useQuery<Contract[]>({
     queryKey: ["/api/contracts"],
@@ -208,9 +210,12 @@ export default function Contracts() {
                 }}
               >
                 <DialogTrigger asChild>
-                  <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                  <Button 
+                    className="bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed" 
+                    disabled={!canEdit}
+                  >
                     <Plus className="w-4 h-4 mr-2" />
-                    Novo Contrato
+                    {isVisualizationOnly ? "Visualizar Contratos" : "Novo Contrato"}
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-4xl max-h-[85vh] bg-blue-bg border-blue-400/30 overflow-hidden flex flex-col">
@@ -404,28 +409,32 @@ export default function Contracts() {
                             >
                               <Eye className="w-4 h-4" />
                             </Button>
-                            <Button 
-                              size="sm" 
-                              variant="ghost" 
-                              className="text-yellow-400 hover:text-yellow-200 hover:bg-yellow-500/20"
-                              onClick={() => {
-                                setSelectedContract(contract);
-                                setIsEditDialogOpen(true);
-                              }}
-                            >
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                            <Button 
-                              size="sm" 
-                              variant="ghost" 
-                              className="text-red-400 hover:text-red-200 hover:bg-red-500/20"
-                              onClick={() => {
-                                setContractToDelete(contract);
-                                setIsDeleteDialogOpen(true);
-                              }}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                            {canEdit && (
+                              <Button 
+                                size="sm" 
+                                variant="ghost" 
+                                className="text-yellow-400 hover:text-yellow-200 hover:bg-yellow-500/20"
+                                onClick={() => {
+                                  setSelectedContract(contract);
+                                  setIsEditDialogOpen(true);
+                                }}
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                            )}
+                            {canEdit && (
+                              <Button 
+                                size="sm" 
+                                variant="ghost" 
+                                className="text-red-400 hover:text-red-200 hover:bg-red-500/20"
+                                onClick={() => {
+                                  setContractToDelete(contract);
+                                  setIsDeleteDialogOpen(true);
+                                }}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            )}
                           </div>
                         </td>
                       </tr>

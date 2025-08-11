@@ -3,8 +3,9 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff, User, Mail, Building, Phone } from "lucide-react";
+import { Eye, EyeOff, User, Mail, Building, Phone, Shield } from "lucide-react";
 import logoPath from "@assets/Logo-Grupo-Opus_1754948245317.png";
 
 interface RegisterProps {
@@ -20,7 +21,7 @@ export default function Register({ onRegisterSuccess, onSwitchToLogin }: Registe
     confirmPassword: "",
     company: "",
     phone: "",
-    role: "user"
+    role: "visualization"
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -30,6 +31,10 @@ export default function Register({ onRegisterSuccess, onSwitchToLogin }: Registe
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSelectChange = (value: string) => {
+    setFormData(prev => ({ ...prev, role: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -199,6 +204,33 @@ export default function Register({ onRegisterSuccess, onSwitchToLogin }: Registe
                   onChange={handleChange}
                   className="pl-10"
                 />
+              </div>
+            </div>
+
+            {/* Nível de Acesso */}
+            <div className="space-y-2">
+              <Label htmlFor="role">Nível de Acesso *</Label>
+              <div className="relative">
+                <Shield className="absolute left-3 top-3 h-4 w-4 text-slate-400 z-10" />
+                <Select value={formData.role} onValueChange={handleSelectChange}>
+                  <SelectTrigger className="pl-10">
+                    <SelectValue placeholder="Selecione o nível de acesso" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="visualization">
+                      <div className="flex flex-col">
+                        <span className="font-medium">Somente Visualização</span>
+                        <span className="text-xs text-slate-500">Pode visualizar dados, mas não editar</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="edit">
+                      <div className="flex flex-col">
+                        <span className="font-medium">Edição</span>
+                        <span className="text-xs text-slate-500">Pode visualizar e editar todas as informações</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 

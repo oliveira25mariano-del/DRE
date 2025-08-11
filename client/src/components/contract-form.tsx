@@ -10,7 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { CalendarIcon, ChevronDown, Plus } from "lucide-react";
+import { CalendarIcon, ChevronDown, Plus, Eye } from "lucide-react";
+import { usePermissions } from "@/hooks/usePermissions";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -54,6 +55,7 @@ interface ContractFormProps {
 
 export default function ContractForm({ onSubmit, onCancel, defaultValues, isLoading }: ContractFormProps) {
   const [showAdditionalContract, setShowAdditionalContract] = useState(false);
+  const { canEdit, isVisualizationOnly } = usePermissions();
   const [monthlyValueFormatted, setMonthlyValueFormatted] = useState("");
   const [totalValueFormatted, setTotalValueFormatted] = useState("");
   const [monthlyValue2Formatted, setMonthlyValue2Formatted] = useState("");
@@ -483,11 +485,19 @@ export default function ContractForm({ onSubmit, onCancel, defaultValues, isLoad
             className="border-blue-400/30 text-white hover:bg-blue-600/30"
             onClick={onCancel}
           >
-            Cancelar
+            {isVisualizationOnly ? "Voltar" : "Cancelar"}
           </Button>
-          <Button type="submit" disabled={isLoading} className="bg-blue-600 hover:bg-blue-700">
-            {isLoading ? "Salvando..." : "Salvar Contrato"}
-          </Button>
+          {!isVisualizationOnly && (
+            <Button type="submit" disabled={isLoading || !canEdit} className="bg-blue-600 hover:bg-blue-700">
+              {isLoading ? "Salvando..." : "Salvar Contrato"}
+            </Button>
+          )}
+          {isVisualizationOnly && (
+            <div className="flex items-center gap-2 px-4 py-2 bg-slate-600 text-white rounded-md">
+              <Eye className="h-4 w-4" />
+              <span>Modo Somente Visualização</span>
+            </div>
+          )}
         </div>
       </form>
     </Form>
