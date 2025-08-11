@@ -21,40 +21,44 @@ export default function Header() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  // Carregar dados do perfil do localStorage ao inicializar
+  // Carregar e atualizar dados do perfil
   useEffect(() => {
-    const savedProfile = localStorage.getItem('userProfile');
-    if (savedProfile) {
-      const profile = JSON.parse(savedProfile);
-      setUserName(profile.name || "Nome do Usuário");
-      setUserRole(profile.role || "Administrador(a)");
-      setProfilePhoto(profile.photo || null);
-    }
-  }, []);
-
-  // Escutar eventos de atualização do perfil
-  useEffect(() => {
-    const handleProfileUpdate = (event: any) => {
-      const profile = event.detail;
-      setUserName(profile.name);
-      setUserRole(profile.role);
-      setProfilePhoto(profile.photo || null);
-    };
-
-    const handleStorageChange = () => {
+    const loadProfile = () => {
       const savedProfile = localStorage.getItem('userProfile');
       if (savedProfile) {
         const profile = JSON.parse(savedProfile);
+        console.log('Header carregando perfil:', profile);
         setUserName(profile.name || "Nome do Usuário");
         setUserRole(profile.role || "Administrador(a)");
         setProfilePhoto(profile.photo || null);
       }
     };
 
+    // Carregar imediatamente
+    loadProfile();
+
+    // Escutar eventos de atualização do perfil
+    const handleProfileUpdate = (event: any) => {
+      const profile = event.detail;
+      console.log('Header recebeu atualização:', profile);
+      setUserName(profile.name);
+      setUserRole(profile.role);
+      setProfilePhoto(profile.photo || null);
+    };
+
+    // Escutar mudanças no localStorage
+    const handleStorageChange = () => {
+      loadProfile();
+    };
+
+    // Polling para garantir sincronização (fallback)
+    const interval = setInterval(loadProfile, 500);
+
     window.addEventListener('userProfileUpdate', handleProfileUpdate);
     window.addEventListener('storage', handleStorageChange);
     
     return () => {
+      clearInterval(interval);
       window.removeEventListener('userProfileUpdate', handleProfileUpdate);
       window.removeEventListener('storage', handleStorageChange);
     };
