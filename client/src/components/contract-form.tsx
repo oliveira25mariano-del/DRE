@@ -112,6 +112,7 @@ export default function ContractForm({ onSubmit, defaultValues, isLoading }: Con
                     <SelectItem value="Consultoria">Consultoria</SelectItem>
                     <SelectItem value="Suporte">Suporte</SelectItem>
                     <SelectItem value="Manutenção e Facilities">Manutenção e Facilities</SelectItem>
+                    <SelectItem value="Manutenção e PMOC">Manutenção e PMOC</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />

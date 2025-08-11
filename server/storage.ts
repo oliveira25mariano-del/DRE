@@ -108,6 +108,7 @@ export class MemStorage implements IStorage {
       { name: "Consultoria", description: "Serviços de consultoria especializada", color: "#8B5CF6" },
       { name: "Suporte", description: "Suporte técnico e manutenção", color: "#F59E0B" },
       { name: "Manutenção e Facilities", description: "Serviços de manutenção e gestão de facilities", color: "#10B981" },
+      { name: "Manutenção e PMOC", description: "Plano de Manutenção, Operação e Controle", color: "#14B8A6" },
     ];
 
     defaultCategories.forEach(cat => {
