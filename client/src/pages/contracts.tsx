@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,12 +26,28 @@ export default function Contracts() {
   const [contractToDelete, setContractToDelete] = useState<Contract | null>(null);
   const { toast } = useToast();
 
-  const { data: contracts = [], isLoading } = useQuery({
+  const { data: contracts = [], isLoading, refetch } = useQuery({
     queryKey: ["/api/contracts"],
     refetchOnMount: true,
     refetchOnWindowFocus: true,
     staleTime: 0,
     gcTime: 0,
+    refetchInterval: 2000, // Refetch every 2 seconds to ensure data sync
+  });
+
+  // Force initial refetch
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      refetch();
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [refetch]);
+
+  // Debug logging
+  console.log("🔍 Debug - Contratos carregados:", {
+    quantidade: contracts.length,
+    dados: contracts,
+    carregando: isLoading
   });
 
   const createMutation = useMutation({
@@ -101,10 +117,14 @@ export default function Contracts() {
   });
 
   const filteredContracts = (contracts as Contract[]).filter((contract: Contract) => {
-    const matchesSearch = contract.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         contract.client.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = searchTerm === "" ||
+                         contract.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         contract.client.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         contract.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = !selectedCategory || selectedCategory === "all" || contract.category === selectedCategory;
     const matchesStatus = !selectedStatus || selectedStatus === "all" || contract.status === selectedStatus;
+    
+    console.log(`🔍 Filtro - ${contract.name}:`, { matchesSearch, matchesCategory, matchesStatus, searchTerm, selectedCategory, selectedStatus });
     
     return matchesSearch && matchesCategory && matchesStatus;
   });
@@ -269,6 +289,8 @@ export default function Contracts() {
               <div className="p-8 text-center text-blue-200">
                 <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
                 <p>Nenhum contrato encontrado</p>
+                <p className="text-xs mt-2">Total de contratos brutos: {contracts.length}</p>
+                <p className="text-xs">Filtros aplicados - Busca: "{searchTerm}", Categoria: "{selectedCategory}", Status: "{selectedStatus}"</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
