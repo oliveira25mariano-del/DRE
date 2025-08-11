@@ -20,6 +20,10 @@ export default function Contracts() {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [showCancelAlert, setShowCancelAlert] = useState(false);
+  const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [contractToDelete, setContractToDelete] = useState<Contract | null>(null);
   const { toast } = useToast();
 
   const { data: contracts = [], isLoading } = useQuery({
@@ -44,6 +48,50 @@ export default function Contracts() {
       toast({
         title: "Erro",
         description: "Erro ao criar contrato: " + error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<InsertContract> }) => {
+      return await apiRequest("PATCH", `/api/contracts/${id}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/contracts"] });
+      setIsEditDialogOpen(false);
+      setSelectedContract(null);
+      toast({
+        title: "Sucesso",
+        description: "Contrato atualizado com sucesso!",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro",
+        description: "Erro ao atualizar contrato: " + error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return await apiRequest("DELETE", `/api/contracts/${id}`, {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/contracts"] });
+      setIsDeleteDialogOpen(false);
+      setContractToDelete(null);
+      toast({
+        title: "Sucesso",
+        description: "Contrato excluído com sucesso!",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro",
+        description: "Erro ao excluir contrato: " + error.message,
         variant: "destructive",
       });
     },
@@ -281,13 +329,41 @@ export default function Contracts() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex space-x-2">
-                            <Button size="sm" variant="ghost" className="text-blue-400 hover:text-blue-200 hover:bg-blue-500/20">
+                            <Button 
+                              size="sm" 
+                              variant="ghost" 
+                              className="text-blue-400 hover:text-blue-200 hover:bg-blue-500/20"
+                              onClick={() => {
+                                setSelectedContract(contract);
+                                // View functionality - could open a detailed view modal
+                                toast({
+                                  title: "Visualização",
+                                  description: `Visualizando contrato: ${contract.name}`,
+                                });
+                              }}
+                            >
                               <Eye className="w-4 h-4" />
                             </Button>
-                            <Button size="sm" variant="ghost" className="text-yellow-400 hover:text-yellow-200 hover:bg-yellow-500/20">
+                            <Button 
+                              size="sm" 
+                              variant="ghost" 
+                              className="text-yellow-400 hover:text-yellow-200 hover:bg-yellow-500/20"
+                              onClick={() => {
+                                setSelectedContract(contract);
+                                setIsEditDialogOpen(true);
+                              }}
+                            >
                               <Edit className="w-4 h-4" />
                             </Button>
-                            <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-200 hover:bg-red-500/20">
+                            <Button 
+                              size="sm" 
+                              variant="ghost" 
+                              className="text-red-400 hover:text-red-200 hover:bg-red-500/20"
+                              onClick={() => {
+                                setContractToDelete(contract);
+                                setIsDeleteDialogOpen(true);
+                              }}
+                            >
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
@@ -301,6 +377,60 @@ export default function Contracts() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Edit Contract Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-slate-900 border-blue-400/30">
+          <DialogHeader>
+            <DialogTitle className="text-white">Editar Contrato</DialogTitle>
+          </DialogHeader>
+          {selectedContract && (
+            <ContractForm
+              onSubmit={(data) => {
+                updateMutation.mutate({ id: selectedContract.id, data });
+              }}
+              onCancel={() => setIsEditDialogOpen(false)}
+              initialData={selectedContract}
+              isLoading={updateMutation.isPending}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent className="bg-slate-900 border-red-400/30">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">Confirmar Exclusão</AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-300">
+              Tem certeza de que deseja excluir o contrato "{contractToDelete?.name}"? 
+              Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel 
+              className="bg-gray-600 text-white hover:bg-gray-500"
+              onClick={() => {
+                setIsDeleteDialogOpen(false);
+                setContractToDelete(null);
+              }}
+            >
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 text-white hover:bg-red-500"
+              onClick={() => {
+                if (contractToDelete) {
+                  deleteMutation.mutate(contractToDelete.id);
+                }
+              }}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? "Excluindo..." : "Excluir"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
