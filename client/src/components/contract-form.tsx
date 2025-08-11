@@ -274,6 +274,7 @@ export default function ContractForm({ onSubmit, defaultValues, isLoading }: Con
                       disabled={(date) =>
                         date < new Date("1900-01-01")
                       }
+                      locale={ptBR}
                       initialFocus
                     />
                   </PopoverContent>
@@ -316,6 +317,7 @@ export default function ContractForm({ onSubmit, defaultValues, isLoading }: Con
                       disabled={(date) =>
                         date < new Date("1900-01-01")
                       }
+                      locale={ptBR}
                       initialFocus
                     />
                   </PopoverContent>
