@@ -23,66 +23,76 @@ export default function Login({ onLogin }: LoginProps) {
 
     // Simular autenticação
     setTimeout(() => {
-      if (email && password) {
-        // Determinar dados do usuário baseado no email
-        let userData;
-        if (email.toLowerCase().includes('admin') || email.toLowerCase().includes('joao')) {
-          userData = {
-            name: "João Silva",
-            role: "Administrador",
-            photo: null
-          };
-        } else if (email.toLowerCase().includes('maria')) {
-          userData = {
-            name: "Maria Santos",
-            role: "Administradora",
-            photo: null
-          };
-        } else if (email.toLowerCase().includes('pedro')) {
-          userData = {
-            name: "Pedro Oliveira",
-            role: "Administrador",
-            photo: null
-          };
-        } else if (email.toLowerCase().includes('ana')) {
-          userData = {
-            name: "Ana Costa",
-            role: "Administradora",
-            photo: null
-          };
-        } else if (email.toLowerCase().includes('carlos')) {
-          userData = {
-            name: "Carlos Mendes",
-            role: "Administrador",
-            photo: null
-          };
-        } else {
-          // Extrair nome do email e criar nome completo
-          const emailName = email.split('@')[0];
-          const firstName = emailName.charAt(0).toUpperCase() + emailName.slice(1);
-          const lastName = "Silva"; // Sobrenome padrão
-          userData = {
-            name: `${firstName} ${lastName}`,
-            role: "Administrador",
-            photo: null
-          };
-        }
-        
-        // Garantir que os dados estão corretos
-        console.log('Dados do usuário no login:', userData);
-        
-        onLogin(userData);
-        toast({
-          title: "Login realizado",
-          description: `Bem-vindo, ${userData.name}!`,
-        });
-      } else {
+      if (!email || !password) {
         toast({
           title: "Erro no login",
           description: "Por favor, preencha todos os campos.",
           variant: "destructive",
         });
+        setIsLoading(false);
+        return;
       }
+
+      // Validar senha (mínimo 3 caracteres para demo)
+      if (password.length < 3) {
+        toast({
+          title: "Senha incorreta",
+          description: "A senha deve ter pelo menos 3 caracteres.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Determinar dados do usuário baseado no email
+      let userData;
+      if (email.toLowerCase().includes('admin') || email.toLowerCase().includes('joao')) {
+        userData = {
+          name: "João Silva",
+          role: "Administrador",
+          photo: null
+        };
+      } else if (email.toLowerCase().includes('maria')) {
+        userData = {
+          name: "Maria Santos",
+          role: "Administradora",
+          photo: null
+        };
+      } else if (email.toLowerCase().includes('pedro')) {
+        userData = {
+          name: "Pedro Oliveira",
+          role: "Administrador",
+          photo: null
+        };
+      } else if (email.toLowerCase().includes('ana')) {
+        userData = {
+          name: "Ana Costa",
+          role: "Administradora",
+          photo: null
+        };
+      } else if (email.toLowerCase().includes('carlos')) {
+        userData = {
+          name: "Carlos Mendes",
+          role: "Administrador",
+          photo: null
+        };
+      } else {
+        // Extrair nome do email e criar nome completo
+        const emailName = email.split('@')[0];
+        const firstName = emailName.charAt(0).toUpperCase() + emailName.slice(1);
+        const lastName = "Silva"; // Sobrenome padrão
+        userData = {
+          name: `${firstName} ${lastName}`,
+          role: "Administrador",
+          photo: null
+        };
+      }
+      
+      onLogin(userData);
+      toast({
+        title: "Login realizado",
+        description: `Bem-vindo, ${userData.name}!`,
+      });
       setIsLoading(false);
     }, 1000);
   };
