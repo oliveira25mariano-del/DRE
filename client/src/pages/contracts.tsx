@@ -45,13 +45,13 @@ export default function Contracts() {
     return () => clearTimeout(timer);
   }, [refetch]);
 
-  // Add refresh mechanism for external updates
-  useEffect(() => {
-    const interval = setInterval(() => {
-      refetch();
-    }, 2000); // Refresh every 2 seconds to catch updates
-    return () => clearInterval(interval);
-  }, [refetch]);
+  // Remove automatic refresh - will rely on manual refresh after mutations
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     refetch();
+  //   }, 2000); // Refresh every 2 seconds to catch updates
+  //   return () => clearInterval(interval);
+  // }, [refetch]);
 
 
 

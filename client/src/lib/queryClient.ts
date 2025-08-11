@@ -29,8 +29,16 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const res = await fetch(queryKey.join("/") as string, {
+    const url = queryKey.join("/") as string;
+    const cacheBuster = `${url}${url.includes('?') ? '&' : '?'}_t=${Date.now()}`;
+    
+    const res = await fetch(cacheBuster, {
       credentials: "include",
+      headers: {
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        "Pragma": "no-cache",
+        "Expires": "0"
+      },
     });
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {
