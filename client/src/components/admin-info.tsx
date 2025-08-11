@@ -25,6 +25,9 @@ export default function AdminInfo() {
             <Badge variant="secondary" className="mx-1">Alt</Badge> + 
             <Badge variant="secondary" className="mx-1">A</Badge> em qualquer tela do sistema
           </p>
+          <p className="text-blue-100 text-xs mt-1 opacity-75">
+            (Verifique o console do navegador se não funcionar)
+          </p>
         </div>
 
         <div className="bg-green-800/30 p-4 rounded-lg border border-green-600/30">

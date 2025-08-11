@@ -69,9 +69,12 @@ export function useAdminShortcut() {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      // Ctrl + Alt + A = Painel Administrativo (funciona em todos os sistemas)
-      if (event.ctrlKey && event.altKey && event.key === 'a') {
+      // Ctrl + Alt + A = Painel Administrativo
+      if (event.ctrlKey && event.altKey && (event.key === 'a' || event.key === 'A')) {
         event.preventDefault();
+        event.stopPropagation();
+        
+        console.log("Admin shortcut activated!"); // Debug
         
         toast({
           title: "🔐 Painel Administrativo",
@@ -85,7 +88,13 @@ export function useAdminShortcut() {
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    // Adicionar listener tanto para document quanto para window
+    document.addEventListener("keydown", handleKeyDown, true);
+    window.addEventListener("keydown", handleKeyDown, true);
+    
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown, true);
+      window.removeEventListener("keydown", handleKeyDown, true);
+    };
   }, [setLocation, toast]);
 }

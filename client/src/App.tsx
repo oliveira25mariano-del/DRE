@@ -18,10 +18,14 @@ import Alerts from "./pages/alerts";
 import Reports from "./pages/reports";
 import AdminPanel from "./pages/admin";
 import NotFound from "./pages/not-found";
+import { useAdminShortcut } from "./components/secret-admin-access";
 
 function Router() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
+  
+  // Ativar atalho secreto do painel administrativo
+  useAdminShortcut();
 
   // Verificar se há dados de perfil salvos (simula login persistente)
   useEffect(() => {
