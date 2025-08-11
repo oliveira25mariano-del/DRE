@@ -82,7 +82,7 @@ export default function ContractForm({ onSubmit, defaultValues, isLoading }: Con
                 <FormControl>
                   <Input 
                     placeholder="Ex: PROJ-2024-001" 
-                    className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
+                    className="bg-blue-600/30 border-blue-400/30 text-blue-900 placeholder:text-blue-400"
                     {...field} 
                   />
                 </FormControl>
@@ -100,7 +100,7 @@ export default function ContractForm({ onSubmit, defaultValues, isLoading }: Con
                 <FormControl>
                   <Input 
                     placeholder="Nome da empresa cliente" 
-                    className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
+                    className="bg-blue-600/30 border-blue-400/30 text-blue-900 placeholder:text-blue-400"
                     {...field} 
                   />
                 </FormControl>
@@ -118,7 +118,7 @@ export default function ContractForm({ onSubmit, defaultValues, isLoading }: Con
                 <FormControl>
                   <Input 
                     placeholder="Nome do contato principal" 
-                    className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
+                    className="bg-blue-600/30 border-blue-400/30 text-blue-900 placeholder:text-blue-400"
                     {...field} 
                   />
                 </FormControl>
@@ -135,8 +135,8 @@ export default function ContractForm({ onSubmit, defaultValues, isLoading }: Con
                 <FormLabel className="text-white">Categoria</FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
-                      <SelectValue placeholder="Selecione uma categoria" />
+                    <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-blue-900">
+                      <SelectValue placeholder="Selecione uma categoria" className="text-blue-900" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -164,7 +164,7 @@ export default function ContractForm({ onSubmit, defaultValues, isLoading }: Con
                     type="number" 
                     step="0.01"
                     placeholder="0,00" 
-                    className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
+                    className="bg-blue-600/30 border-blue-400/30 text-blue-900 placeholder:text-blue-400"
                     {...field} 
                   />
                 </FormControl>
@@ -184,7 +184,7 @@ export default function ContractForm({ onSubmit, defaultValues, isLoading }: Con
                     type="number" 
                     step="0.01"
                     placeholder="0,00" 
-                    className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
+                    className="bg-blue-600/30 border-blue-400/30 text-blue-900 placeholder:text-blue-400"
                     {...field} 
                   />
                 </FormControl>
@@ -287,7 +287,7 @@ export default function ContractForm({ onSubmit, defaultValues, isLoading }: Con
               <FormControl>
                 <Textarea 
                   placeholder="Descrição detalhada do contrato" 
-                  className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
+                  className="bg-blue-600/30 border-blue-400/30 text-blue-900 placeholder:text-blue-400"
                   rows={3}
                   {...field} 
                 />
@@ -319,8 +319,8 @@ export default function ContractForm({ onSubmit, defaultValues, isLoading }: Con
                 <div>
                   <label className="text-white text-sm font-medium block mb-2">Segunda Categoria</label>
                   <Select onValueChange={(value) => form.setValue("category2" as any, value)}>
-                    <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
-                      <SelectValue placeholder="Selecione categoria" />
+                    <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-blue-900">
+                      <SelectValue placeholder="Selecione categoria" className="text-blue-900" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Desenvolvimento">Desenvolvimento</SelectItem>
@@ -339,7 +339,7 @@ export default function ContractForm({ onSubmit, defaultValues, isLoading }: Con
                     type="number" 
                     step="0.01"
                     placeholder="0,00"
-                    className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
+                    className="bg-blue-600/30 border-blue-400/30 text-blue-900 placeholder:text-blue-400"
                     onChange={(e) => form.setValue("monthlyValue2" as any, e.target.value)}
                   />
                 </div>
@@ -350,7 +350,7 @@ export default function ContractForm({ onSubmit, defaultValues, isLoading }: Con
                     type="number" 
                     step="0.01"
                     placeholder="0,00"
-                    className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
+                    className="bg-blue-600/30 border-blue-400/30 text-blue-900 placeholder:text-blue-400"
                     onChange={(e) => form.setValue("totalValue2" as any, e.target.value)}
                   />
                 </div>
