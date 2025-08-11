@@ -8,6 +8,8 @@ This is a comprehensive financial management system (Sistema DRE) built with Rea
 
 **Onboarding System (Aug 11, 2025):** Interactive onboarding tour implemented for new administrative panel users. Features welcome screen, guided tour with role-based content (admin vs view-only), and focus on cadastros (registrations) and indicadores (financial indicators). Tour is compact, fits entirely on screen without scrolling, and excludes secret panel references. Includes "Tour do Sistema" button in sidebar for manual restart. User preferences persisted in localStorage.
 
+**User Management Enhancement (Aug 11, 2025):** Administrative panel user creation improved with clear role selection. Users can now choose between "Administrador" (full system access) and "Usuário" (view-only access) with visual icons and explanatory descriptions. Interface includes updated statistics, table headers, and badges using consistent "Administrador/Usuário" terminology instead of technical role names.
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
