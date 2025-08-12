@@ -36,6 +36,10 @@ export default function Glosas() {
     queryKey: ["/api/contracts"],
   });
 
+  const { data: billingData = [] } = useQuery({
+    queryKey: ["/api/billing"],
+  });
+
   const createMutation = useMutation({
     mutationFn: async (data: InsertGlosa) => {
       return await apiRequest("POST", "/api/glosas", data);
@@ -70,7 +74,7 @@ export default function Glosas() {
     },
   });
 
-  const filteredGlosas = glosas.filter((glosa: Glosa) => {
+  const filteredGlosas = (glosas as Glosa[]).filter((glosa: Glosa) => {
     const matchesSearch = glosa.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesContract = !selectedContract || glosa.contractId === selectedContract;
     const matchesStatus = !selectedStatus || glosa.status === selectedStatus;
@@ -96,7 +100,29 @@ export default function Glosas() {
     }).format(numValue);
   };
 
-  const totalGlosas = filteredGlosas.reduce((sum, glosa) => sum + parseFloat(glosa.amount), 0);
+  const totalGlosas = filteredGlosas.reduce((sum: number, glosa: Glosa) => sum + parseFloat(glosa.amount), 0);
+  const totalAttestationCosts = filteredGlosas.reduce((sum: number, glosa: Glosa) => sum + (glosa.attestationCosts ? parseFloat(glosa.attestationCosts) : 0), 0);
+  
+  // Calcular taxa de impacto na medição final baseada no faturamento total
+  const calculateImpactRate = () => {
+    // Somar total de glosas + custos de atestado de todas as glosas (não apenas filtradas)
+    const allGlosasTotal = (glosas as Glosa[]).reduce((sum: number, glosa: Glosa) => sum + parseFloat(glosa.amount), 0);
+    const allAttestationTotal = (glosas as Glosa[]).reduce((sum: number, glosa: Glosa) => sum + (glosa.attestationCosts ? parseFloat(glosa.attestationCosts) : 0), 0);
+    const totalImpact = allGlosasTotal + allAttestationTotal;
+    
+    // Calcular faturamento total dos contratos
+    const totalRevenue = (billingData as any[]).reduce((sum: number, item: any) => sum + (item.billedAmount || 0), 0);
+    
+    // Se não há faturamento, usar valor total dos contratos como base
+    let baseAmount = totalRevenue;
+    if (baseAmount === 0) {
+      baseAmount = (contracts as any[]).reduce((sum: number, contract: any) => sum + Number(contract.totalValue || 0), 0);
+    }
+    
+    if (baseAmount === 0) return "0.0";
+    
+    return ((totalImpact / baseAmount) * 100).toFixed(1);
+  };
 
   const onSubmit = (data: InsertGlosa) => {
     createMutation.mutate(data);
@@ -105,7 +131,7 @@ export default function Glosas() {
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="glass-effect border-blue-200/20">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
@@ -115,6 +141,22 @@ export default function Glosas() {
               </div>
               <div className="bg-red-500/20 p-3 rounded-full">
                 <AlertTriangle className="text-red-400 w-6 h-6" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="glass-effect border-blue-200/20">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-blue-100">Total Custos de Atestado</p>
+                <p className="text-2xl font-bold text-orange-400">
+                  {formatCurrency(totalAttestationCosts)}
+                </p>
+              </div>
+              <div className="bg-orange-500/20 p-3 rounded-full">
+                <AlertTriangle className="text-orange-400 w-6 h-6" />
               </div>
             </div>
           </CardContent>
@@ -141,14 +183,15 @@ export default function Glosas() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-blue-100">Taxa de Impacto na Medição Final</p>
-                <p className="text-2xl font-bold text-white">
-                  {filteredGlosas.length > 0 
-                    ? `${((filteredGlosas.filter(g => g.status === 'approved').length / filteredGlosas.length) * 100).toFixed(1)}%`
-                    : "0%"}
+                <p className="text-2xl font-bold text-red-400">
+                  {calculateImpactRate()}%
+                </p>
+                <p className="text-xs text-blue-300 mt-1">
+                  Baseado no faturamento total
                 </p>
               </div>
-              <div className="bg-green-500/20 p-3 rounded-full">
-                <AlertTriangle className="text-green-400 w-6 h-6" />
+              <div className="bg-red-500/20 p-3 rounded-full">
+                <AlertTriangle className="text-red-400 w-6 h-6" />
               </div>
             </div>
           </CardContent>
@@ -193,7 +236,7 @@ export default function Glosas() {
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  {contracts.map((contract: any) => (
+                                  {(contracts as any[]).map((contract: any) => (
                                     <SelectItem key={contract.id} value={contract.id}>
                                       {contract.name}
                                     </SelectItem>
@@ -237,7 +280,10 @@ export default function Glosas() {
                                   step="0.01"
                                   placeholder="0,00" 
                                   className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
-                                  {...field} 
+                                  value={field.value || ""}
+                                  onChange={field.onChange}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -389,7 +435,7 @@ export default function Glosas() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos os contratos</SelectItem>
-                {contracts.map((contract: any) => (
+                {(contracts as any[]).map((contract: any) => (
                   <SelectItem key={contract.id} value={contract.id}>
                     {contract.name}
                   </SelectItem>
