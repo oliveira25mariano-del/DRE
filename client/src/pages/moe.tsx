@@ -22,8 +22,9 @@ export default function MOE() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const { toast } = useToast();
 
-  const { data: employees = [], isLoading } = useQuery({
+  const { data: employees = [], isLoading, refetch } = useQuery({
     queryKey: ["/api/employees"],
+    refetchOnWindowFocus: true,
   });
 
   const { data: contracts = [] } = useQuery({
@@ -32,10 +33,17 @@ export default function MOE() {
 
   const createMutation = useMutation({
     mutationFn: async (data: InsertEmployee) => {
-      return await apiRequest("POST", "/api/employees", data);
+      console.log("Enviando dados:", data);
+      const result = await apiRequest("POST", "/api/employees", data);
+      console.log("Resultado:", result);
+      return result;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("Colaborador criado com sucesso:", data);
+      // Invalidar queries e forçar refetch imediato
       queryClient.invalidateQueries({ queryKey: ["/api/employees"] });
+      refetch();
+      
       form.reset({
         name: "",
         email: "",
