@@ -47,6 +47,7 @@ The platform incorporates several key features and design patterns:
 - **Mudança de Nomenclatura:** Alteração de "Faturamento" para "Provisões" em toda a interface para melhor clareza dos conceitos financeiros
 - **Modo de Apresentação Executiva:** Sistema completo com 4 slides profissionais, avanço automático configurável e controles avançados
 - **Sistema de Relatórios Avançados:** Implementação de módulo de relatórios com templates personalizáveis, filtros avançados e opções de exportação
+- **Machine Learning Preditivo:** Sistema avançado de ML com 4 modelos (predição de custos, previsão de receitas, detecção de anomalias, otimização de recursos), análise preditiva de 3-24 meses e sugestões inteligentes de otimização
 
 ### Próximas Funcionalidades Sugeridas
 **Análise Financeira Avançada:**
