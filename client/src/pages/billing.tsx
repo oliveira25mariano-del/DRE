@@ -75,6 +75,7 @@ export default function Billing() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingBilling, setEditingBilling] = useState<BillingData | null>(null);
   const [isNewBillingDialogOpen, setIsNewBillingDialogOpen] = useState(false);
+  const [isNewCostDialogOpen, setIsNewCostDialogOpen] = useState(false);
   const [selectedBilling, setSelectedBilling] = useState<BillingData | null>(null);
   const { toast } = useToast();
 
@@ -859,7 +860,7 @@ export default function Billing() {
                   </div>
                   <Button 
                     className="bg-blue-600 hover:bg-blue-700 text-white"
-                    onClick={() => {/* Add new cost entry */}}
+                    onClick={() => setIsNewCostDialogOpen(true)}
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Novo Custo
@@ -1918,6 +1919,169 @@ export default function Billing() {
                 }}
               >
                 Criar Faturamento
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* New Cost Dialog */}
+      <Dialog open={isNewCostDialogOpen} onOpenChange={setIsNewCostDialogOpen}>
+        <DialogContent className="max-w-2xl bg-blue-bg border-blue-400/30">
+          <DialogHeader>
+            <DialogTitle className="text-white">Novo Custo Direto</DialogTitle>
+            <DialogDescription className="text-blue-200">
+              Adicionar um novo registro de custo direto ao sistema.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            {/* Informações Básicas */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-white text-sm font-medium">Data</label>
+                <Input
+                  type="date"
+                  defaultValue={new Date().toISOString().split('T')[0]}
+                  className="bg-blue-600/30 border-blue-400/30 text-white"
+                />
+              </div>
+              
+              <div>
+                <label className="text-white text-sm font-medium">Categoria</label>
+                <Select>
+                  <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
+                    <SelectValue placeholder="Selecione uma categoria" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="folha">Folha</SelectItem>
+                    <SelectItem value="insumos">Insumos</SelectItem>
+                    <SelectItem value="epis">EPIs</SelectItem>
+                    <SelectItem value="ferramentas">Ferramentas</SelectItem>
+                    <SelectItem value="combustivel">Combustível</SelectItem>
+                    <SelectItem value="manutencao">Manutenção de equipamentos</SelectItem>
+                    <SelectItem value="locacao">Locação de Equipamento</SelectItem>
+                    <SelectItem value="budget">Budget Clara</SelectItem>
+                    <SelectItem value="hospedagem">Hospedagem</SelectItem>
+                    <SelectItem value="alimentacao">Alimentação</SelectItem>
+                    <SelectItem value="frete">Frete</SelectItem>
+                    <SelectItem value="escritorio">Material de escritório</SelectItem>
+                    <SelectItem value="uniformes">Uniformes</SelectItem>
+                    <SelectItem value="coffee">Coffee break</SelectItem>
+                    <SelectItem value="acoes">Ações</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-white text-sm font-medium">Contrato</label>
+                <Select>
+                  <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
+                    <SelectValue placeholder="Selecione um contrato" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="shopping-curitiba">Shopping Curitiba - PR</SelectItem>
+                    <SelectItem value="hospital-sp">Obra Hospital São Paulo</SelectItem>
+                    <SelectItem value="reformas-escritorio">Reformas Escritório Central</SelectItem>
+                    <SelectItem value="residencial-premium">Construção Residencial Premium</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <label className="text-white text-sm font-medium">Status</label>
+                <Select>
+                  <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
+                    <SelectValue placeholder="Status do custo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pendente">Pendente</SelectItem>
+                    <SelectItem value="aprovado">Aprovado</SelectItem>
+                    <SelectItem value="processando">Processando</SelectItem>
+                    <SelectItem value="pago">Pago</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div>
+              <label className="text-white text-sm font-medium">Descrição</label>
+              <Input 
+                type="text" 
+                placeholder="Descrição detalhada do custo"
+                className="bg-blue-600/30 border-blue-400/30 text-white" 
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-white text-sm font-medium">Valor (R$)</label>
+                <Input 
+                  type="number" 
+                  placeholder="0,00"
+                  className="bg-blue-600/30 border-blue-400/30 text-white" 
+                />
+              </div>
+              
+              <div>
+                <label className="text-white text-sm font-medium">Fornecedor</label>
+                <Input 
+                  type="text" 
+                  placeholder="Nome do fornecedor"
+                  className="bg-blue-600/30 border-blue-400/30 text-white" 
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="text-white text-sm font-medium">Centro de Custo</label>
+                <Input 
+                  type="text" 
+                  placeholder="CC001"
+                  className="bg-blue-600/30 border-blue-400/30 text-white" 
+                />
+              </div>
+              
+              <div>
+                <label className="text-white text-sm font-medium">Número NF</label>
+                <Input 
+                  type="text" 
+                  placeholder="Nota fiscal"
+                  className="bg-blue-600/30 border-blue-400/30 text-white" 
+                />
+              </div>
+              
+              <div>
+                <label className="text-white text-sm font-medium">Data Vencimento</label>
+                <Input
+                  type="date"
+                  className="bg-blue-600/30 border-blue-400/30 text-white"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-2 pt-4 border-t border-blue-400/20">
+              <Button 
+                type="button"
+                variant="outline"
+                className="border-blue-400/30 text-white hover:bg-blue-600/30"
+                onClick={() => setIsNewCostDialogOpen(false)}
+              >
+                Cancelar
+              </Button>
+              <Button 
+                className="bg-blue-600 hover:bg-blue-700"
+                onClick={() => {
+                  toast({
+                    title: "Custo Adicionado",
+                    description: "Novo custo direto registrado com sucesso.",
+                  });
+                  setIsNewCostDialogOpen(false);
+                }}
+              >
+                Adicionar Custo
               </Button>
             </div>
           </div>
