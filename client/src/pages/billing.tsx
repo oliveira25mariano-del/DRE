@@ -73,9 +73,74 @@ export default function Billing() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingBilling, setEditingBilling] = useState<BillingData | null>(null);
   const [isNewBillingDialogOpen, setIsNewBillingDialogOpen] = useState(false);
   const [selectedBilling, setSelectedBilling] = useState<BillingData | null>(null);
   const { toast } = useToast();
+
+  // State for edit values
+  const [editValues, setEditValues] = useState<Partial<BillingData>>({});
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  // Function to handle edit button click
+  const handleEditClick = (billing: BillingData) => {
+    setSelectedBilling(billing);
+    setEditingBilling(billing);
+    setEditValues({
+      predictedAmount: billing.predictedAmount,
+      billedAmount: billing.billedAmount,
+      receivedAmount: billing.receivedAmount,
+      glosas: billing.glosas,
+      descontoSla: billing.descontoSla,
+      vendaMoe: billing.vendaMoe,
+      outros: billing.outros,
+      efetivo: billing.efetivo,
+      fringePlanejado: billing.fringePlanejado,
+      fringeExecutado: billing.fringeExecutado,
+      status: billing.status,
+      dueDate: billing.dueDate.split('T')[0],
+      month: billing.month,
+      year: billing.year
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  // Function to handle save
+  const handleSaveEdit = async () => {
+    if (!editingBilling) return;
+    
+    setIsUpdating(true);
+    
+    try {
+      // Simulate API call with timeout
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      toast({
+        title: "Faturamento Atualizado",
+        description: "Os dados do faturamento foram atualizados com sucesso.",
+      });
+      
+      setIsEditDialogOpen(false);
+      setEditingBilling(null);
+      setEditValues({});
+    } catch (error) {
+      toast({
+        title: "Erro ao Atualizar",
+        description: "Não foi possível atualizar o faturamento. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  // Function to update edit values
+  const updateEditValue = (field: keyof BillingData, value: any) => {
+    setEditValues(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
 
   // Mock data for demonstration
   const mockBillingData: BillingData[] = [
@@ -566,10 +631,7 @@ export default function Billing() {
                               variant="ghost" 
                               size="sm" 
                               className="text-blue-300 hover:text-white"
-                              onClick={() => {
-                                setSelectedBilling(bill);
-                                setIsEditDialogOpen(true);
-                              }}
+                              onClick={() => handleEditClick(bill)}
                             >
                               <Edit className="w-4 h-4" />
                             </Button>
@@ -951,182 +1013,203 @@ export default function Billing() {
               Altere os dados de faturamento do contrato selecionado.
             </DialogDescription>
           </DialogHeader>
-          {selectedBilling && (
+          {editingBilling && (
             <div className="space-y-4">
-              {/* Dados Básicos - Linha 1 */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                <div>
-                  <label className="text-white text-xs font-medium">Contrato</label>
-                  <Input 
-                    value={selectedBilling.contractName}
-                    disabled
-                    className="bg-blue-600/30 border-blue-400/30 text-gray-400 h-8 text-sm"
-                  />
-                </div>
-                
-                <div>
-                  <label className="text-white text-xs font-medium">Mês</label>
-                  <Select defaultValue={selectedBilling.month.toString()}>
-                    <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {MONTHS.map(month => (
-                        <SelectItem key={month.value} value={month.value.toString()}>
-                          {month.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label className="text-white text-xs font-medium">Ano</label>
-                  <Select defaultValue={selectedBilling.year.toString()}>
-                    <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="2025">2025</SelectItem>
-                      <SelectItem value="2024">2024</SelectItem>
-                      <SelectItem value="2023">2023</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label className="text-white text-xs font-medium">Status</label>
-                  <Select defaultValue={selectedBilling.status}>
-                    <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="nf_emitida">NF Emitida</SelectItem>
-                      <SelectItem value="aguardando_po">Aguardando PO</SelectItem>
-                      <SelectItem value="aguardando_sla">Aguardando SLA</SelectItem>
-                      <SelectItem value="aguardando_aprovacao">Aguardando aprovação shopping</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              {/* Valores Financeiros - Linha 2 */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                <div>
-                  <label className="text-white text-xs font-medium">Valor Previsto (R$)</label>
-                  <Input 
-                    type="number" 
-                    defaultValue={selectedBilling.predictedAmount}
-                    className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm" 
-                  />
-                </div>
-
-                <div>
-                  <label className="text-white text-xs font-medium">Valor Faturado (R$)</label>
-                  <Input 
-                    type="number" 
-                    defaultValue={selectedBilling.billedAmount}
-                    className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm" 
-                  />
-                </div>
-
-                <div>
-                  <label className="text-white text-xs font-medium">Valor Recebido (R$)</label>
-                  <Input 
-                    type="number" 
-                    defaultValue={selectedBilling.receivedAmount}
-                    className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm" 
-                  />
-                </div>
-
-                <div>
-                  <label className="text-white text-xs font-medium">Data de Vencimento</label>
-                  <Input 
-                    type="date" 
-                    defaultValue={selectedBilling.dueDate}
-                    className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm" 
-                  />
-                </div>
-              </div>
-
-              {/* Custos Não Previstos - Linha 3 */}
-              <div>
-                <h3 className="text-white text-sm font-medium mb-2">Custos Não Previstos</h3>
+                {/* Dados Básicos - Linha 1 */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                   <div>
-                    <label className="text-white text-xs font-medium">Glosas (R$)</label>
+                    <label className="text-white text-xs font-medium">Contrato</label>
                     <Input 
-                      type="number" 
-                      defaultValue={selectedBilling.glosas}
-                      className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm" 
+                      value={editingBilling.contractName}
+                      disabled
+                      className="bg-blue-600/30 border-blue-400/30 text-gray-400 h-8 text-sm"
                     />
                   </div>
-                  
-                  <div>
-                    <label className="text-white text-xs font-medium">Desconto SLA (R$)</label>
-                    <Input 
-                      type="number" 
-                      defaultValue={selectedBilling.descontoSla}
-                      className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm" 
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="text-white text-xs font-medium">Venda MOE (R$)</label>
-                    <Input 
-                      type="number" 
-                      defaultValue={selectedBilling.vendaMoe}
-                      className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm" 
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="text-white text-xs font-medium">Outros (R$)</label>
-                    <Input 
-                      type="number" 
-                      defaultValue={selectedBilling.outros}
-                      className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm" 
-                    />
-                  </div>
-                </div>
-              </div>
 
-              {/* Fringe - Linha 4 */}
-              <div>
-                <h3 className="text-white text-sm font-medium mb-2">Fringe</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div>
-                    <label className="text-white text-xs font-medium">Efetivo</label>
+                    <label className="text-white text-xs font-medium">Mês</label>
+                    <Select 
+                      onValueChange={(value) => updateEditValue('month', parseInt(value))} 
+                      value={editValues.month?.toString()}
+                    >
+                      <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {MONTHS.map(month => (
+                          <SelectItem key={month.value} value={month.value.toString()}>
+                            {month.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <label className="text-white text-xs font-medium">Ano</label>
+                    <Select 
+                      onValueChange={(value) => updateEditValue('year', parseInt(value))} 
+                      value={editValues.year?.toString()}
+                    >
+                      <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="2025">2025</SelectItem>
+                        <SelectItem value="2024">2024</SelectItem>
+                        <SelectItem value="2023">2023</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <label className="text-white text-xs font-medium">Status</label>
+                    <Select 
+                      onValueChange={(value) => updateEditValue('status', value)} 
+                      value={editValues.status}
+                    >
+                      <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="nf_emitida">NF Emitida</SelectItem>
+                        <SelectItem value="aguardando_po">Aguardando PO</SelectItem>
+                        <SelectItem value="aguardando_sla">Aguardando SLA</SelectItem>
+                        <SelectItem value="aguardando_aprovacao">Aguardando aprovação shopping</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Valores Financeiros - Linha 2 */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                  <div>
+                    <label className="text-white text-xs font-medium">Valor Previsto (R$)</label>
                     <Input 
                       type="number" 
-                      defaultValue={selectedBilling.efetivo}
+                      value={editValues.predictedAmount || 0}
+                      onChange={(e) => updateEditValue('predictedAmount', parseFloat(e.target.value))}
                       className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm" 
                     />
                   </div>
-                  
+
                   <div>
-                    <label className="text-white text-xs font-medium">Fringe Planejado (R$)</label>
+                    <label className="text-white text-xs font-medium">Valor Faturado (R$)</label>
                     <Input 
                       type="number" 
-                      defaultValue={selectedBilling.fringePlanejado}
+                      value={editValues.billedAmount || 0}
+                      onChange={(e) => updateEditValue('billedAmount', parseFloat(e.target.value))}
                       className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm" 
                     />
                   </div>
-                  
+
                   <div>
-                    <label className="text-white text-xs font-medium">Fringe Executado (R$)</label>
+                    <label className="text-white text-xs font-medium">Valor Recebido (R$)</label>
                     <Input 
                       type="number" 
-                      defaultValue={selectedBilling.fringeExecutado}
+                      value={editValues.receivedAmount || 0}
+                      onChange={(e) => updateEditValue('receivedAmount', parseFloat(e.target.value))}
+                      className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm" 
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-white text-xs font-medium">Data de Vencimento</label>
+                    <Input 
+                      type="date" 
+                      value={editValues.dueDate || ''}
+                      onChange={(e) => updateEditValue('dueDate', e.target.value)}
                       className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm" 
                     />
                   </div>
                 </div>
-              </div>
+
+                {/* Custos Não Previstos - Linha 3 */}
+                <div>
+                  <h3 className="text-white text-sm font-medium mb-2">Custos Não Previstos</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <div>
+                      <label className="text-white text-xs font-medium">Glosas (R$)</label>
+                      <Input 
+                        type="number" 
+                        value={editValues.glosas || 0}
+                        onChange={(e) => updateEditValue('glosas', parseFloat(e.target.value))}
+                        className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm" 
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="text-white text-xs font-medium">Desconto SLA (R$)</label>
+                      <Input 
+                        type="number" 
+                        value={editValues.descontoSla || 0}
+                        onChange={(e) => updateEditValue('descontoSla', parseFloat(e.target.value))}
+                        className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm" 
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="text-white text-xs font-medium">Venda MOE (R$)</label>
+                      <Input 
+                        type="number" 
+                        value={editValues.vendaMoe || 0}
+                        onChange={(e) => updateEditValue('vendaMoe', parseFloat(e.target.value))}
+                        className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm" 
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="text-white text-xs font-medium">Outros (R$)</label>
+                      <Input 
+                        type="number" 
+                        value={editValues.outros || 0}
+                        onChange={(e) => updateEditValue('outros', parseFloat(e.target.value))}
+                        className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm" 
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Fringe - Linha 4 */}
+                <div>
+                  <h3 className="text-white text-sm font-medium mb-2">Fringe</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div>
+                      <label className="text-white text-xs font-medium">Efetivo</label>
+                      <Input 
+                        type="number" 
+                        value={editValues.efetivo || 0}
+                        onChange={(e) => updateEditValue('efetivo', parseInt(e.target.value))}
+                        className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm" 
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="text-white text-xs font-medium">Fringe Planejado (R$)</label>
+                      <Input 
+                        type="number" 
+                        value={editValues.fringePlanejado || 0}
+                        onChange={(e) => updateEditValue('fringePlanejado', parseFloat(e.target.value))}
+                        className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm" 
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="text-white text-xs font-medium">Fringe Executado (R$)</label>
+                      <Input 
+                        type="number" 
+                        value={editValues.fringeExecutado || 0}
+                        onChange={(e) => updateEditValue('fringeExecutado', parseFloat(e.target.value))}
+                        className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm" 
+                      />
+                    </div>
+                  </div>
+                </div>
 
               {/* Botões */}
               <div className="flex justify-end space-x-2 pt-3 border-t border-blue-400/20">
                 <Button 
+                  type="button"
                   variant="outline"
                   size="sm"
                   className="border-blue-400/30 text-white hover:bg-blue-600/30"
@@ -1136,16 +1219,11 @@ export default function Billing() {
                 </Button>
                 <Button 
                   size="sm"
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                  onClick={() => {
-                    toast({
-                      title: "Faturamento Atualizado",
-                      description: "Os dados do faturamento foram atualizados com sucesso.",
-                    });
-                    setIsEditDialogOpen(false);
-                  }}
+                  disabled={isUpdating}
+                  className="bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
+                  onClick={handleSaveEdit}
                 >
-                  Salvar Alterações
+                  {isUpdating ? "Salvando..." : "Salvar Alterações"}
                 </Button>
               </div>
             </div>
