@@ -259,4 +259,41 @@ export type InsertReport = z.infer<typeof insertReportSchema>;
 export type Category = typeof categories.$inferSelect;
 export type InsertCategory = z.infer<typeof insertCategorySchema>;
 export type User = typeof users.$inferSelect;
+
+// Tabela de preferências de notificação
+export const notificationPreferences = pgTable("notification_preferences", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  type: varchar("type").notNull(), // 'financial', 'system', 'contract', 'budget', 'alert'
+  category: varchar("category").notNull(),
+  enabled: boolean("enabled").default(true),
+  channels: jsonb("channels").notNull(), // ['email', 'push', 'sms', 'dashboard']
+  threshold: decimal("threshold", { precision: 12, scale: 2 }),
+  conditions: jsonb("conditions").notNull().default('{}'),
+  customMessage: varchar("custom_message"),
+  priority: varchar("priority").notNull().default('medium'), // 'low', 'medium', 'high', 'urgent'
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Tabela de histórico de notificações
+export const notificationHistory = pgTable("notification_history", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  type: varchar("type").notNull(),
+  category: varchar("category").notNull(),
+  title: varchar("title").notNull(),
+  message: text("message").notNull(),
+  channel: varchar("channel").notNull(), // 'email', 'push', 'sms', 'dashboard'
+  priority: varchar("priority").notNull().default('medium'),
+  read: boolean("read").default(false),
+  data: jsonb("data"),
+  sentAt: timestamp("sent_at").defaultNow(),
+  readAt: timestamp("read_at"),
+});
+
+export type NotificationPreference = typeof notificationPreferences.$inferSelect;
+export type InsertNotificationPreference = typeof notificationPreferences.$inferInsert;
+export type NotificationHistory = typeof notificationHistory.$inferSelect;
+export type InsertNotificationHistory = typeof notificationHistory.$inferInsert;
 export type InsertUser = z.infer<typeof insertUserSchema>;

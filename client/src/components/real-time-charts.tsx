@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import ConnectivityStatus from "@/components/connectivity-status";
 import ThemeCustomizer from "@/components/theme-customizer";
+import NotificationSystem from "@/components/notification-system";
 import { useTheme, useThemeClasses } from "@/hooks/useTheme";
 
 // Cores do tema
@@ -107,6 +108,7 @@ export default function RealtimeCharts() {
           </div>
         </div>
         <div className="flex gap-2">
+          <NotificationSystem userRole="admin" />
           <ThemeCustomizer />
           <Button
             onClick={handleRefresh}
