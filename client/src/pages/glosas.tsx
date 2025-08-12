@@ -131,7 +131,7 @@ export default function Glosas() {
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="glass-effect border-blue-200/20">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
@@ -157,22 +157,6 @@ export default function Glosas() {
               </div>
               <div className="bg-orange-500/20 p-3 rounded-full">
                 <AlertTriangle className="text-orange-400 w-6 h-6" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="glass-effect border-blue-200/20">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-100">Glosas de Atestados</p>
-                <p className="text-2xl font-bold text-white">
-                  {filteredGlosas.filter(g => g.status === 'pending').length}
-                </p>
-              </div>
-              <div className="bg-yellow-500/20 p-3 rounded-full">
-                <AlertTriangle className="text-yellow-400 w-6 h-6" />
               </div>
             </div>
           </CardContent>
