@@ -490,7 +490,7 @@ export default function Billing() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="list" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 bg-blue-600/30">
+            <TabsList className="grid w-full grid-cols-4 bg-blue-600/30">
               <TabsTrigger value="list" className="data-[state=active]:bg-blue-600">
                 Lista
               </TabsTrigger>
@@ -499,6 +499,9 @@ export default function Billing() {
               </TabsTrigger>
               <TabsTrigger value="analysis" className="data-[state=active]:bg-blue-600">
                 Análise
+              </TabsTrigger>
+              <TabsTrigger value="provisao" className="data-[state=active]:bg-blue-600">
+                Provisão Geral
               </TabsTrigger>
             </TabsList>
 
@@ -837,6 +840,223 @@ export default function Billing() {
               </div>
             </TabsContent>
 
+            {/* Provisão Geral Tab */}
+            <TabsContent value="provisao" className="space-y-6">
+              <div className="space-y-6">
+                {/* Filtros */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-white text-sm font-medium mb-2 block">Filtrar por Contrato</label>
+                    <Select value={selectedContract} onValueChange={setSelectedContract}>
+                      <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
+                        <SelectValue placeholder="Todos os contratos" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todos os contratos</SelectItem>
+                        {[...new Set(billingData.map(b => b.contractName))].map(contractName => (
+                          <SelectItem key={contractName} value={contractName}>
+                            {contractName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <label className="text-white text-sm font-medium mb-2 block">Período</label>
+                    <Select value={selectedYear} onValueChange={setSelectedYear}>
+                      <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
+                        <SelectValue placeholder="Ano" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="2025">2025</SelectItem>
+                        <SelectItem value="2024">2024</SelectItem>
+                        <SelectItem value="2023">2023</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <label className="text-white text-sm font-medium mb-2 block">Mês</label>
+                    <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                      <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
+                        <SelectValue placeholder="Todos os meses" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todos os meses</SelectItem>
+                        {MONTHS.map(month => (
+                          <SelectItem key={month.value} value={month.value.toString()}>
+                            {month.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Cards de Provisão */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <Card className="glass-effect border-blue-200/20">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-blue-100">Faturamento Planejado</p>
+                          <p className="text-2xl font-bold text-blue-300">
+                            R$ {(filteredBilling.reduce((sum, b) => sum + b.predictedAmount, 0) / 1000).toFixed(0)}K
+                          </p>
+                          <p className="text-xs text-blue-300 mt-1">
+                            {filteredBilling.length} contrato(s)
+                          </p>
+                        </div>
+                        <div className="bg-blue-500/20 p-3 rounded-full">
+                          <Target className="text-blue-400 w-6 h-6" />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="glass-effect border-blue-200/20">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-blue-100">Projeção de Faturamento</p>
+                          <p className="text-2xl font-bold text-green-300">
+                            R$ {(filteredBilling.reduce((sum, b) => sum + b.billedAmount, 0) / 1000).toFixed(0)}K
+                          </p>
+                          <p className="text-xs text-blue-300 mt-1">
+                            Valor projetado atual
+                          </p>
+                        </div>
+                        <div className="bg-green-500/20 p-3 rounded-full">
+                          <TrendingUp className="text-green-400 w-6 h-6" />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="glass-effect border-blue-200/20">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-blue-100">Diferença (Projeção vs Planejado)</p>
+                          {(() => {
+                            const planejado = filteredBilling.reduce((sum, b) => sum + b.predictedAmount, 0);
+                            const projetado = filteredBilling.reduce((sum, b) => sum + b.billedAmount, 0);
+                            const diferenca = projetado - planejado;
+                            const isPositive = diferenca >= 0;
+                            
+                            return (
+                              <>
+                                <p className={`text-2xl font-bold ${isPositive ? 'text-green-300' : 'text-red-300'}`}>
+                                  {isPositive ? '+' : ''}R$ {(diferenca / 1000).toFixed(0)}K
+                                </p>
+                                <p className="text-xs text-blue-300 mt-1">
+                                  {isPositive ? 'Acima do planejado' : 'Abaixo do planejado'}
+                                </p>
+                              </>
+                            );
+                          })()}
+                        </div>
+                        <div className={`p-3 rounded-full ${
+                          filteredBilling.reduce((sum, b) => sum + b.billedAmount, 0) >= 
+                          filteredBilling.reduce((sum, b) => sum + b.predictedAmount, 0) 
+                            ? 'bg-green-500/20' : 'bg-red-500/20'
+                        }`}>
+                          {filteredBilling.reduce((sum, b) => sum + b.billedAmount, 0) >= 
+                           filteredBilling.reduce((sum, b) => sum + b.predictedAmount, 0) ? (
+                            <TrendingUp className="text-green-400 w-6 h-6" />
+                          ) : (
+                            <TrendingDown className="text-red-400 w-6 h-6" />
+                          )}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Tabela de Detalhamento por Contrato */}
+                <Card className="glass-effect border-blue-200/20">
+                  <CardHeader>
+                    <CardTitle className="text-white text-lg flex items-center">
+                      <BarChart3 className="w-5 h-5 mr-2" />
+                      Detalhamento por Contrato
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b border-blue-400/20">
+                            <th className="text-left py-3 px-2 text-blue-100 font-medium">Contrato</th>
+                            <th className="text-right py-3 px-2 text-blue-100 font-medium">Planejado (R$)</th>
+                            <th className="text-right py-3 px-2 text-blue-100 font-medium">Projeção (R$)</th>
+                            <th className="text-right py-3 px-2 text-blue-100 font-medium">Diferença (R$)</th>
+                            <th className="text-right py-3 px-2 text-blue-100 font-medium">Variação (%)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {[...new Set(filteredBilling.map(b => b.contractName))].map(contractName => {
+                            const contractData = filteredBilling.filter(b => b.contractName === contractName);
+                            const totalPlanejado = contractData.reduce((sum, b) => sum + b.predictedAmount, 0);
+                            const totalProjetado = contractData.reduce((sum, b) => sum + b.billedAmount, 0);
+                            const diferenca = totalProjetado - totalPlanejado;
+                            const variacao = totalPlanejado > 0 ? ((diferenca / totalPlanejado) * 100) : 0;
+                            const isPositive = diferenca >= 0;
+
+                            return (
+                              <tr key={contractName} className="border-b border-blue-400/10 hover:bg-blue-600/10">
+                                <td className="py-3 px-2 text-white font-medium">{contractName}</td>
+                                <td className="py-3 px-2 text-blue-200 text-right">
+                                  {totalPlanejado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                </td>
+                                <td className="py-3 px-2 text-blue-200 text-right">
+                                  {totalProjetado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                </td>
+                                <td className={`py-3 px-2 text-right font-medium ${isPositive ? 'text-green-300' : 'text-red-300'}`}>
+                                  {isPositive ? '+' : ''}{diferenca.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                </td>
+                                <td className={`py-3 px-2 text-right font-medium ${isPositive ? 'text-green-300' : 'text-red-300'}`}>
+                                  {isPositive ? '+' : ''}{variacao.toFixed(1)}%
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                        <tfoot>
+                          <tr className="border-t-2 border-blue-400/30 bg-blue-600/20">
+                            <td className="py-3 px-2 text-white font-bold">Total Geral</td>
+                            <td className="py-3 px-2 text-white font-bold text-right">
+                              {filteredBilling.reduce((sum, b) => sum + b.predictedAmount, 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </td>
+                            <td className="py-3 px-2 text-white font-bold text-right">
+                              {filteredBilling.reduce((sum, b) => sum + b.billedAmount, 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </td>
+                            {(() => {
+                              const totalPlanejado = filteredBilling.reduce((sum, b) => sum + b.predictedAmount, 0);
+                              const totalProjetado = filteredBilling.reduce((sum, b) => sum + b.billedAmount, 0);
+                              const diferenca = totalProjetado - totalPlanejado;
+                              const variacao = totalPlanejado > 0 ? ((diferenca / totalPlanejado) * 100) : 0;
+                              const isPositive = diferenca >= 0;
+                              
+                              return (
+                                <>
+                                  <td className={`py-3 px-2 font-bold text-right ${isPositive ? 'text-green-300' : 'text-red-300'}`}>
+                                    {isPositive ? '+' : ''}{diferenca.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                  </td>
+                                  <td className={`py-3 px-2 font-bold text-right ${isPositive ? 'text-green-300' : 'text-red-300'}`}>
+                                    {isPositive ? '+' : ''}{variacao.toFixed(1)}%
+                                  </td>
+                                </>
+                              );
+                            })()}
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
 
           </Tabs>
         </CardContent>
