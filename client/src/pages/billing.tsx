@@ -222,8 +222,8 @@ export default function Billing() {
       ));
       
       toast({
-        title: "Faturamento Atualizado",
-        description: "Os dados do faturamento foram atualizados com sucesso.",
+        title: "Provisão Atualizada",
+        description: "Os dados da provisão foram atualizados com sucesso.",
       });
       
       setIsEditDialogOpen(false);
@@ -232,7 +232,7 @@ export default function Billing() {
     } catch (error) {
       toast({
         title: "Erro ao Atualizar",
-        description: "Não foi possível atualizar o faturamento. Tente novamente.",
+        description: "Não foi possível atualizar a provisão. Tente novamente.",
         variant: "destructive",
       });
     } finally {
@@ -499,7 +499,7 @@ export default function Billing() {
             <div>
               <p className="text-sm font-medium text-blue-100">Custos Indiretos</p>
               <p className="text-2xl font-bold text-red-300">R$ {(totalIndirectCosts / 1000).toFixed(0)}K</p>
-              <p className="text-xs text-red-300 mt-1">{totalBilled > 0 ? ((totalIndirectCosts / totalBilled) * 100).toFixed(1) : 0}% do faturado</p>
+              <p className="text-xs text-red-300 mt-1">{totalBilled > 0 ? ((totalIndirectCosts / totalBilled) * 100).toFixed(1) : 0}% do provisionado</p>
             </div>
           </CardContent>
         </Card>
@@ -526,10 +526,10 @@ export default function Billing() {
             <div>
               <CardTitle className="text-lg font-semibold text-white flex items-center">
                 <FileBarChart className="w-5 h-5 mr-2" />
-                Faturamento Mensal
+                Provisões Mensais
               </CardTitle>
               <p className="text-sm text-blue-200">
-                Análise de faturamento previsto vs realizado por contrato
+                Análise de provisões previstas vs realizadas por contrato
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3">
@@ -538,7 +538,7 @@ export default function Billing() {
                 onClick={() => setIsNewBillingDialogOpen(true)}
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Novo Faturamento
+                Nova Provisão
               </Button>
               <Button 
                 variant="outline" 
@@ -572,7 +572,7 @@ export default function Billing() {
                   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
                   const link = document.createElement('a');
                   link.href = URL.createObjectURL(blob);
-                  link.download = `faturamento_${selectedYear}.csv`;
+                  link.download = `provisoes_${selectedYear}.csv`;
                   link.click();
                   
                   toast({
@@ -836,7 +836,7 @@ export default function Billing() {
                 {/* Status Distribution */}
                 <Card className="glass-effect border-blue-400/30">
                   <CardHeader>
-                    <CardTitle className="text-white text-lg">Status dos Faturamentos</CardTitle>
+                    <CardTitle className="text-white text-lg">Status das Provisões</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <ResponsiveContainer width="100%" height={300}>
@@ -870,7 +870,7 @@ export default function Billing() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="flex justify-between items-center">
-                      <span className="text-blue-200">Eficiência de Faturamento</span>
+                      <span className="text-blue-200">Eficiência de Provisão</span>
                       <div className="text-right">
                         <span className="text-white font-semibold">{billingEfficiency.toFixed(1)}%</span>
                         <Progress value={billingEfficiency} className="w-20 h-2 mt-1" />
@@ -902,13 +902,13 @@ export default function Billing() {
                     <CardTitle className="text-white text-lg">Alertas e Recomendações</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {billingData.filter(b => b.status === 'overdue').length > 0 && (
+                    {billingData.filter(b => b.utilizationRate < 90).length > 0 && (
                       <div className="flex items-start space-x-3 p-3 bg-red-500/10 rounded-lg border border-red-500/20">
                         <AlertCircle className="w-5 h-5 text-red-400 mt-0.5" />
                         <div>
-                          <p className="text-red-300 font-medium">Faturamentos Vencidos</p>
+                          <p className="text-red-300 font-medium">Provisões com Problemas</p>
                           <p className="text-red-200 text-sm">
-                            {billingData.filter(b => b.status === 'overdue').length} faturamento(s) em atraso
+                            {billingData.filter(b => b.utilizationRate < 90).length} provisão(ões) com baixo aproveitamento
                           </p>
                         </div>
                       </div>
@@ -932,7 +932,7 @@ export default function Billing() {
                         <div>
                           <p className="text-green-300 font-medium">Excelente Performance</p>
                           <p className="text-green-200 text-sm">
-                            Eficiência de faturamento acima de 95%
+                            Eficiência de provisão acima de 95%
                           </p>
                         </div>
                       </div>
@@ -1224,7 +1224,7 @@ export default function Billing() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">Todos os contratos</SelectItem>
-                        {[...new Set(billingData.map(b => b.contractName))].map(contractName => (
+                        {Array.from(new Set(billingData.map(b => b.contractName))).map(contractName => (
                           <SelectItem key={contractName} value={contractName}>
                             {contractName}
                           </SelectItem>
@@ -1366,7 +1366,7 @@ export default function Billing() {
                           </tr>
                         </thead>
                         <tbody>
-                          {[...new Set(filteredBilling.map(b => b.contractName))].map(contractName => {
+                          {Array.from(new Set(filteredBilling.map(b => b.contractName))).map(contractName => {
                             const contractData = filteredBilling.filter(b => b.contractName === contractName);
                             const totalPlanejado = contractData.reduce((sum, b) => sum + b.predictedAmount, 0);
                             const totalProjetado = contractData.reduce((sum, b) => sum + b.billedAmount, 0);
