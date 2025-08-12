@@ -17,12 +17,12 @@ import { useTheme, useThemeClasses } from "@/hooks/useTheme";
 
 // Cores do tema
 const CHART_COLORS = {
-  primary: "#3B82F6",
-  secondary: "#10B981",
-  accent: "#F59E0B",
-  danger: "#EF4444",
-  warning: "#F97316",
-  info: "#06B6D4"
+  primary: "#1E40AF",    // Azul escuro
+  secondary: "#3B82F6",  // Azul médio
+  accent: "#60A5FA",     // Azul claro
+  danger: "#2563EB",     // Azul intenso
+  warning: "#1D4ED8",    // Azul royal
+  info: "#06B6D4"       // Azul ciano (mantido para contraste)
 };
 
 interface RealtimeMetrics {
@@ -87,10 +87,20 @@ export default function RealtimeCharts() {
     return `${value.toFixed(1)}%`;
   };
 
+  // Paleta de azuis para gráfico de pizza
+  const bluesPalette = [
+    "#1E40AF", // Azul escuro
+    "#3B82F6", // Azul médio  
+    "#60A5FA", // Azul claro
+    "#2563EB", // Azul intenso
+    "#1D4ED8", // Azul royal
+    "#93C5FD", // Azul muito claro
+  ];
+
   // Dados para o gráfico de pizza (distribuição de contratos)
   const pieData = chartData?.contractDistribution.map((item, index) => ({
     ...item,
-    fill: Object.values(CHART_COLORS)[index % Object.values(CHART_COLORS).length]
+    fill: bluesPalette[index % bluesPalette.length]
   })) || [];
 
   return (
