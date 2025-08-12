@@ -88,6 +88,7 @@ function Router() {
         <Route path="/alerts" component={Alerts} />
         <Route path="/reports" component={Reports} />
         <Route path="/billing" component={Billing} />
+        <Route path="/faturamento" component={Billing} />
         <Route path="/admin-panel-secreto" component={AdminPanel} />
         <Route component={NotFound} />
       </Switch>
