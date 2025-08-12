@@ -95,7 +95,7 @@ export default function Billing() {
   // Mutation for creating new direct cost
   const createDirectCostMutation = useMutation({
     mutationFn: async (costData: any) => {
-      return apiRequest('/api/direct-costs', 'POST', costData);
+      return apiRequest('POST', '/api/direct-costs', costData);
     },
     onSuccess: () => {
       queryClientHook.invalidateQueries({ queryKey: ['/api/direct-costs'] });
@@ -143,7 +143,7 @@ export default function Billing() {
       ...newCostData,
       date: new Date(newCostData.date).toISOString(),
       dueDate: newCostData.dueDate ? new Date(newCostData.dueDate).toISOString() : null,
-      value: newCostData.value,
+      value: newCostData.value.toString(),
     };
 
     createDirectCostMutation.mutate(costPayload);
