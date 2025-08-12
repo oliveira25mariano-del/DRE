@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -81,6 +81,7 @@ export default function Billing() {
   // State for edit values
   const [editValues, setEditValues] = useState<Partial<BillingData>>({});
   const [isUpdating, setIsUpdating] = useState(false);
+  const [billingData, setBillingData] = useState<BillingData[]>([]);
 
   // Function to handle edit button click
   const handleEditClick = (billing: BillingData) => {
@@ -115,6 +116,13 @@ export default function Billing() {
       // Simulate API call with timeout
       await new Promise(resolve => setTimeout(resolve, 1000));
       
+      // Update the billing data state
+      setBillingData(prev => prev.map(bill => 
+        bill.id === editingBilling.id 
+          ? { ...bill, ...editValues }
+          : bill
+      ));
+      
       toast({
         title: "Faturamento Atualizado",
         description: "Os dados do faturamento foram atualizados com sucesso.",
@@ -142,7 +150,7 @@ export default function Billing() {
     }));
   };
 
-  // Mock data for demonstration
+  // Initialize mock data
   const mockBillingData: BillingData[] = [
     {
       id: "1",
@@ -255,9 +263,16 @@ export default function Billing() {
     queryKey: ["/api/contracts"],
   });
 
-  const billingData = mockBillingData;
+  // Initialize billing data on first render
+  useEffect(() => {
+    if (billingData.length === 0) {
+      setBillingData(mockBillingData);
+    }
+  }, []);
 
-  const filteredBilling = billingData.filter((bill) => {
+  const displayBillingData = billingData.length > 0 ? billingData : mockBillingData;
+
+  const filteredBilling = displayBillingData.filter((bill) => {
     const matchesSearch = bill.contractName.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesMonth = !selectedMonth || selectedMonth === "all" || bill.month.toString() === selectedMonth;
     const matchesYear = !selectedYear || bill.year.toString() === selectedYear;
@@ -312,7 +327,7 @@ export default function Billing() {
 
   // Chart data
   const monthlyData = MONTHS.map(month => {
-    const monthBills = billingData.filter(bill => bill.month === month.value && bill.year.toString() === selectedYear);
+    const monthBills = displayBillingData.filter(bill => bill.month === month.value && bill.year.toString() === selectedYear);
     const predicted = monthBills.reduce((sum, bill) => sum + bill.predictedAmount, 0);
     const billed = monthBills.reduce((sum, bill) => sum + bill.billedAmount, 0);
     const received = monthBills.reduce((sum, bill) => sum + bill.receivedAmount, 0);
@@ -326,10 +341,10 @@ export default function Billing() {
   });
 
   const statusData = [
-    { name: 'Recebido', value: billingData.filter(b => b.status === 'received').length, color: '#10B981' },
-    { name: 'Faturado', value: billingData.filter(b => b.status === 'billed').length, color: '#3B82F6' },
-    { name: 'Pendente', value: billingData.filter(b => b.status === 'pending').length, color: '#F59E0B' },
-    { name: 'Vencido', value: billingData.filter(b => b.status === 'overdue').length, color: '#EF4444' }
+    { name: 'NF Emitida', value: displayBillingData.filter(b => b.status === 'nf_emitida').length, color: '#10B981' },
+    { name: 'Aguardando PO', value: displayBillingData.filter(b => b.status === 'aguardando_po').length, color: '#3B82F6' },
+    { name: 'Aguardando SLA', value: displayBillingData.filter(b => b.status === 'aguardando_sla').length, color: '#F59E0B' },
+    { name: 'Aguardando Aprovação', value: displayBillingData.filter(b => b.status === 'aguardando_aprovacao').length, color: '#EF4444' }
   ];
 
   return (
@@ -670,7 +685,7 @@ export default function Billing() {
                           <div className="text-center">
                             <p className="text-sm text-blue-200">Efetivo</p>
                             <p className="text-lg font-semibold text-purple-300">
-                              {bill.efetivo.toLocaleString('pt-BR')}
+                              {bill.efetivo}
                             </p>
                           </div>
                           <div className="text-center">
@@ -1179,7 +1194,7 @@ export default function Billing() {
                   <div>
                     <label className="text-white text-xs font-medium">Efetivo</label>
                     <p className="text-purple-300 bg-blue-600/20 p-2 rounded text-sm mt-1">
-                      {selectedBilling.efetivo.toLocaleString('pt-BR')}
+                      {selectedBilling.efetivo}
                     </p>
                   </div>
                   
