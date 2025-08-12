@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import ThemeCustomizer from "./theme-customizer";
 
 interface HeaderProps {
   onLogout?: () => void;
@@ -22,6 +23,7 @@ export default function Header({ onLogout }: HeaderProps) {
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isThemeCustomizerOpen, setIsThemeCustomizerOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -185,6 +187,15 @@ export default function Header({ onLogout }: HeaderProps) {
             )}
           </div>
 
+          {/* Botão de Configurações */}
+          <button
+            onClick={() => setIsThemeCustomizerOpen(true)}
+            className="relative p-2 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded-lg transition-colors"
+            title="Personalizar Interface"
+          >
+            <Settings className="w-5 h-5" />
+          </button>
+
           {/* Perfil do Usuário */}
           <Dialog open={isProfileOpen} onOpenChange={setIsProfileOpen}>
             <DialogTrigger asChild>
@@ -312,6 +323,12 @@ export default function Header({ onLogout }: HeaderProps) {
               </div>
             </DialogContent>
           </Dialog>
+
+          {/* Theme Customizer */}
+          <ThemeCustomizer
+            isOpen={isThemeCustomizerOpen}
+            onClose={() => setIsThemeCustomizerOpen(false)}
+          />
         </div>
       </div>
     </header>

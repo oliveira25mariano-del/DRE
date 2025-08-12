@@ -1,452 +1,352 @@
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Sheet, 
-  SheetContent, 
-  SheetDescription, 
-  SheetHeader, 
-  SheetTitle, 
-  SheetTrigger 
-} from "@/components/ui/sheet";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { 
-  Palette, Settings, Layout, Monitor, Moon, Sun, 
-  Grid3X3, LayoutDashboard, LayoutGrid, Sparkles,
-  Check, RotateCcw, Save
-} from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
+import {
+  Settings,
+  Palette,
+  Layout,
+  Moon,
+  Sun,
+  Monitor,
+  Check,
+  X,
+  RotateCcw,
+  Save
+} from 'lucide-react';
 
 interface ThemeConfig {
-  colorScheme: 'default' | 'emerald' | 'purple' | 'orange' | 'red' | 'indigo';
-  layout: 'grid' | 'list' | 'compact' | 'detailed';
+  colorScheme: 'azul-padrao' | 'verde-esmeralda' | 'roxo-real' | 'laranja-vibrante' | 'vermelho-energia' | 'indigo-profundo';
+  layout: 'grid' | 'list' | 'compact';
   darkMode: boolean;
   animations: boolean;
-  chartStyle: 'modern' | 'classic' | 'minimal';
-  compactCards: boolean;
-  showTrends: boolean;
   autoRefresh: boolean;
+  compactMode: boolean;
 }
 
 const COLOR_SCHEMES = {
-  default: {
+  'azul-padrao': {
     name: 'Azul Padrão',
-    primary: '#3B82F6',
-    secondary: '#1E40AF',
-    accent: '#60A5FA',
-    background: '#0F172A'
+    colors: ['#3B82F6', '#1E40AF', '#60A5FA'],
+    css: {
+      '--primary': '220 91% 50%',
+      '--primary-foreground': '0 0% 100%',
+      '--accent': '220 91% 60%'
+    }
   },
-  emerald: {
+  'verde-esmeralda': {
     name: 'Verde Esmeralda',
-    primary: '#10B981',
-    secondary: '#059669',
-    accent: '#34D399',
-    background: '#064E3B'
+    colors: ['#10B981', '#059669', '#34D399'],
+    css: {
+      '--primary': '160 84% 39%',
+      '--primary-foreground': '0 0% 100%',
+      '--accent': '158 64% 52%'
+    }
   },
-  purple: {
+  'roxo-real': {
     name: 'Roxo Real',
-    primary: '#8B5CF6',
-    secondary: '#7C3AED',
-    accent: '#A78BFA',
-    background: '#312E81'
+    colors: ['#8B5CF6', '#7C3AED', '#A78BFA'],
+    css: {
+      '--primary': '262 83% 58%',
+      '--primary-foreground': '0 0% 100%',
+      '--accent': '262 69% 74%'
+    }
   },
-  orange: {
+  'laranja-vibrante': {
     name: 'Laranja Vibrante',
-    primary: '#F97316',
-    secondary: '#EA580C',
-    accent: '#FB923C',
-    background: '#7C2D12'
+    colors: ['#F97316', '#EA580C', '#FB923C'],
+    css: {
+      '--primary': '24 95% 53%',
+      '--primary-foreground': '0 0% 100%',
+      '--accent': '27 87% 61%'
+    }
   },
-  red: {
+  'vermelho-energia': {
     name: 'Vermelho Energia',
-    primary: '#EF4444',
-    secondary: '#DC2626',
-    accent: '#F87171',
-    background: '#7F1D1D'
+    colors: ['#EF4444', '#DC2626', '#F87171'],
+    css: {
+      '--primary': '0 84% 60%',
+      '--primary-foreground': '0 0% 100%',
+      '--accent': '0 85% 70%'
+    }
   },
-  indigo: {
+  'indigo-profundo': {
     name: 'Índigo Profundo',
-    primary: '#6366F1',
-    secondary: '#4F46E5',
-    accent: '#818CF8',
-    background: '#312E81'
+    colors: ['#6366F1', '#4F46E5', '#818CF8'],
+    css: {
+      '--primary': '239 84% 67%',
+      '--primary-foreground': '0 0% 100%',
+      '--accent': '238 69% 77%'
+    }
   }
 };
 
-const LAYOUT_OPTIONS = {
-  grid: {
-    name: 'Grade',
-    description: 'Layout em grade com cartões organizados',
-    icon: Grid3X3
-  },
-  list: {
-    name: 'Lista',
-    description: 'Layout em lista vertical',
-    icon: LayoutDashboard
-  },
-  compact: {
-    name: 'Compacto',
-    description: 'Layout compacto para mais informações',
-    icon: LayoutGrid
-  },
-  detailed: {
-    name: 'Detalhado',
-    description: 'Layout expandido com mais detalhes',
-    icon: Monitor
-  }
-};
+interface ThemeCustomizerProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
 
-export default function ThemeCustomizer() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [config, setConfig] = useState<ThemeConfig>(() => {
-    const saved = localStorage.getItem('theme-config');
-    return saved ? JSON.parse(saved) : {
-      colorScheme: 'default',
-      layout: 'grid',
-      darkMode: true,
-      animations: true,
-      chartStyle: 'modern',
-      compactCards: false,
-      showTrends: true,
-      autoRefresh: true
-    };
+const ThemeCustomizer: React.FC<ThemeCustomizerProps> = ({ isOpen, onClose }) => {
+  const [config, setConfig] = useState<ThemeConfig>({
+    colorScheme: 'azul-padrao',
+    layout: 'grid',
+    darkMode: true,
+    animations: true,
+    autoRefresh: true,
+    compactMode: false
   });
+  
+  const { toast } = useToast();
 
-  const [tempConfig, setTempConfig] = useState<ThemeConfig>(config);
-
-  // Aplicar configurações ao documento
+  // Carregar configuração salva
   useEffect(() => {
+    const savedConfig = localStorage.getItem('theme-config');
+    if (savedConfig) {
+      try {
+        const parsedConfig = JSON.parse(savedConfig);
+        setConfig(parsedConfig);
+        applyTheme(parsedConfig);
+      } catch (e) {
+        console.warn('Erro ao carregar configuração do tema:', e);
+      }
+    }
+  }, []);
+
+  const applyTheme = (themeConfig: ThemeConfig) => {
     const root = document.documentElement;
-    const scheme = COLOR_SCHEMES[config.colorScheme];
+    const scheme = COLOR_SCHEMES[themeConfig.colorScheme];
     
-    // Aplicar cores customizadas
-    root.style.setProperty('--primary-color', scheme.primary);
-    root.style.setProperty('--secondary-color', scheme.secondary);
-    root.style.setProperty('--accent-color', scheme.accent);
-    root.style.setProperty('--bg-color', scheme.background);
-    
-    // Aplicar classe de modo escuro
-    if (config.darkMode) {
+    // Aplicar cores CSS
+    Object.entries(scheme.css).forEach(([property, value]) => {
+      root.style.setProperty(property, `hsl(${value})`);
+    });
+
+    // Aplicar modo escuro
+    if (themeConfig.darkMode) {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
 
-    // Salvar no localStorage
-    localStorage.setItem('theme-config', JSON.stringify(config));
+    // Aplicar animações
+    if (!themeConfig.animations) {
+      root.style.setProperty('--animation-duration', '0s');
+    } else {
+      root.style.removeProperty('--animation-duration');
+    }
+  };
 
-    // Aplicar classe de layout
-    document.body.setAttribute('data-layout', config.layout);
-    
-    // Aplicar outras configurações
-    document.body.setAttribute('data-animations', config.animations.toString());
-    document.body.setAttribute('data-compact-cards', config.compactCards.toString());
-  }, [config]);
+  const handleConfigChange = (key: keyof ThemeConfig, value: any) => {
+    const newConfig = { ...config, [key]: value };
+    setConfig(newConfig);
+    applyTheme(newConfig);
+  };
 
   const handleSave = () => {
-    setConfig(tempConfig);
-    setIsOpen(false);
+    localStorage.setItem('theme-config', JSON.stringify(config));
+    toast({
+      title: "Configurações Salvas",
+      description: "Suas preferências de tema foram salvas com sucesso!",
+    });
+    onClose();
   };
 
   const handleReset = () => {
     const defaultConfig: ThemeConfig = {
-      colorScheme: 'default',
+      colorScheme: 'azul-padrao',
       layout: 'grid',
       darkMode: true,
       animations: true,
-      chartStyle: 'modern',
-      compactCards: false,
-      showTrends: true,
-      autoRefresh: true
+      autoRefresh: true,
+      compactMode: false
     };
-    setTempConfig(defaultConfig);
+    setConfig(defaultConfig);
+    applyTheme(defaultConfig);
+    toast({
+      title: "Configurações Restauradas",
+      description: "As configurações padrão foram restauradas.",
+    });
   };
 
-  const handleCancel = () => {
-    setTempConfig(config);
-    setIsOpen(false);
-  };
+  if (!isOpen) return null;
 
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          className="bg-blue-600/20 border-blue-400/30 text-blue-200 hover:bg-blue-600/30"
-        >
-          <Palette className="w-4 h-4 mr-2" />
-          Personalizar
-        </Button>
-      </SheetTrigger>
-      
-      <SheetContent className="w-96 bg-blue-bg border-blue-400/30 overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle className="text-white flex items-center">
-            <Settings className="w-5 h-5 mr-2" />
-            Personalização da Interface
-          </SheetTitle>
-          <SheetDescription className="text-blue-300">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto glass-effect border-blue-400/30 m-4">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+          <div className="flex items-center gap-2">
+            <Settings className="w-5 h-5 text-blue-400" />
+            <CardTitle className="text-white">Personalização da Interface</CardTitle>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            className="text-blue-200 hover:text-white hover:bg-blue-600/20"
+          >
+            <X className="w-4 h-4" />
+          </Button>
+        </CardHeader>
+        <CardContent>
+          <p className="text-blue-200 text-sm mb-6">
             Configure cores, layout e comportamento do dashboard
-          </SheetDescription>
-        </SheetHeader>
+          </p>
 
-        <div className="space-y-6 mt-6">
-          <Tabs defaultValue="colors" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 bg-blue-600/30">
-              <TabsTrigger value="colors" className="data-[state=active]:bg-blue-600">
-                <Palette className="w-4 h-4 mr-1" />
+          <Tabs defaultValue="cores" className="w-full">
+            <TabsList className="grid w-full grid-cols-3 bg-blue-600/20">
+              <TabsTrigger value="cores" className="text-blue-200">
+                <Palette className="w-4 h-4 mr-2" />
                 Cores
               </TabsTrigger>
-              <TabsTrigger value="layout" className="data-[state=active]:bg-blue-600">
-                <Layout className="w-4 h-4 mr-1" />
+              <TabsTrigger value="layout" className="text-blue-200">
+                <Layout className="w-4 h-4 mr-2" />
                 Layout
               </TabsTrigger>
-              <TabsTrigger value="behavior" className="data-[state=active]:bg-blue-600">
-                <Sparkles className="w-4 h-4 mr-1" />
+              <TabsTrigger value="opcoes" className="text-blue-200">
+                <Settings className="w-4 h-4 mr-2" />
                 Opções
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="colors" className="space-y-4">
+            <TabsContent value="cores" className="space-y-4">
               <div>
-                <Label className="text-white text-sm font-medium">Esquema de Cores</Label>
-                <div className="grid grid-cols-2 gap-2 mt-2">
+                <Label className="text-white font-medium mb-3 block">Esquema de Cores</Label>
+                <div className="grid grid-cols-2 gap-3">
                   {Object.entries(COLOR_SCHEMES).map(([key, scheme]) => (
-                    <Card
+                    <div
                       key={key}
-                      className={`cursor-pointer transition-all border-2 ${
-                        tempConfig.colorScheme === key
-                          ? 'border-white bg-blue-600/30'
-                          : 'border-blue-600/30 bg-blue-800/20 hover:bg-blue-700/30'
+                      className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                        config.colorScheme === key
+                          ? 'border-blue-400 bg-blue-600/20'
+                          : 'border-blue-400/30 hover:border-blue-400/50 hover:bg-blue-600/10'
                       }`}
-                      onClick={() => setTempConfig({ ...tempConfig, colorScheme: key as any })}
+                      onClick={() => handleConfigChange('colorScheme', key as ThemeConfig['colorScheme'])}
                     >
-                      <CardContent className="p-3">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs text-white font-medium">
-                            {scheme.name}
-                          </span>
-                          {tempConfig.colorScheme === key && (
-                            <Check className="w-3 h-3 text-green-400" />
-                          )}
-                        </div>
-                        <div className="flex gap-1">
-                          <div 
-                            className="w-4 h-4 rounded-full"
-                            style={{ backgroundColor: scheme.primary }}
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-white font-medium text-sm">{scheme.name}</span>
+                        {config.colorScheme === key && (
+                          <Check className="w-4 h-4 text-blue-400" />
+                        )}
+                      </div>
+                      <div className="flex gap-1">
+                        {scheme.colors.map((color, index) => (
+                          <div
+                            key={index}
+                            className="w-6 h-6 rounded-full border border-white/20"
+                            style={{ backgroundColor: color }}
                           />
-                          <div 
-                            className="w-4 h-4 rounded-full"
-                            style={{ backgroundColor: scheme.secondary }}
-                          />
-                          <div 
-                            className="w-4 h-4 rounded-full"
-                            style={{ backgroundColor: scheme.accent }}
-                          />
-                        </div>
-                      </CardContent>
-                    </Card>
+                        ))}
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
+            </TabsContent>
 
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  {tempConfig.darkMode ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
-                  <Label className="text-white">Modo Escuro</Label>
+            <TabsContent value="layout" className="space-y-6">
+              <div>
+                <Label className="text-white font-medium mb-3 block">Tipo de Layout</Label>
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { key: 'grid', name: 'Grade', icon: '⊞' },
+                    { key: 'list', name: 'Lista', icon: '≡' },
+                    { key: 'compact', name: 'Compacto', icon: '▦' }
+                  ].map((layout) => (
+                    <div
+                      key={layout.key}
+                      className={`p-4 rounded-lg border cursor-pointer transition-all text-center ${
+                        config.layout === layout.key
+                          ? 'border-blue-400 bg-blue-600/20'
+                          : 'border-blue-400/30 hover:border-blue-400/50 hover:bg-blue-600/10'
+                      }`}
+                      onClick={() => handleConfigChange('layout', layout.key)}
+                    >
+                      <div className="text-2xl mb-2">{layout.icon}</div>
+                      <div className="text-white text-sm">{layout.name}</div>
+                    </div>
+                  ))}
                 </div>
-                <Switch
-                  checked={tempConfig.darkMode}
-                  onCheckedChange={(checked) => 
-                    setTempConfig({ ...tempConfig, darkMode: checked })
-                  }
-                />
               </div>
             </TabsContent>
 
-            <TabsContent value="layout" className="space-y-4">
-              <div>
-                <Label className="text-white text-sm font-medium">Tipo de Layout</Label>
-                <div className="space-y-2 mt-2">
-                  {Object.entries(LAYOUT_OPTIONS).map(([key, layout]) => {
-                    const IconComponent = layout.icon;
-                    return (
-                      <Card
-                        key={key}
-                        className={`cursor-pointer transition-all border ${
-                          tempConfig.layout === key
-                            ? 'border-white bg-blue-600/30'
-                            : 'border-blue-600/30 bg-blue-800/20 hover:bg-blue-700/30'
-                        }`}
-                        onClick={() => setTempConfig({ ...tempConfig, layout: key as any })}
-                      >
-                        <CardContent className="p-3">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2">
-                              <IconComponent className="w-4 h-4 text-blue-300" />
-                              <div>
-                                <div className="text-sm text-white font-medium">
-                                  {layout.name}
-                                </div>
-                                <div className="text-xs text-blue-300">
-                                  {layout.description}
-                                </div>
-                              </div>
-                            </div>
-                            {tempConfig.layout === key && (
-                              <Check className="w-4 h-4 text-green-400" />
-                            )}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="space-y-3">
+            <TabsContent value="opcoes" className="space-y-6">
+              <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <Label className="text-white">Cartões Compactos</Label>
+                  <div className="flex items-center gap-2">
+                    <Moon className="w-4 h-4 text-blue-400" />
+                    <Label className="text-white">Modo Escuro</Label>
+                  </div>
                   <Switch
-                    checked={tempConfig.compactCards}
-                    onCheckedChange={(checked) => 
-                      setTempConfig({ ...tempConfig, compactCards: checked })
-                    }
+                    checked={config.darkMode}
+                    onCheckedChange={(checked) => handleConfigChange('darkMode', checked)}
+                    className="data-[state=checked]:bg-blue-600"
                   />
                 </div>
-              </div>
-            </TabsContent>
 
-            <TabsContent value="behavior" className="space-y-4">
-              <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <div>
+                  <div className="flex items-center gap-2">
+                    <Monitor className="w-4 h-4 text-blue-400" />
                     <Label className="text-white">Animações</Label>
-                    <div className="text-xs text-blue-300">Transições e efeitos visuais</div>
                   </div>
                   <Switch
-                    checked={tempConfig.animations}
-                    onCheckedChange={(checked) => 
-                      setTempConfig({ ...tempConfig, animations: checked })
-                    }
+                    checked={config.animations}
+                    onCheckedChange={(checked) => handleConfigChange('animations', checked)}
+                    className="data-[state=checked]:bg-blue-600"
                   />
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <div>
-                    <Label className="text-white">Mostrar Tendências</Label>
-                    <div className="text-xs text-blue-300">Indicadores de crescimento/queda</div>
-                  </div>
-                  <Switch
-                    checked={tempConfig.showTrends}
-                    onCheckedChange={(checked) => 
-                      setTempConfig({ ...tempConfig, showTrends: checked })
-                    }
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
+                  <div className="flex items-center gap-2">
+                    <RotateCcw className="w-4 h-4 text-blue-400" />
                     <Label className="text-white">Atualização Automática</Label>
-                    <div className="text-xs text-blue-300">Refresh automático dos dados</div>
                   </div>
                   <Switch
-                    checked={tempConfig.autoRefresh}
-                    onCheckedChange={(checked) => 
-                      setTempConfig({ ...tempConfig, autoRefresh: checked })
-                    }
+                    checked={config.autoRefresh}
+                    onCheckedChange={(checked) => handleConfigChange('autoRefresh', checked)}
+                    className="data-[state=checked]:bg-blue-600"
                   />
                 </div>
-              </div>
 
-              <div>
-                <Label className="text-white text-sm font-medium">Estilo dos Gráficos</Label>
-                <div className="grid grid-cols-1 gap-2 mt-2">
-                  {['modern', 'classic', 'minimal'].map((style) => (
-                    <Button
-                      key={style}
-                      variant={tempConfig.chartStyle === style ? "default" : "outline"}
-                      size="sm"
-                      className={`justify-start ${
-                        tempConfig.chartStyle === style 
-                          ? 'bg-blue-600 text-white' 
-                          : 'bg-blue-800/20 border-blue-600/30 text-blue-200 hover:bg-blue-700/30'
-                      }`}
-                      onClick={() => setTempConfig({ ...tempConfig, chartStyle: style as any })}
-                    >
-                      {style === 'modern' && 'Moderno'}
-                      {style === 'classic' && 'Clássico'}
-                      {style === 'minimal' && 'Minimalista'}
-                      {tempConfig.chartStyle === style && (
-                        <Check className="w-4 h-4 ml-auto" />
-                      )}
-                    </Button>
-                  ))}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Layout className="w-4 h-4 text-blue-400" />
+                    <Label className="text-white">Modo Compacto</Label>
+                  </div>
+                  <Switch
+                    checked={config.compactMode}
+                    onCheckedChange={(checked) => handleConfigChange('compactMode', checked)}
+                    className="data-[state=checked]:bg-blue-600"
+                  />
                 </div>
               </div>
             </TabsContent>
           </Tabs>
 
-          {/* Botões de ação */}
-          <div className="flex gap-2 pt-4 border-t border-blue-600/30">
+          {/* Botões de Ação */}
+          <div className="flex justify-between mt-8 pt-4 border-t border-blue-400/30">
+            <Button
+              variant="outline"
+              onClick={handleReset}
+              className="border-blue-400/30 text-blue-200 hover:bg-blue-600/20"
+            >
+              <RotateCcw className="w-4 h-4 mr-2" />
+              Cancelar
+            </Button>
             <Button
               onClick={handleSave}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-blue-600 hover:bg-blue-700 text-white"
             >
               <Save className="w-4 h-4 mr-2" />
               Salvar
             </Button>
-            <Button
-              onClick={handleReset}
-              variant="outline"
-              className="border-blue-600/30 text-blue-200 hover:bg-blue-700/30"
-            >
-              <RotateCcw className="w-4 h-4" />
-            </Button>
-            <Button
-              onClick={handleCancel}
-              variant="ghost"
-              className="text-blue-300 hover:bg-blue-700/30"
-            >
-              Cancelar
-            </Button>
           </div>
-
-          {/* Preview */}
-          <Card className="bg-blue-800/20 border-blue-600/30">
-            <CardHeader>
-              <CardTitle className="text-white text-sm">Preview</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-blue-300">Esquema:</span>
-                  <Badge className="text-xs">
-                    {COLOR_SCHEMES[tempConfig.colorScheme].name}
-                  </Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-blue-300">Layout:</span>
-                  <Badge className="text-xs">
-                    {LAYOUT_OPTIONS[tempConfig.layout].name}
-                  </Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-blue-300">Gráficos:</span>
-                  <Badge className="text-xs">
-                    {tempConfig.chartStyle === 'modern' && 'Moderno'}
-                    {tempConfig.chartStyle === 'classic' && 'Clássico'}
-                    {tempConfig.chartStyle === 'minimal' && 'Minimalista'}
-                  </Badge>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </SheetContent>
-    </Sheet>
+        </CardContent>
+      </Card>
+    </div>
   );
-}
+};
+
+export default ThemeCustomizer;

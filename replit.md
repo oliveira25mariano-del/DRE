@@ -50,6 +50,7 @@ The platform incorporates several key features and design patterns:
 - **Machine Learning Preditivo:** Sistema avançado de ML com 4 modelos (predição de custos, previsão de receitas, detecção de anomalias, otimização de recursos), análise preditiva de 3-24 meses e sugestões inteligentes de otimização
 - **Sistema de Integrações Externas:** Plataforma completa para conectar com sistemas contábeis (Contabilizei), bancários (Banco do Brasil), RH (Senior) e ERPs (SAP), com monitoramento de status, logs detalhados e sincronização automática
 - **Dashboard Executivo Avançado:** Interface estratégica com KPIs executivos, análise de risco, performance por contrato, filtros personalizáveis, comparações temporais e exportação de relatórios executivos em PDF
+- **Sistema de Personalização Completo:** Interface de customização com 6 esquemas de cores (Azul Padrão, Verde Esmeralda, Roxo Real, Laranja Vibrante, Vermelho Energia, Índigo Profundo), configurações de layout, modo escuro forçado e opções avançadas
 
 ### Próximas Funcionalidades Sugeridas
 **Análise Financeira Avançada:**
