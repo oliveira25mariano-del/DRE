@@ -615,7 +615,7 @@ export default function Billing() {
                           <div className="text-center">
                             <p className="text-sm text-blue-200">Efetivo</p>
                             <p className="text-lg font-semibold text-purple-300">
-                              R$ {bill.efetivo.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                              {bill.efetivo.toLocaleString('pt-BR')}
                             </p>
                           </div>
                           <div className="text-center">
@@ -907,7 +907,7 @@ export default function Billing() {
                   <div>
                     <label className="text-white text-xs font-medium">Efetivo</label>
                     <p className="text-purple-300 bg-blue-600/20 p-2 rounded text-sm mt-1">
-                      R$ {selectedBilling.efetivo.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      {selectedBilling.efetivo.toLocaleString('pt-BR')}
                     </p>
                   </div>
                   
@@ -1233,10 +1233,10 @@ export default function Billing() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="text-white text-sm font-medium">Efetivo (R$)</label>
+                <label className="text-white text-sm font-medium">Efetivo</label>
                 <Input 
                   type="number" 
-                  placeholder="0,00"
+                  placeholder="0"
                   className="bg-blue-600/30 border-blue-400/30 text-white" 
                 />
               </div>
