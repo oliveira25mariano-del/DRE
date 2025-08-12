@@ -70,6 +70,7 @@ export default function Billing() {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
   const [selectedContract, setSelectedContract] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -97,6 +98,25 @@ export default function Billing() {
     queryKey: ['/api/direct-costs'],
     staleTime: 0,
     refetchOnMount: true,
+  });
+
+  // Query to fetch contracts
+  const { data: contracts = [] } = useQuery({
+    queryKey: ['/api/contracts'],
+  });
+
+  // Filter function for direct costs
+  const filteredDirectCosts = directCosts.filter((cost: any) => {
+    const costDate = new Date(cost.date);
+    const costMonth = costDate.getMonth() + 1;
+    const costYear = costDate.getFullYear();
+
+    const matchesContract = selectedContract === 'all' || cost.contractId === selectedContract;
+    const matchesMonth = selectedMonth === 'all' || costMonth.toString() === selectedMonth;
+    const matchesYear = costYear.toString() === selectedYear;
+    const matchesCategory = selectedCategory === 'all' || cost.category === selectedCategory;
+    
+    return matchesContract && matchesMonth && matchesYear && matchesCategory;
   });
 
   // Mutation for creating new direct cost
@@ -336,10 +356,6 @@ export default function Billing() {
       fringeExecutado: 0
     }
   ];
-
-  const { data: contracts = [] } = useQuery({
-    queryKey: ["/api/contracts"],
-  });
 
   // Initialize billing data on first render
   useEffect(() => {
@@ -954,9 +970,9 @@ export default function Billing() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">Todos os contratos</SelectItem>
-                        {[...new Set(billingData.map(b => b.contractName))].map(contractName => (
-                          <SelectItem key={contractName} value={contractName}>
-                            {contractName}
+                        {contracts.map((contract: any) => (
+                          <SelectItem key={contract.id} value={contract.id}>
+                            {contract.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -996,7 +1012,7 @@ export default function Billing() {
 
                   <div>
                     <label className="text-white text-sm font-medium mb-2 block">Categoria</label>
-                    <Select>
+                    <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                       <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
                         <SelectValue placeholder="Todas as categorias" />
                       </SelectTrigger>
@@ -1064,38 +1080,36 @@ export default function Billing() {
                           </tr>
                         </thead>
                         <tbody>
-                          {/* Sample Data - Replace with real data */}
-                          {[
-                            { date: '01/08/2025', category: 'Folha', description: 'Folha de pagamento agosto', contract: 'Shopping Curitiba - PR', value: 85000, status: 'Pago' },
-                            { date: '05/08/2025', category: 'Insumos', description: 'Material de construção', contract: 'Shopping Curitiba - PR', value: 15000, status: 'Pendente' },
-                            { date: '10/08/2025', category: 'EPIs', description: 'Equipamentos de segurança', contract: 'Obra Hospital São Paulo', value: 3500, status: 'Aprovado' },
-                            { date: '15/08/2025', category: 'Combustível', description: 'Abastecimento máquinas', contract: 'Shopping Curitiba - PR', value: 2800, status: 'Pago' },
-                            { date: '20/08/2025', category: 'Alimentação', description: 'Voucher refeição equipe', contract: 'Reformas Escritório Central', value: 4200, status: 'Processando' }
-                          ].map((cost, index) => (
+                          {/* Custos Diretos Cadastrados */}
+                          {filteredDirectCosts.length > 0 ? filteredDirectCosts.map((cost: any, index) => (
                             <tr key={index} className="border-b border-blue-400/10 hover:bg-blue-600/10">
-                              <td className="py-3 px-4 text-white text-sm">{cost.date}</td>
+                              <td className="py-3 px-4 text-white text-sm">
+                                {new Date(cost.date).toLocaleDateString('pt-BR')}
+                              </td>
                               <td className="py-3 px-4 text-white text-sm">
                                 <Badge variant="outline" className="border-blue-400/30 text-blue-200">
                                   {cost.category}
                                 </Badge>
                               </td>
                               <td className="py-3 px-4 text-white text-sm">{cost.description}</td>
-                              <td className="py-3 px-4 text-blue-200 text-sm">{cost.contract}</td>
+                              <td className="py-3 px-4 text-blue-200 text-sm">
+                                {contracts.find((c: any) => c.id === cost.contractId)?.name || cost.contractId}
+                              </td>
                               <td className="py-3 px-4 text-white text-sm font-medium">
-                                R$ {cost.value.toLocaleString('pt-BR')}
+                                R$ {parseFloat(cost.value).toLocaleString('pt-BR')}
                               </td>
                               <td className="py-3 px-4 text-sm">
                                 <Badge 
-                                  variant={cost.status === 'Pago' ? 'default' : cost.status === 'Pendente' ? 'destructive' : 'secondary'}
+                                  variant={cost.status === 'pago' ? 'default' : cost.status === 'pendente' ? 'destructive' : 'secondary'}
                                   className={
-                                    cost.status === 'Pago' 
+                                    cost.status === 'pago' 
                                       ? 'bg-green-500/20 text-green-300 border-green-400/30'
-                                      : cost.status === 'Pendente'
+                                      : cost.status === 'pendente'
                                       ? 'bg-red-500/20 text-red-300 border-red-400/30'
                                       : 'bg-yellow-500/20 text-yellow-300 border-yellow-400/30'
                                   }
                                 >
-                                  {cost.status}
+                                  {cost.status === 'pago' ? 'Pago' : cost.status === 'pendente' ? 'Pendente' : cost.status === 'aprovado' ? 'Aprovado' : 'Processando'}
                                 </Badge>
                               </td>
                               <td className="py-3 px-4">
@@ -1109,7 +1123,13 @@ export default function Billing() {
                                 </div>
                               </td>
                             </tr>
-                          ))}
+                          )) : (
+                            <tr>
+                              <td colSpan={7} className="py-8 px-4 text-center text-blue-200">
+                                {directCosts.length === 0 ? 'Nenhum custo direto cadastrado ainda.' : 'Nenhum custo encontrado com os filtros aplicados.'}
+                              </td>
+                            </tr>
+                          )}
                         </tbody>
                       </table>
                     </div>
