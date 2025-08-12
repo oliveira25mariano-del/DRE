@@ -181,7 +181,7 @@ export default function MOE() {
             <div>
               <CardTitle className="text-lg font-semibold text-white flex items-center">
                 <Users className="w-5 h-5 mr-2" />
-                Mão de Obra Especializada (MOE)
+                Mão de Obra Extra (MOE)
               </CardTitle>
               <p className="text-sm text-blue-200">Gestão de colaboradores e faturamento de horas</p>
             </div>
