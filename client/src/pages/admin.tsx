@@ -86,7 +86,7 @@ export default function AdminPanel() {
     },
   });
 
-  const { data: users = [], isLoading, refetch } = useQuery({
+  const { data: users = [], isLoading, refetch } = useQuery<User[]>({
     queryKey: ["/api/admin/users"],
     retry: false,
   });
