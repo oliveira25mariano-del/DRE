@@ -11,7 +11,8 @@ import {
   Bell, 
   FileBarChart,
   DollarSign,
-  HelpCircle
+  HelpCircle,
+  Presentation
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import opusLogo from "@assets/Logo-Grupo-Opus_1754948245317.png";
@@ -29,6 +30,7 @@ const analysisItems = [
   { path: "/alerts", label: "Alertas", icon: Bell, id: "sidebar-alerts" },
   { path: "/faturamento", label: "Provisões", icon: DollarSign, id: "sidebar-billing" },
   { path: "/reports", label: "Relatórios", icon: FileBarChart, id: "sidebar-reports" },
+  { path: "/presentation", label: "Apresentação", icon: Presentation, id: "sidebar-presentation" },
 ];
 
 interface SidebarProps {
