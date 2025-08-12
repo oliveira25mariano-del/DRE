@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Search, Bell, CheckCircle, AlertTriangle, Clock, Info, Settings } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Plus, Search, Bell, CheckCircle, AlertTriangle, Clock, Info, Settings, Volume2, VolumeX } from "lucide-react";
 import { queryClient } from "@/lib/queryClient";
 import { apiRequest } from "@/lib/queryClient";
 import { useForm } from "react-hook-form";
@@ -23,6 +24,7 @@ export default function Alerts() {
   const [selectedSeverity, setSelectedSeverity] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isConfigDialogOpen, setIsConfigDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const { data: alerts = [], isLoading } = useQuery({
@@ -217,6 +219,9 @@ export default function Alerts() {
                 <DialogContent className="max-w-2xl bg-blue-bg border-blue-400/30">
                   <DialogHeader>
                     <DialogTitle className="text-white">Criar Novo Alerta</DialogTitle>
+                    <DialogDescription className="text-blue-200">
+                      Crie um novo alerta manual para monitoramento específico.
+                    </DialogDescription>
                   </DialogHeader>
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -326,10 +331,245 @@ export default function Alerts() {
                   </Form>
                 </DialogContent>
               </Dialog>
-              <Button variant="outline" className="border-blue-400/30 text-white hover:bg-blue-600/30">
-                <Settings className="w-4 h-4 mr-2" />
-                Configurar
-              </Button>
+              <Dialog open={isConfigDialogOpen} onOpenChange={setIsConfigDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="border-blue-400/30 text-white hover:bg-blue-600/30">
+                    <Settings className="w-4 h-4 mr-2" />
+                    Configurar
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-3xl bg-blue-bg border-blue-400/30">
+                  <DialogHeader>
+                    <DialogTitle className="text-white">Configurações de Alertas</DialogTitle>
+                    <DialogDescription className="text-blue-200">
+                      Configure limites, notificações e regras automáticas para o sistema de alertas.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-6">
+                    {/* Configurações de Limites */}
+                    <div className="space-y-4">
+                      <h3 className="text-white font-medium text-lg">Limites de Alertas</h3>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <label className="text-white text-sm">Limite de Receita Crítico (%)</label>
+                            <Input 
+                              type="number"
+                              defaultValue="80"
+                              className="bg-blue-600/30 border-blue-400/30 text-white"
+                              placeholder="80"
+                            />
+                            <p className="text-xs text-blue-300">Alerta quando receita cair abaixo deste percentual</p>
+                          </div>
+
+                          <div className="space-y-2">
+                            <label className="text-white text-sm">Limite de Custo Crítico (%)</label>
+                            <Input 
+                              type="number"
+                              defaultValue="120"
+                              className="bg-blue-600/30 border-blue-400/30 text-white"
+                              placeholder="120"
+                            />
+                            <p className="text-xs text-blue-300">Alerta quando custos excederem este percentual</p>
+                          </div>
+
+                          <div className="space-y-2">
+                            <label className="text-white text-sm">Dias para Vencimento de Contrato</label>
+                            <Input 
+                              type="number"
+                              defaultValue="30"
+                              className="bg-blue-600/30 border-blue-400/30 text-white"
+                              placeholder="30"
+                            />
+                            <p className="text-xs text-blue-300">Alerta X dias antes do vencimento</p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <label className="text-white text-sm">Margem de Lucro Mínima (%)</label>
+                            <Input 
+                              type="number"
+                              defaultValue="15"
+                              className="bg-blue-600/30 border-blue-400/30 text-white"
+                              placeholder="15"
+                            />
+                            <p className="text-xs text-blue-300">Alerta quando margem cair abaixo deste valor</p>
+                          </div>
+
+                          <div className="space-y-2">
+                            <label className="text-white text-sm">Limite de MOE por Contrato (R$)</label>
+                            <Input 
+                              type="number"
+                              defaultValue="50000"
+                              className="bg-blue-600/30 border-blue-400/30 text-white"
+                              placeholder="50000"
+                            />
+                            <p className="text-xs text-blue-300">Alerta para custos MOE acima deste valor</p>
+                          </div>
+
+                          <div className="space-y-2">
+                            <label className="text-white text-sm">Frequência de Verificação</label>
+                            <Select defaultValue="15min">
+                              <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="5min">A cada 5 minutos</SelectItem>
+                                <SelectItem value="15min">A cada 15 minutos</SelectItem>
+                                <SelectItem value="30min">A cada 30 minutos</SelectItem>
+                                <SelectItem value="1hour">A cada hora</SelectItem>
+                                <SelectItem value="daily">Diariamente</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Configurações de Notificação */}
+                    <div className="space-y-4">
+                      <h3 className="text-white font-medium text-lg">Notificações</h3>
+                      
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between p-4 bg-blue-600/20 rounded-lg">
+                          <div className="flex items-center space-x-3">
+                            <AlertTriangle className="w-5 h-5 text-red-400" />
+                            <div>
+                              <p className="text-white text-sm font-medium">Alertas Críticos</p>
+                              <p className="text-blue-200 text-xs">Notificações imediatas para problemas críticos</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-4">
+                            <Switch defaultChecked />
+                            <Volume2 className="w-4 h-4 text-blue-300" />
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between p-4 bg-blue-600/20 rounded-lg">
+                          <div className="flex items-center space-x-3">
+                            <Clock className="w-5 h-5 text-yellow-400" />
+                            <div>
+                              <p className="text-white text-sm font-medium">Alertas de Aviso</p>
+                              <p className="text-blue-200 text-xs">Notificações para situações que precisam atenção</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-4">
+                            <Switch defaultChecked />
+                            <Volume2 className="w-4 h-4 text-blue-300" />
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between p-4 bg-blue-600/20 rounded-lg">
+                          <div className="flex items-center space-x-3">
+                            <Info className="w-5 h-5 text-blue-400" />
+                            <div>
+                              <p className="text-white text-sm font-medium">Alertas Informativos</p>
+                              <p className="text-blue-200 text-xs">Notificações gerais e atualizações do sistema</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-4">
+                            <Switch />
+                            <VolumeX className="w-4 h-4 text-gray-400" />
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between p-4 bg-blue-600/20 rounded-lg">
+                          <div className="flex items-center space-x-3">
+                            <CheckCircle className="w-5 h-5 text-green-400" />
+                            <div>
+                              <p className="text-white text-sm font-medium">Alertas de Sucesso</p>
+                              <p className="text-blue-200 text-xs">Confirmações de ações e processos concluídos</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-4">
+                            <Switch />
+                            <VolumeX className="w-4 h-4 text-gray-400" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Configurações Avançadas */}
+                    <div className="space-y-4">
+                      <h3 className="text-white font-medium text-lg">Configurações Avançadas</h3>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-white text-sm">Auto-resolução de alertas</p>
+                            <p className="text-blue-200 text-xs">Resolver automaticamente alertas quando condições normalizarem</p>
+                          </div>
+                          <Switch defaultChecked />
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-white text-sm">Escalonamento automático</p>
+                            <p className="text-blue-200 text-xs">Escalonar alertas não resolvidos após tempo limite</p>
+                          </div>
+                          <Switch />
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-white text-sm">Histórico detalhado</p>
+                            <p className="text-blue-200 text-xs">Manter log detalhado de todos os alertas</p>
+                          </div>
+                          <Switch defaultChecked />
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-white text-sm">Alertas por email</p>
+                            <p className="text-blue-200 text-xs">Enviar alertas críticos por email</p>
+                          </div>
+                          <Switch defaultChecked />
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-white text-sm">Modo silencioso</p>
+                            <p className="text-blue-200 text-xs">Suspender todas as notificações temporariamente</p>
+                          </div>
+                          <Switch />
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-white text-sm">Machine Learning</p>
+                            <p className="text-blue-200 text-xs">Usar IA para detectar padrões e anomalias</p>
+                          </div>
+                          <Switch defaultChecked />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end space-x-3 pt-4">
+                      <Button 
+                        variant="outline" 
+                        className="border-blue-400/30 text-white hover:bg-blue-600/30"
+                        onClick={() => setIsConfigDialogOpen(false)}
+                      >
+                        Cancelar
+                      </Button>
+                      <Button 
+                        className="bg-blue-600 hover:bg-blue-700"
+                        onClick={() => {
+                          toast({
+                            title: "Configurações salvas",
+                            description: "As configurações de alertas foram atualizadas com sucesso."
+                          });
+                          setIsConfigDialogOpen(false);
+                        }}
+                      >
+                        Salvar Configurações
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
         </CardHeader>
