@@ -697,121 +697,121 @@ export default function Billing() {
 
       {/* View Dialog */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="max-w-2xl bg-blue-bg border-blue-400/30">
-          <DialogHeader>
-            <DialogTitle className="text-white">Detalhes do Faturamento</DialogTitle>
-            <DialogDescription className="text-blue-200">
+        <DialogContent className="max-w-4xl bg-blue-bg border-blue-400/30 max-h-[85vh] overflow-y-auto">
+          <DialogHeader className="pb-2">
+            <DialogTitle className="text-white text-lg">Detalhes do Faturamento</DialogTitle>
+            <DialogDescription className="text-blue-200 text-sm">
               Visualização completa dos dados de faturamento do contrato.
             </DialogDescription>
           </DialogHeader>
           {selectedBilling && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-white text-sm font-medium">Contrato</label>
-                    <p className="text-blue-100 bg-blue-600/20 p-3 rounded-lg mt-1">
-                      {selectedBilling.contractName}
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <label className="text-white text-sm font-medium">Período</label>
-                    <p className="text-blue-100 bg-blue-600/20 p-3 rounded-lg mt-1">
-                      {MONTHS.find(m => m.value === selectedBilling.month)?.label} {selectedBilling.year}
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <label className="text-white text-sm font-medium">Status</label>
-                    <div className="mt-1">
-                      <Badge className={getStatusColor(selectedBilling.status)}>
-                        {getStatusLabel(selectedBilling.status)}
-                      </Badge>
-                    </div>
-                  </div>
+            <div className="space-y-3">
+              {/* Compact Info Grid */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <div>
+                  <label className="text-white text-xs font-medium">Contrato</label>
+                  <p className="text-blue-100 bg-blue-600/20 p-2 rounded text-sm mt-1">
+                    {selectedBilling.contractName}
+                  </p>
                 </div>
                 
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-white text-sm font-medium">Valor Previsto</label>
-                    <p className="text-blue-100 bg-blue-600/20 p-3 rounded-lg mt-1">
-                      R$ {selectedBilling.predictedAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </p>
+                <div>
+                  <label className="text-white text-xs font-medium">Período</label>
+                  <p className="text-blue-100 bg-blue-600/20 p-2 rounded text-sm mt-1">
+                    {MONTHS.find(m => m.value === selectedBilling.month)?.label} {selectedBilling.year}
+                  </p>
+                </div>
+                
+                <div>
+                  <label className="text-white text-xs font-medium">Status</label>
+                  <div className="mt-1">
+                    <Badge className={`${getStatusColor(selectedBilling.status)} text-xs`}>
+                      {getStatusLabel(selectedBilling.status)}
+                    </Badge>
                   </div>
-                  
-                  <div>
-                    <label className="text-white text-sm font-medium">Valor Faturado</label>
-                    <p className="text-blue-100 bg-blue-600/20 p-3 rounded-lg mt-1">
-                      R$ {selectedBilling.billedAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <label className="text-white text-sm font-medium">Valor Recebido</label>
-                    <p className="text-blue-100 bg-blue-600/20 p-3 rounded-lg mt-1">
-                      R$ {selectedBilling.receivedAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </p>
-                  </div>
+                </div>
+
+                <div>
+                  <label className="text-white text-xs font-medium">Data de Vencimento</label>
+                  <p className="text-blue-100 bg-blue-600/20 p-2 rounded text-sm mt-1">
+                    {format(new Date(selectedBilling.dueDate), 'dd/MM/yyyy', { locale: ptBR })}
+                  </p>
+                </div>
+              </div>
+
+              {/* Financial Values */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                <div>
+                  <label className="text-white text-xs font-medium">Valor Previsto</label>
+                  <p className="text-blue-100 bg-blue-600/20 p-2 rounded text-sm mt-1">
+                    R$ {selectedBilling.predictedAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </p>
+                </div>
+                
+                <div>
+                  <label className="text-white text-xs font-medium">Valor Faturado</label>
+                  <p className="text-blue-100 bg-blue-600/20 p-2 rounded text-sm mt-1">
+                    R$ {selectedBilling.billedAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </p>
+                </div>
+                
+                <div>
+                  <label className="text-white text-xs font-medium">Valor Recebido</label>
+                  <p className="text-blue-100 bg-blue-600/20 p-2 rounded text-sm mt-1">
+                    R$ {selectedBilling.receivedAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </p>
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="text-white text-sm font-medium">Taxa de Aproveitamento</label>
-                  <div className="bg-blue-600/20 p-4 rounded-lg mt-1">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className={`text-lg font-semibold ${getUtilizationColor(selectedBilling.utilizationRate)}`}>
-                        {selectedBilling.utilizationRate.toFixed(1)}%
-                      </span>
-                      {selectedBilling.utilizationRate >= 95 ? (
-                        <TrendingUp className="w-5 h-5 text-green-400" />
-                      ) : (
-                        <TrendingDown className="w-5 h-5 text-red-400" />
-                      )}
-                    </div>
-                    <Progress value={Math.min(selectedBilling.utilizationRate, 100)} className="h-2" />
+              {/* Utilization Rate */}
+              <div>
+                <label className="text-white text-xs font-medium">Taxa de Aproveitamento</label>
+                <div className="bg-blue-600/20 p-2 rounded mt-1">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className={`text-lg font-semibold ${getUtilizationColor(selectedBilling.utilizationRate)}`}>
+                      {selectedBilling.utilizationRate.toFixed(1)}%
+                    </span>
+                    {selectedBilling.utilizationRate >= 95 ? (
+                      <TrendingUp className="w-4 h-4 text-green-400" />
+                    ) : (
+                      <TrendingDown className="w-4 h-4 text-red-400" />
+                    )}
                   </div>
-                </div>
-                
-                <div>
-                  <label className="text-white text-sm font-medium">Data de Vencimento</label>
-                  <p className="text-blue-100 bg-blue-600/20 p-3 rounded-lg mt-1">
-                    {format(new Date(selectedBilling.dueDate), 'dd/MM/yyyy', { locale: ptBR })}
-                  </p>
+                  <Progress value={Math.min(selectedBilling.utilizationRate, 100)} className="h-1.5" />
                 </div>
               </div>
               
               {/* Custos Indiretos Section */}
               <div>
-                <h3 className="text-white text-lg font-medium mb-4">Custos Indiretos</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <h3 className="text-white text-sm font-medium mb-2">Custos Indiretos</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                   <div>
-                    <label className="text-white text-sm font-medium">Glosas</label>
-                    <p className="text-red-300 bg-blue-600/20 p-3 rounded-lg mt-1">
+                    <label className="text-white text-xs font-medium">Glosas</label>
+                    <p className="text-red-300 bg-blue-600/20 p-2 rounded text-sm mt-1">
                       R$ {selectedBilling.glosas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </p>
                   </div>
                   
                   <div>
-                    <label className="text-white text-sm font-medium">Desconto SLA</label>
-                    <p className="text-yellow-300 bg-blue-600/20 p-3 rounded-lg mt-1">
+                    <label className="text-white text-xs font-medium">Desconto SLA</label>
+                    <p className="text-yellow-300 bg-blue-600/20 p-2 rounded text-sm mt-1">
                       R$ {selectedBilling.descontoSla.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </p>
                   </div>
                   
                   <div>
-                    <label className="text-white text-sm font-medium">Venda MOE</label>
-                    <p className="text-orange-300 bg-blue-600/20 p-3 rounded-lg mt-1">
+                    <label className="text-white text-xs font-medium">Venda MOE</label>
+                    <p className="text-orange-300 bg-blue-600/20 p-2 rounded text-sm mt-1">
                       R$ {selectedBilling.vendaMoe.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </p>
                   </div>
                 </div>
               </div>
               
-              <div className="flex justify-end">
+              <div className="flex justify-end pt-2 border-t border-blue-400/20">
                 <Button 
-                  variant="outline" 
+                  variant="outline"
+                  size="sm" 
                   className="border-blue-400/30 text-white hover:bg-blue-600/30"
                   onClick={() => setIsViewDialogOpen(false)}
                 >
