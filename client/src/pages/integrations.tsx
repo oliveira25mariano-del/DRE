@@ -1,5 +1,5 @@
 import React from 'react';
-import IntegrationsManager from '@/components/integrations-manager';
+import IntegrationsManager from '../components/integrations-manager';
 
 export default function Integrations() {
   return (

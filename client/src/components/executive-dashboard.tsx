@@ -36,7 +36,8 @@ import {
   CheckCircle2,
   Star,
   Award,
-  Activity
+  Activity,
+  Shield
 } from 'lucide-react';
 import {
   ResponsiveContainer,
