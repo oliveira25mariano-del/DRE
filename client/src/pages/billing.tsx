@@ -944,92 +944,60 @@ export default function Billing() {
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-3xl bg-blue-bg border-blue-400/30">
-          <DialogHeader>
-            <DialogTitle className="text-white">Editar Faturamento</DialogTitle>
-            <DialogDescription className="text-blue-200">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-blue-bg border-blue-400/30">
+          <DialogHeader className="pb-3">
+            <DialogTitle className="text-white text-lg">Editar Faturamento</DialogTitle>
+            <DialogDescription className="text-blue-200 text-sm">
               Altere os dados de faturamento do contrato selecionado.
             </DialogDescription>
           </DialogHeader>
           {selectedBilling && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-white text-sm font-medium">Contrato</label>
-                    <Input 
-                      value={selectedBilling.contractName}
-                      disabled
-                      className="bg-blue-600/30 border-blue-400/30 text-gray-400"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="text-white text-sm font-medium">Mês</label>
-                    <Select defaultValue={selectedBilling.month.toString()}>
-                      <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {MONTHS.map(month => (
-                          <SelectItem key={month.value} value={month.value.toString()}>
-                            {month.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div>
-                    <label className="text-white text-sm font-medium">Ano</label>
-                    <Select defaultValue={selectedBilling.year.toString()}>
-                      <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="2025">2025</SelectItem>
-                        <SelectItem value="2024">2024</SelectItem>
-                        <SelectItem value="2023">2023</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+            <div className="space-y-4">
+              {/* Dados Básicos - Linha 1 */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                <div>
+                  <label className="text-white text-xs font-medium">Contrato</label>
+                  <Input 
+                    value={selectedBilling.contractName}
+                    disabled
+                    className="bg-blue-600/30 border-blue-400/30 text-gray-400 h-8 text-sm"
+                  />
                 </div>
                 
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-white text-sm font-medium">Valor Previsto (R$)</label>
-                    <Input 
-                      type="number"
-                      defaultValue={selectedBilling.predictedAmount}
-                      className="bg-blue-600/30 border-blue-400/30 text-white"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="text-white text-sm font-medium">Valor Faturado (R$)</label>
-                    <Input 
-                      type="number"
-                      defaultValue={selectedBilling.billedAmount}
-                      className="bg-blue-600/30 border-blue-400/30 text-white"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="text-white text-sm font-medium">Valor Recebido (R$)</label>
-                    <Input 
-                      type="number"
-                      defaultValue={selectedBilling.receivedAmount}
-                      className="bg-blue-600/30 border-blue-400/30 text-white"
-                    />
-                  </div>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="text-white text-sm font-medium">Status</label>
+                  <label className="text-white text-xs font-medium">Mês</label>
+                  <Select defaultValue={selectedBilling.month.toString()}>
+                    <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {MONTHS.map(month => (
+                        <SelectItem key={month.value} value={month.value.toString()}>
+                          {month.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="text-white text-xs font-medium">Ano</label>
+                  <Select defaultValue={selectedBilling.year.toString()}>
+                    <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="2025">2025</SelectItem>
+                      <SelectItem value="2024">2024</SelectItem>
+                      <SelectItem value="2023">2023</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="text-white text-xs font-medium">Status</label>
                   <Select defaultValue={selectedBilling.status}>
-                    <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
+                    <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -1040,64 +1008,139 @@ export default function Billing() {
                     </SelectContent>
                   </Select>
                 </div>
-                
+              </div>
+
+              {/* Valores Financeiros - Linha 2 */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                 <div>
-                  <label className="text-white text-sm font-medium">Data de Vencimento</label>
+                  <label className="text-white text-xs font-medium">Valor Previsto (R$)</label>
                   <Input 
-                    type="date"
-                    defaultValue={selectedBilling.dueDate.split('T')[0]}
-                    className="bg-blue-600/30 border-blue-400/30 text-white"
+                    type="number" 
+                    defaultValue={selectedBilling.predictedAmount}
+                    className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm" 
+                  />
+                </div>
+
+                <div>
+                  <label className="text-white text-xs font-medium">Valor Faturado (R$)</label>
+                  <Input 
+                    type="number" 
+                    defaultValue={selectedBilling.billedAmount}
+                    className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm" 
+                  />
+                </div>
+
+                <div>
+                  <label className="text-white text-xs font-medium">Valor Recebido (R$)</label>
+                  <Input 
+                    type="number" 
+                    defaultValue={selectedBilling.receivedAmount}
+                    className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm" 
+                  />
+                </div>
+
+                <div>
+                  <label className="text-white text-xs font-medium">Data de Vencimento</label>
+                  <Input 
+                    type="date" 
+                    defaultValue={selectedBilling.dueDate}
+                    className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm" 
                   />
                 </div>
               </div>
-              
-              {/* Custos Indiretos Section */}
+
+              {/* Custos Não Previstos - Linha 3 */}
               <div>
-                <h3 className="text-white text-lg font-medium mb-4">Custos Indiretos</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <h3 className="text-white text-sm font-medium mb-2">Custos Não Previstos</h3>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                   <div>
-                    <label className="text-white text-sm font-medium">Glosas (R$)</label>
+                    <label className="text-white text-xs font-medium">Glosas (R$)</label>
                     <Input 
-                      type="number"
+                      type="number" 
                       defaultValue={selectedBilling.glosas}
-                      className="bg-blue-600/30 border-blue-400/30 text-white"
+                      className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm" 
                     />
                   </div>
                   
                   <div>
-                    <label className="text-white text-sm font-medium">Desconto SLA (R$)</label>
+                    <label className="text-white text-xs font-medium">Desconto SLA (R$)</label>
                     <Input 
-                      type="number"
+                      type="number" 
                       defaultValue={selectedBilling.descontoSla}
-                      className="bg-blue-600/30 border-blue-400/30 text-white"
+                      className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm" 
                     />
                   </div>
                   
                   <div>
-                    <label className="text-white text-sm font-medium">Venda MOE (R$)</label>
+                    <label className="text-white text-xs font-medium">Venda MOE (R$)</label>
                     <Input 
-                      type="number"
+                      type="number" 
                       defaultValue={selectedBilling.vendaMoe}
-                      className="bg-blue-600/30 border-blue-400/30 text-white"
+                      className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm" 
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="text-white text-xs font-medium">Outros (R$)</label>
+                    <Input 
+                      type="number" 
+                      defaultValue={selectedBilling.outros}
+                      className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm" 
                     />
                   </div>
                 </div>
               </div>
-              
-              <div className="flex justify-end space-x-3">
+
+              {/* Fringe - Linha 4 */}
+              <div>
+                <h3 className="text-white text-sm font-medium mb-2">Fringe</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div>
+                    <label className="text-white text-xs font-medium">Efetivo</label>
+                    <Input 
+                      type="number" 
+                      defaultValue={selectedBilling.efetivo}
+                      className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm" 
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="text-white text-xs font-medium">Fringe Planejado (R$)</label>
+                    <Input 
+                      type="number" 
+                      defaultValue={selectedBilling.fringePlanejado}
+                      className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm" 
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="text-white text-xs font-medium">Fringe Executado (R$)</label>
+                    <Input 
+                      type="number" 
+                      defaultValue={selectedBilling.fringeExecutado}
+                      className="bg-blue-600/30 border-blue-400/30 text-white h-8 text-sm" 
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Botões */}
+              <div className="flex justify-end space-x-2 pt-3 border-t border-blue-400/20">
                 <Button 
-                  variant="outline" 
+                  variant="outline"
+                  size="sm"
                   className="border-blue-400/30 text-white hover:bg-blue-600/30"
                   onClick={() => setIsEditDialogOpen(false)}
                 >
                   Cancelar
                 </Button>
                 <Button 
-                  className="bg-blue-600 hover:bg-blue-700"
+                  size="sm"
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
                   onClick={() => {
                     toast({
-                      title: "Faturamento atualizado",
-                      description: "As alterações foram salvas com sucesso.",
+                      title: "Faturamento Atualizado",
+                      description: "Os dados do faturamento foram atualizados com sucesso.",
                     });
                     setIsEditDialogOpen(false);
                   }}
