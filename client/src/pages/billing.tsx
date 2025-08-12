@@ -62,6 +62,9 @@ export default function Billing() {
   const [selectedContract, setSelectedContract] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [selectedBilling, setSelectedBilling] = useState<BillingData | null>(null);
   const { toast } = useToast();
 
   // Mock data for demonstration
@@ -459,10 +462,8 @@ export default function Billing() {
                             size="sm" 
                             className="text-blue-300 hover:text-white"
                             onClick={() => {
-                              toast({
-                                title: "Visualizar Faturamento",
-                                description: `Abrindo detalhes de ${bill.contractName}`,
-                              });
+                              setSelectedBilling(bill);
+                              setIsViewDialogOpen(true);
                             }}
                           >
                             <Eye className="w-4 h-4" />
@@ -472,10 +473,8 @@ export default function Billing() {
                             size="sm" 
                             className="text-blue-300 hover:text-white"
                             onClick={() => {
-                              toast({
-                                title: "Editar Faturamento",
-                                description: `Editando faturamento de ${bill.contractName}`,
-                              });
+                              setSelectedBilling(bill);
+                              setIsEditDialogOpen(true);
                             }}
                           >
                             <Edit className="w-4 h-4" />
@@ -627,6 +626,242 @@ export default function Billing() {
           </Tabs>
         </CardContent>
       </Card>
+
+      {/* View Dialog */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="max-w-2xl bg-blue-bg border-blue-400/30">
+          <DialogHeader>
+            <DialogTitle className="text-white">Detalhes do Faturamento</DialogTitle>
+            <DialogDescription className="text-blue-200">
+              Visualização completa dos dados de faturamento do contrato.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedBilling && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-white text-sm font-medium">Contrato</label>
+                    <p className="text-blue-100 bg-blue-600/20 p-3 rounded-lg mt-1">
+                      {selectedBilling.contractName}
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <label className="text-white text-sm font-medium">Período</label>
+                    <p className="text-blue-100 bg-blue-600/20 p-3 rounded-lg mt-1">
+                      {MONTHS.find(m => m.value === selectedBilling.month)?.label} {selectedBilling.year}
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <label className="text-white text-sm font-medium">Status</label>
+                    <div className="mt-1">
+                      <Badge className={getStatusColor(selectedBilling.status)}>
+                        {getStatusLabel(selectedBilling.status)}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-white text-sm font-medium">Valor Previsto</label>
+                    <p className="text-blue-100 bg-blue-600/20 p-3 rounded-lg mt-1">
+                      R$ {selectedBilling.predictedAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <label className="text-white text-sm font-medium">Valor Faturado</label>
+                    <p className="text-blue-100 bg-blue-600/20 p-3 rounded-lg mt-1">
+                      R$ {selectedBilling.billedAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <label className="text-white text-sm font-medium">Valor Recebido</label>
+                    <p className="text-blue-100 bg-blue-600/20 p-3 rounded-lg mt-1">
+                      R$ {selectedBilling.receivedAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="text-white text-sm font-medium">Taxa de Aproveitamento</label>
+                  <div className="bg-blue-600/20 p-4 rounded-lg mt-1">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className={`text-lg font-semibold ${getUtilizationColor(selectedBilling.utilizationRate)}`}>
+                        {selectedBilling.utilizationRate.toFixed(1)}%
+                      </span>
+                      {selectedBilling.utilizationRate >= 95 ? (
+                        <TrendingUp className="w-5 h-5 text-green-400" />
+                      ) : (
+                        <TrendingDown className="w-5 h-5 text-red-400" />
+                      )}
+                    </div>
+                    <Progress value={Math.min(selectedBilling.utilizationRate, 100)} className="h-2" />
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="text-white text-sm font-medium">Data de Vencimento</label>
+                  <p className="text-blue-100 bg-blue-600/20 p-3 rounded-lg mt-1">
+                    {format(new Date(selectedBilling.dueDate), 'dd/MM/yyyy', { locale: ptBR })}
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex justify-end">
+                <Button 
+                  variant="outline" 
+                  className="border-blue-400/30 text-white hover:bg-blue-600/30"
+                  onClick={() => setIsViewDialogOpen(false)}
+                >
+                  Fechar
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-3xl bg-blue-bg border-blue-400/30">
+          <DialogHeader>
+            <DialogTitle className="text-white">Editar Faturamento</DialogTitle>
+            <DialogDescription className="text-blue-200">
+              Altere os dados de faturamento do contrato selecionado.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedBilling && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-white text-sm font-medium">Contrato</label>
+                    <Input 
+                      value={selectedBilling.contractName}
+                      disabled
+                      className="bg-blue-600/30 border-blue-400/30 text-gray-400"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="text-white text-sm font-medium">Mês</label>
+                    <Select defaultValue={selectedBilling.month.toString()}>
+                      <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {MONTHS.map(month => (
+                          <SelectItem key={month.value} value={month.value.toString()}>
+                            {month.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <label className="text-white text-sm font-medium">Ano</label>
+                    <Select defaultValue={selectedBilling.year.toString()}>
+                      <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="2025">2025</SelectItem>
+                        <SelectItem value="2024">2024</SelectItem>
+                        <SelectItem value="2023">2023</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-white text-sm font-medium">Valor Previsto (R$)</label>
+                    <Input 
+                      type="number"
+                      defaultValue={selectedBilling.predictedAmount}
+                      className="bg-blue-600/30 border-blue-400/30 text-white"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="text-white text-sm font-medium">Valor Faturado (R$)</label>
+                    <Input 
+                      type="number"
+                      defaultValue={selectedBilling.billedAmount}
+                      className="bg-blue-600/30 border-blue-400/30 text-white"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="text-white text-sm font-medium">Valor Recebido (R$)</label>
+                    <Input 
+                      type="number"
+                      defaultValue={selectedBilling.receivedAmount}
+                      className="bg-blue-600/30 border-blue-400/30 text-white"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="text-white text-sm font-medium">Status</label>
+                  <Select defaultValue={selectedBilling.status}>
+                    <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">Pendente</SelectItem>
+                      <SelectItem value="billed">Faturado</SelectItem>
+                      <SelectItem value="received">Recebido</SelectItem>
+                      <SelectItem value="overdue">Vencido</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div>
+                  <label className="text-white text-sm font-medium">Data de Vencimento</label>
+                  <Input 
+                    type="date"
+                    defaultValue={selectedBilling.dueDate.split('T')[0]}
+                    className="bg-blue-600/30 border-blue-400/30 text-white"
+                  />
+                </div>
+              </div>
+              
+              <div className="flex justify-end space-x-3">
+                <Button 
+                  variant="outline" 
+                  className="border-blue-400/30 text-white hover:bg-blue-600/30"
+                  onClick={() => setIsEditDialogOpen(false)}
+                >
+                  Cancelar
+                </Button>
+                <Button 
+                  className="bg-blue-600 hover:bg-blue-700"
+                  onClick={() => {
+                    toast({
+                      title: "Faturamento atualizado",
+                      description: "As alterações foram salvas com sucesso.",
+                    });
+                    setIsEditDialogOpen(false);
+                  }}
+                >
+                  Salvar Alterações
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
