@@ -36,6 +36,17 @@ export default function MOE() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/employees"] });
+      form.reset({
+        name: "",
+        email: "",
+        position: "",
+        contractId: "",
+        baseSalary: "0",
+        fringeRate: "0",
+        hoursWorked: "0",
+        hourlyRate: "0",
+        active: true,
+      });
       setIsCreateDialogOpen(false);
       toast({
         title: "Sucesso",
@@ -66,7 +77,7 @@ export default function MOE() {
     },
   });
 
-  const filteredEmployees = employees.filter((employee: Employee) => {
+  const filteredEmployees = (employees as Employee[]).filter((employee: Employee) => {
     const matchesSearch = employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          employee.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesContract = !selectedContract || employee.contractId === selectedContract;
@@ -76,7 +87,7 @@ export default function MOE() {
   });
 
   const activeEmployees = filteredEmployees.filter((emp: Employee) => emp.active);
-  const totalMOECost = activeEmployees.reduce((sum, emp) => {
+  const totalMOECost = activeEmployees.reduce((sum: number, emp: Employee) => {
     const hours = parseFloat(emp.hoursWorked || "0");
     const rate = parseFloat(emp.hourlyRate || "0");
     return sum + (hours * rate);
@@ -133,7 +144,7 @@ export default function MOE() {
               <div>
                 <p className="text-sm font-medium text-blue-100">Horas Trabalhadas</p>
                 <p className="text-2xl font-bold text-white">
-                  {activeEmployees.reduce((sum, emp) => sum + parseFloat(emp.hoursWorked || "0"), 0).toFixed(0)}h
+                  {activeEmployees.reduce((sum: number, emp: Employee) => sum + parseFloat(emp.hoursWorked || "0"), 0).toFixed(0)}h
                 </p>
               </div>
               <div className="bg-amber-500/20 p-3 rounded-full">
@@ -151,7 +162,7 @@ export default function MOE() {
                 <p className="text-2xl font-bold text-white">
                   {formatCurrency(
                     activeEmployees.length > 0
-                      ? activeEmployees.reduce((sum, emp) => sum + parseFloat(emp.hourlyRate || "0"), 0) / activeEmployees.length
+                      ? activeEmployees.reduce((sum: number, emp: Employee) => sum + parseFloat(emp.hourlyRate || "0"), 0) / activeEmployees.length
                       : 0
                   )}
                 </p>
@@ -257,7 +268,7 @@ export default function MOE() {
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  {contracts.map((contract: any) => (
+                                  {(contracts as any[]).map((contract: any) => (
                                     <SelectItem key={contract.id} value={contract.id}>
                                       {contract.name}
                                     </SelectItem>
@@ -301,7 +312,10 @@ export default function MOE() {
                                   step="0.01"
                                   placeholder="0,00" 
                                   className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
-                                  {...field} 
+                                  value={field.value || ""}
+                                  onChange={field.onChange}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -341,7 +355,10 @@ export default function MOE() {
                                   step="0.01"
                                   placeholder="0,00" 
                                   className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
-                                  {...field} 
+                                  value={field.value || ""}
+                                  onChange={field.onChange}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -393,7 +410,7 @@ export default function MOE() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos os contratos</SelectItem>
-                {contracts.map((contract: any) => (
+                {(contracts as any[]).map((contract: any) => (
                   <SelectItem key={contract.id} value={contract.id}>
                     {contract.name}
                   </SelectItem>
@@ -406,7 +423,7 @@ export default function MOE() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos os cargos</SelectItem>
-                {Array.from(new Set(employees.map((emp: Employee) => emp.position))).map((position: string) => (
+                {Array.from(new Set((employees as Employee[]).map((emp: Employee) => emp.position))).map((position: string) => (
                   <SelectItem key={position} value={position}>
                     {position}
                   </SelectItem>
@@ -460,7 +477,7 @@ export default function MOE() {
                   </thead>
                   <tbody className="bg-blue-400/5 divide-y divide-blue-400/10">
                     {filteredEmployees.map((employee: Employee) => {
-                      const contract = contracts.find((c: any) => c.id === employee.contractId);
+                      const contract = (contracts as any[]).find((c: any) => c.id === employee.contractId);
                       const totalMOE = parseFloat(employee.hoursWorked || "0") * parseFloat(employee.hourlyRate || "0");
                       
                       return (
