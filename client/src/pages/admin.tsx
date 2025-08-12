@@ -93,10 +93,7 @@ export default function AdminPanel() {
 
   const createMutation = useMutation({
     mutationFn: async (data: UserFormData) => {
-      return await apiRequest("/api/admin/users", {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
+      return await apiRequest("POST", "/api/admin/users", data);
     },
     onSuccess: () => {
       toast({
@@ -119,10 +116,7 @@ export default function AdminPanel() {
   const updateMutation = useMutation({
     mutationFn: async (data: Omit<UserFormData, "password">) => {
       if (!selectedUser) throw new Error("Usuário não selecionado");
-      return await apiRequest(`/api/admin/users/${selectedUser.id}`, {
-        method: "PUT",
-        body: JSON.stringify(data),
-      });
+      return await apiRequest("PUT", `/api/admin/users/${selectedUser.id}`, data);
     },
     onSuccess: () => {
       toast({
@@ -145,9 +139,7 @@ export default function AdminPanel() {
 
   const deleteMutation = useMutation({
     mutationFn: async (userId: string) => {
-      return await apiRequest(`/api/admin/users/${userId}`, {
-        method: "DELETE",
-      });
+      return await apiRequest("DELETE", `/api/admin/users/${userId}`);
     },
     onSuccess: () => {
       toast({
