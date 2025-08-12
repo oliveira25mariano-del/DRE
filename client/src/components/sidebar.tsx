@@ -10,6 +10,7 @@ import {
   Search, 
   Bell, 
   FileBarChart,
+  DollarSign,
   HelpCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,7 @@ const analysisItems = [
   { path: "/predictions", label: "Previsões ML", icon: Brain, id: "sidebar-predictions" },
   { path: "/audit", label: "Auditoria", icon: Search, id: "sidebar-audit" },
   { path: "/alerts", label: "Alertas", icon: Bell, id: "sidebar-alerts" },
+  { path: "/billing", label: "Faturamento", icon: DollarSign, id: "sidebar-billing" },
   { path: "/reports", label: "Relatórios", icon: FileBarChart, id: "sidebar-reports" },
 ];
 

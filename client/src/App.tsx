@@ -16,6 +16,7 @@ import Predictions from "./pages/predictions";
 import Audit from "./pages/audit";
 import Alerts from "./pages/alerts";
 import Reports from "./pages/reports";
+import Billing from "./pages/billing";
 import AdminPanel from "./pages/admin";
 import NotFound from "./pages/not-found";
 import { useAdminShortcut } from "./components/secret-admin-access";
@@ -86,6 +87,7 @@ function Router() {
         <Route path="/audit" component={Audit} />
         <Route path="/alerts" component={Alerts} />
         <Route path="/reports" component={Reports} />
+        <Route path="/billing" component={Billing} />
         <Route path="/admin-panel-secreto" component={AdminPanel} />
         <Route component={NotFound} />
       </Switch>
