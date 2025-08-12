@@ -1,5 +1,5 @@
 import React from 'react';
-import AdvancedReports from '@/components/advanced-reports';
+import AdvancedReports from '../components/advanced-reports';
 
 export default function Reports() {
   return (

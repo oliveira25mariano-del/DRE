@@ -1,5 +1,5 @@
 import React from 'react';
-import PresentationMode from '@/components/presentation-mode';
+import PresentationMode from '../components/presentation-mode';
 
 const PresentationPage: React.FC = () => {
   return (

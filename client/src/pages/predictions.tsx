@@ -1,5 +1,5 @@
 import React from 'react';
-import MLPredictions from '@/components/ml-predictions';
+import MLPredictions from '../components/ml-predictions';
 
 export default function Predictions() {
   return (
