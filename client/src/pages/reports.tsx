@@ -32,6 +32,7 @@ export default function Reports() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [isApprovalDialogOpen, setIsApprovalDialogOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const { toast } = useToast();
 
   const { data: reports = [], isLoading } = useQuery({
@@ -441,10 +442,149 @@ export default function Reports() {
                   </Form>
                 </DialogContent>
               </Dialog>
-              <Button variant="outline" className="border-blue-400/30 text-white hover:bg-blue-600/30">
-                <Settings className="w-4 h-4 mr-2" />
-                Configurações
-              </Button>
+              <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="border-blue-400/30 text-white hover:bg-blue-600/30">
+                    <Settings className="w-4 h-4 mr-2" />
+                    Configurações
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl bg-blue-bg border-blue-400/30">
+                  <DialogHeader>
+                    <DialogTitle className="text-white">Configurações de Relatórios</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-6">
+                    {/* Configurações Gerais */}
+                    <div className="space-y-4">
+                      <h3 className="text-white font-medium text-lg">Configurações Gerais</h3>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-white text-sm">Formato Padrão</label>
+                          <Select defaultValue="pdf">
+                            <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
+                              <SelectValue placeholder="Selecione o formato" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="pdf">PDF</SelectItem>
+                              <SelectItem value="excel">Excel</SelectItem>
+                              <SelectItem value="csv">CSV</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <label className="text-white text-sm">Idioma</label>
+                          <Select defaultValue="pt-BR">
+                            <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
+                              <SelectValue placeholder="Selecione o idioma" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="pt-BR">Português (BR)</SelectItem>
+                              <SelectItem value="en-US">English (US)</SelectItem>
+                              <SelectItem value="es-ES">Español</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-white text-sm">Assinatura Padrão</label>
+                        <Textarea 
+                          placeholder="Digite a assinatura que aparecerá nos relatórios..."
+                          className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
+                          rows={3}
+                          defaultValue="Gerado automaticamente pelo Sistema DRE"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Configurações de Notificação */}
+                    <div className="space-y-4">
+                      <h3 className="text-white font-medium text-lg">Notificações</h3>
+                      
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-white text-sm">Notificar sobre novos relatórios</p>
+                            <p className="text-blue-200 text-xs">Receba notificações quando novos relatórios forem gerados</p>
+                          </div>
+                          <Switch defaultChecked />
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-white text-sm">Notificar sobre aprovações pendentes</p>
+                            <p className="text-blue-200 text-xs">Alertas para relatórios aguardando aprovação</p>
+                          </div>
+                          <Switch defaultChecked />
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-white text-sm">Notificar sobre falhas de envio</p>
+                            <p className="text-blue-200 text-xs">Alertas quando o envio de relatórios falhar</p>
+                          </div>
+                          <Switch defaultChecked />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Configurações de Segurança */}
+                    <div className="space-y-4">
+                      <h3 className="text-white font-medium text-lg">Segurança</h3>
+                      
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-white text-sm">Requerer aprovação dupla</p>
+                            <p className="text-blue-200 text-xs">Relatórios críticos precisam de duas aprovações</p>
+                          </div>
+                          <Switch />
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-white text-sm">Log de auditoria detalhado</p>
+                            <p className="text-blue-200 text-xs">Registrar todas as ações nos relatórios</p>
+                          </div>
+                          <Switch defaultChecked />
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-white text-sm">Criptografar relatórios sensíveis</p>
+                            <p className="text-blue-200 text-xs">Aplicar criptografia a relatórios financeiros</p>
+                          </div>
+                          <Switch defaultChecked />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end space-x-3 pt-4">
+                      <Button 
+                        variant="outline" 
+                        className="border-blue-400/30 text-white hover:bg-blue-600/30"
+                        onClick={() => setIsSettingsOpen(false)}
+                      >
+                        Cancelar
+                      </Button>
+                      <Button 
+                        className="bg-blue-600 hover:bg-blue-700"
+                        onClick={() => {
+                          toast({
+                            title: "Configurações salvas",
+                            description: "As configurações de relatórios foram atualizadas com sucesso."
+                          });
+                          setIsSettingsOpen(false);
+                        }}
+                      >
+                        Salvar Configurações
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
         </CardHeader>
