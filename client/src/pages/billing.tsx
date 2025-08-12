@@ -300,11 +300,28 @@ export default function Billing() {
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3">
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+              <Button 
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={() => {
+                  toast({
+                    title: "Novo Faturamento",
+                    description: "Abrindo formulário para criar novo faturamento",
+                  });
+                }}
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 Novo Faturamento
               </Button>
-              <Button variant="outline" className="border-blue-400/30 text-white hover:bg-blue-600/30">
+              <Button 
+                variant="outline" 
+                className="border-blue-400/30 text-white hover:bg-blue-600/30"
+                onClick={() => {
+                  toast({
+                    title: "Exportar Dados",
+                    description: "Exportando relatório de faturamento em Excel",
+                  });
+                }}
+              >
                 <Download className="w-4 h-4 mr-2" />
                 Exportar
               </Button>
@@ -437,10 +454,30 @@ export default function Billing() {
                         </div>
                         
                         <div className="lg:col-span-1 flex justify-end space-x-2">
-                          <Button variant="ghost" size="sm" className="text-blue-300 hover:text-white">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-blue-300 hover:text-white"
+                            onClick={() => {
+                              toast({
+                                title: "Visualizar Faturamento",
+                                description: `Abrindo detalhes de ${bill.contractName}`,
+                              });
+                            }}
+                          >
                             <Eye className="w-4 h-4" />
                           </Button>
-                          <Button variant="ghost" size="sm" className="text-blue-300 hover:text-white">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-blue-300 hover:text-white"
+                            onClick={() => {
+                              toast({
+                                title: "Editar Faturamento",
+                                description: `Editando faturamento de ${bill.contractName}`,
+                              });
+                            }}
+                          >
                             <Edit className="w-4 h-4" />
                           </Button>
                         </div>
