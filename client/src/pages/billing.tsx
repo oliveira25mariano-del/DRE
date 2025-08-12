@@ -68,6 +68,7 @@ export default function Billing() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isNewBillingDialogOpen, setIsNewBillingDialogOpen] = useState(false);
   const [selectedBilling, setSelectedBilling] = useState<BillingData | null>(null);
   const { toast } = useToast();
 
@@ -345,12 +346,7 @@ export default function Billing() {
             <div className="flex flex-col sm:flex-row gap-3">
               <Button 
                 className="bg-blue-600 hover:bg-blue-700 text-white"
-                onClick={() => {
-                  toast({
-                    title: "Novo Faturamento",
-                    description: "Abrindo formulário para criar novo faturamento",
-                  });
-                }}
+                onClick={() => setIsNewBillingDialogOpen(true)}
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Novo Faturamento
@@ -359,9 +355,36 @@ export default function Billing() {
                 variant="outline" 
                 className="border-blue-400/30 text-white hover:bg-blue-600/30"
                 onClick={() => {
+                  // Export filtered data to CSV
+                  const csvData = filteredBilling.map(bill => ({
+                    "Contrato": bill.contractName,
+                    "Mês": MONTHS.find(m => m.value === bill.month)?.label,
+                    "Ano": bill.year,
+                    "Valor Previsto": bill.predictedAmount,
+                    "Valor Faturado": bill.billedAmount,
+                    "Valor Recebido": bill.receivedAmount,
+                    "Taxa Aproveitamento": `${bill.utilizationRate.toFixed(1)}%`,
+                    "Status": getStatusLabel(bill.status),
+                    "Glosas": bill.glosas,
+                    "Desconto SLA": bill.descontoSla,
+                    "Venda MOE": bill.vendaMoe,
+                    "Vencimento": format(new Date(bill.dueDate), 'dd/MM/yyyy', { locale: ptBR })
+                  }));
+                  
+                  const csvContent = [
+                    Object.keys(csvData[0]).join(','),
+                    ...csvData.map(row => Object.values(row).join(','))
+                  ].join('\n');
+                  
+                  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                  const link = document.createElement('a');
+                  link.href = URL.createObjectURL(blob);
+                  link.download = `faturamento_${selectedYear}.csv`;
+                  link.click();
+                  
                   toast({
-                    title: "Exportar Dados",
-                    description: "Exportando relatório de faturamento em Excel",
+                    title: "Dados Exportados",
+                    description: `Arquivo CSV exportado com ${filteredBilling.length} registros`,
                   });
                 }}
               >
@@ -988,6 +1011,168 @@ export default function Billing() {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* New Billing Dialog */}
+      <Dialog open={isNewBillingDialogOpen} onOpenChange={setIsNewBillingDialogOpen}>
+        <DialogContent className="max-w-2xl bg-blue-bg border-blue-400/30">
+          <DialogHeader>
+            <DialogTitle className="text-white">Novo Faturamento</DialogTitle>
+            <DialogDescription className="text-blue-200">
+              Criar um novo registro de faturamento para um contrato.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-white text-sm font-medium">Contrato</label>
+                <Select>
+                  <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
+                    <SelectValue placeholder="Selecione um contrato" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="shopping-curitiba">Shopping Curitiba - PR</SelectItem>
+                    <SelectItem value="hospital-sp">Obra Hospital São Paulo</SelectItem>
+                    <SelectItem value="reformas-escritorio">Reformas Escritório Central</SelectItem>
+                    <SelectItem value="residencial-premium">Construção Residencial Premium</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <label className="text-white text-sm font-medium">Mês/Ano</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <Select>
+                    <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
+                      <SelectValue placeholder="Mês" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {MONTHS.map(month => (
+                        <SelectItem key={month.value} value={month.value.toString()}>
+                          {month.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select>
+                    <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
+                      <SelectValue placeholder="Ano" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="2025">2025</SelectItem>
+                      <SelectItem value="2024">2024</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="text-white text-sm font-medium">Valor Previsto (R$)</label>
+                <Input 
+                  type="number" 
+                  placeholder="0,00"
+                  className="bg-blue-600/30 border-blue-400/30 text-white" 
+                />
+              </div>
+              
+              <div>
+                <label className="text-white text-sm font-medium">Valor Faturado (R$)</label>
+                <Input 
+                  type="number" 
+                  placeholder="0,00"
+                  className="bg-blue-600/30 border-blue-400/30 text-white" 
+                />
+              </div>
+              
+              <div>
+                <label className="text-white text-sm font-medium">Valor Recebido (R$)</label>
+                <Input 
+                  type="number" 
+                  placeholder="0,00"
+                  className="bg-blue-600/30 border-blue-400/30 text-white" 
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="text-white text-sm font-medium">Glosas (R$)</label>
+                <Input 
+                  type="number" 
+                  placeholder="0,00"
+                  className="bg-blue-600/30 border-blue-400/30 text-white" 
+                />
+              </div>
+              
+              <div>
+                <label className="text-white text-sm font-medium">Desconto SLA (R$)</label>
+                <Input 
+                  type="number" 
+                  placeholder="0,00"
+                  className="bg-blue-600/30 border-blue-400/30 text-white" 
+                />
+              </div>
+              
+              <div>
+                <label className="text-white text-sm font-medium">Venda MOE (R$)</label>
+                <Input 
+                  type="number" 
+                  placeholder="0,00"
+                  className="bg-blue-600/30 border-blue-400/30 text-white" 
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-white text-sm font-medium">Status</label>
+                <Select>
+                  <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
+                    <SelectValue placeholder="Selecione o status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="nf_emitida">NF Emitida</SelectItem>
+                    <SelectItem value="aguardando_po">Aguardando PO</SelectItem>
+                    <SelectItem value="aguardando_sla">Aguardando SLA</SelectItem>
+                    <SelectItem value="aguardando_aprovacao">Aguardando aprovação shopping</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <label className="text-white text-sm font-medium">Data de Vencimento</label>
+                <Input 
+                  type="date"
+                  className="bg-blue-600/30 border-blue-400/30 text-white"
+                />
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-3 pt-4">
+              <Button 
+                variant="outline" 
+                className="border-blue-400/30 text-white hover:bg-blue-600/30"
+                onClick={() => setIsNewBillingDialogOpen(false)}
+              >
+                Cancelar
+              </Button>
+              <Button 
+                className="bg-blue-600 hover:bg-blue-700"
+                onClick={() => {
+                  toast({
+                    title: "Faturamento Criado",
+                    description: "Novo registro de faturamento adicionado com sucesso.",
+                  });
+                  setIsNewBillingDialogOpen(false);
+                }}
+              >
+                Criar Faturamento
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
