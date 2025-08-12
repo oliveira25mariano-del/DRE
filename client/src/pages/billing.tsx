@@ -76,8 +76,78 @@ export default function Billing() {
   const [editingBilling, setEditingBilling] = useState<BillingData | null>(null);
   const [isNewBillingDialogOpen, setIsNewBillingDialogOpen] = useState(false);
   const [isNewCostDialogOpen, setIsNewCostDialogOpen] = useState(false);
+  const [newCostData, setNewCostData] = useState({
+    date: new Date().toISOString().split('T')[0],
+    category: '',
+    contractId: '',
+    status: 'pendente',
+    description: '',
+    supplier: '',
+    value: '',
+    costCenter: '',
+    invoiceNumber: '',
+    dueDate: ''
+  });
   const [selectedBilling, setSelectedBilling] = useState<BillingData | null>(null);
   const { toast } = useToast();
+  const queryClientHook = useQueryClient();
+
+  // Mutation for creating new direct cost
+  const createDirectCostMutation = useMutation({
+    mutationFn: async (costData: any) => {
+      return apiRequest('/api/direct-costs', 'POST', costData);
+    },
+    onSuccess: () => {
+      queryClientHook.invalidateQueries({ queryKey: ['/api/direct-costs'] });
+      toast({
+        title: "Custo Adicionado",
+        description: "Novo custo direto registrado com sucesso.",
+      });
+      setIsNewCostDialogOpen(false);
+      // Reset form
+      setNewCostData({
+        date: new Date().toISOString().split('T')[0],
+        category: '',
+        contractId: '',
+        status: 'pendente',
+        description: '',
+        supplier: '',
+        value: '',
+        costCenter: '',
+        invoiceNumber: '',
+        dueDate: ''
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro",
+        description: "Falha ao registrar o custo direto. Tente novamente.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Function to handle new cost submission
+  const handleCreateCost = () => {
+    // Validation
+    if (!newCostData.category || !newCostData.contractId || !newCostData.description || !newCostData.value) {
+      toast({
+        title: "Campos Obrigatórios",
+        description: "Preencha categoria, contrato, descrição e valor.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const costPayload = {
+      ...newCostData,
+      date: new Date(newCostData.date).toISOString(),
+      dueDate: newCostData.dueDate ? new Date(newCostData.dueDate).toISOString() : null,
+      value: newCostData.value,
+    };
+
+    createDirectCostMutation.mutate(costPayload);
+  };
 
   // State for edit values
   const [editValues, setEditValues] = useState<Partial<BillingData>>({});
@@ -1941,14 +2011,15 @@ export default function Billing() {
                 <label className="text-white text-sm font-medium">Data</label>
                 <Input
                   type="date"
-                  defaultValue={new Date().toISOString().split('T')[0]}
+                  value={newCostData.date}
+                  onChange={(e) => setNewCostData({...newCostData, date: e.target.value})}
                   className="bg-blue-600/30 border-blue-400/30 text-white"
                 />
               </div>
               
               <div>
                 <label className="text-white text-sm font-medium">Categoria</label>
-                <Select>
+                <Select value={newCostData.category} onValueChange={(value) => setNewCostData({...newCostData, category: value})}>
                   <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
                     <SelectValue placeholder="Selecione uma categoria" />
                   </SelectTrigger>
@@ -1976,7 +2047,7 @@ export default function Billing() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="text-white text-sm font-medium">Contrato</label>
-                <Select>
+                <Select value={newCostData.contractId} onValueChange={(value) => setNewCostData({...newCostData, contractId: value})}>
                   <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
                     <SelectValue placeholder="Selecione um contrato" />
                   </SelectTrigger>
@@ -1991,7 +2062,7 @@ export default function Billing() {
               
               <div>
                 <label className="text-white text-sm font-medium">Status</label>
-                <Select>
+                <Select value={newCostData.status} onValueChange={(value) => setNewCostData({...newCostData, status: value})}>
                   <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
                     <SelectValue placeholder="Status do custo" />
                   </SelectTrigger>
@@ -2010,6 +2081,8 @@ export default function Billing() {
               <Input 
                 type="text" 
                 placeholder="Descrição detalhada do custo"
+                value={newCostData.description}
+                onChange={(e) => setNewCostData({...newCostData, description: e.target.value})}
                 className="bg-blue-600/30 border-blue-400/30 text-white" 
               />
             </div>
@@ -2020,6 +2093,8 @@ export default function Billing() {
                 <Input 
                   type="number" 
                   placeholder="0,00"
+                  value={newCostData.value}
+                  onChange={(e) => setNewCostData({...newCostData, value: e.target.value})}
                   className="bg-blue-600/30 border-blue-400/30 text-white" 
                 />
               </div>
@@ -2029,6 +2104,8 @@ export default function Billing() {
                 <Input 
                   type="text" 
                   placeholder="Nome do fornecedor"
+                  value={newCostData.supplier}
+                  onChange={(e) => setNewCostData({...newCostData, supplier: e.target.value})}
                   className="bg-blue-600/30 border-blue-400/30 text-white" 
                 />
               </div>
@@ -2040,6 +2117,8 @@ export default function Billing() {
                 <Input 
                   type="text" 
                   placeholder="CC001"
+                  value={newCostData.costCenter}
+                  onChange={(e) => setNewCostData({...newCostData, costCenter: e.target.value})}
                   className="bg-blue-600/30 border-blue-400/30 text-white" 
                 />
               </div>
@@ -2049,6 +2128,8 @@ export default function Billing() {
                 <Input 
                   type="text" 
                   placeholder="Nota fiscal"
+                  value={newCostData.invoiceNumber}
+                  onChange={(e) => setNewCostData({...newCostData, invoiceNumber: e.target.value})}
                   className="bg-blue-600/30 border-blue-400/30 text-white" 
                 />
               </div>
@@ -2057,6 +2138,8 @@ export default function Billing() {
                 <label className="text-white text-sm font-medium">Data Vencimento</label>
                 <Input
                   type="date"
+                  value={newCostData.dueDate}
+                  onChange={(e) => setNewCostData({...newCostData, dueDate: e.target.value})}
                   className="bg-blue-600/30 border-blue-400/30 text-white"
                 />
               </div>
@@ -2073,15 +2156,10 @@ export default function Billing() {
               </Button>
               <Button 
                 className="bg-blue-600 hover:bg-blue-700"
-                onClick={() => {
-                  toast({
-                    title: "Custo Adicionado",
-                    description: "Novo custo direto registrado com sucesso.",
-                  });
-                  setIsNewCostDialogOpen(false);
-                }}
+                onClick={handleCreateCost}
+                disabled={createDirectCostMutation.isPending}
               >
-                Adicionar Custo
+                {createDirectCostMutation.isPending ? "Adicionando..." : "Adicionar Custo"}
               </Button>
             </div>
           </div>

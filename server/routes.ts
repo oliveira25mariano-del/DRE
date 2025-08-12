@@ -8,7 +8,7 @@ import {
   insertContractSchema, insertBudgetSchema, insertActualSchema,
   insertEmployeeSchema, insertGlosaSchema, insertPredictionSchema,
   insertAlertSchema, insertReportSchema, insertCategorySchema,
-  insertAuditLogSchema
+  insertDirectCostSchema, insertAuditLogSchema
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -327,6 +327,90 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(category);
     } catch (error) {
       res.status(400).json({ message: error instanceof Error ? error.message : 'Error creating category' });
+    }
+  });
+
+  // Direct Costs
+  app.get('/api/direct-costs', async (req, res) => {
+    try {
+      const contractId = req.query.contractId as string;
+      const costs = await storage.getDirectCosts(contractId);
+      res.json(costs);
+    } catch (error) {
+      res.status(500).json({ message: error instanceof Error ? error.message : 'Error fetching direct costs' });
+    }
+  });
+
+  app.get('/api/direct-costs/:id', async (req, res) => {
+    try {
+      const cost = await storage.getDirectCost(req.params.id);
+      if (!cost) {
+        return res.status(404).json({ message: 'Direct cost not found' });
+      }
+      res.json(cost);
+    } catch (error) {
+      res.status(500).json({ message: error instanceof Error ? error.message : 'Error fetching direct cost' });
+    }
+  });
+
+  app.post('/api/direct-costs', async (req, res) => {
+    try {
+      const validatedData = insertDirectCostSchema.parse(req.body);
+      const cost = await storage.createDirectCost(validatedData);
+      
+      req.auditData = {
+        tableName: 'direct_costs',
+        recordId: cost.id,
+        newData: cost,
+      };
+      
+      res.status(201).json(cost);
+    } catch (error) {
+      res.status(400).json({ message: error instanceof Error ? error.message : 'Error creating direct cost' });
+    }
+  });
+
+  app.put('/api/direct-costs/:id', async (req, res) => {
+    try {
+      const existing = await storage.getDirectCost(req.params.id);
+      if (!existing) {
+        return res.status(404).json({ message: 'Direct cost not found' });
+      }
+      
+      const validatedData = insertDirectCostSchema.partial().parse(req.body);
+      const cost = await storage.updateDirectCost(req.params.id, validatedData);
+      
+      req.auditData = {
+        tableName: 'direct_costs',
+        recordId: cost.id,
+        oldData: existing,
+        newData: cost,
+      };
+      
+      res.json(cost);
+    } catch (error) {
+      res.status(400).json({ message: error instanceof Error ? error.message : 'Error updating direct cost' });
+    }
+  });
+
+  app.delete('/api/direct-costs/:id', async (req, res) => {
+    try {
+      const existing = await storage.getDirectCost(req.params.id);
+      if (!existing) {
+        return res.status(404).json({ message: 'Direct cost not found' });
+      }
+      
+      await storage.deleteDirectCost(req.params.id);
+      
+      req.auditData = {
+        tableName: 'direct_costs',
+        recordId: req.params.id,
+        oldData: existing,
+      };
+      
+      res.status(204).send();
+    } catch (error) {
+      res.status(400).json({ message: error instanceof Error ? error.message : 'Error deleting direct cost' });
     }
   });
 

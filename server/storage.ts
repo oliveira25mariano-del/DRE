@@ -9,13 +9,14 @@ import {
   type Alert, type InsertAlert,
   type Report, type InsertReport,
   type Category, type InsertCategory,
+  type DirectCost, type InsertDirectCost,
   type User, type InsertUser
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
-import { users, employees } from "@shared/schema";
+import { users, employees, directCosts } from "@shared/schema";
 
 export interface IStorage {
   // Contracts
@@ -85,6 +86,13 @@ export interface IStorage {
   updateCategory(id: string, category: Partial<InsertCategory>): Promise<Category>;
   deleteCategory(id: string): Promise<void>;
 
+  // Direct Costs
+  getDirectCosts(contractId?: string): Promise<DirectCost[]>;
+  getDirectCost(id: string): Promise<DirectCost | undefined>;
+  createDirectCost(directCost: InsertDirectCost): Promise<DirectCost>;
+  updateDirectCost(id: string, directCost: Partial<InsertDirectCost>): Promise<DirectCost>;
+  deleteDirectCost(id: string): Promise<void>;
+
   // Analytics
   getDREData(year: number, month: number): Promise<any>;
   getKPIData(): Promise<any>;
@@ -110,6 +118,7 @@ export class MemStorage implements IStorage {
   private alerts: Map<string, Alert> = new Map();
   private reports: Map<string, Report> = new Map();
   private categories: Map<string, Category> = new Map();
+  private directCosts: Map<string, DirectCost> = new Map();
   private users: Map<string, User> = new Map();
 
   constructor() {
@@ -630,6 +639,44 @@ export class MemStorage implements IStorage {
     this.categories.delete(id);
   }
 
+  // Direct Costs
+  async getDirectCosts(contractId?: string): Promise<DirectCost[]> {
+    const costs = Array.from(this.directCosts.values());
+    if (contractId) {
+      return costs.filter(cost => cost.contractId === contractId);
+    }
+    return costs;
+  }
+
+  async getDirectCost(id: string): Promise<DirectCost | undefined> {
+    return this.directCosts.get(id);
+  }
+
+  async createDirectCost(insertDirectCost: InsertDirectCost): Promise<DirectCost> {
+    const id = randomUUID();
+    const cost: DirectCost = {
+      ...insertDirectCost,
+      id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.directCosts.set(id, cost);
+    return cost;
+  }
+
+  async updateDirectCost(id: string, insertDirectCost: Partial<InsertDirectCost>): Promise<DirectCost> {
+    const existing = this.directCosts.get(id);
+    if (!existing) throw new Error("Direct cost not found");
+    
+    const updated: DirectCost = { ...existing, ...insertDirectCost, updatedAt: new Date() };
+    this.directCosts.set(id, updated);
+    return updated;
+  }
+
+  async deleteDirectCost(id: string): Promise<void> {
+    this.directCosts.delete(id);
+  }
+
   // Analytics
   async getDREData(year: number, month: number): Promise<any> {
     const budgets = await this.getBudgets();
@@ -854,6 +901,13 @@ class DatabaseStorage implements IStorage {
   async createCategory(category: InsertCategory): Promise<Category> { return this.memStorage.createCategory(category); }
   async updateCategory(id: string, category: Partial<InsertCategory>): Promise<Category> { return this.memStorage.updateCategory(id, category); }
   async deleteCategory(id: string): Promise<void> { return this.memStorage.deleteCategory(id); }
+
+  // Direct Costs
+  async getDirectCosts(contractId?: string): Promise<DirectCost[]> { return this.memStorage.getDirectCosts(contractId); }
+  async getDirectCost(id: string): Promise<DirectCost | undefined> { return this.memStorage.getDirectCost(id); }
+  async createDirectCost(directCost: InsertDirectCost): Promise<DirectCost> { return this.memStorage.createDirectCost(directCost); }
+  async updateDirectCost(id: string, directCost: Partial<InsertDirectCost>): Promise<DirectCost> { return this.memStorage.updateDirectCost(id, directCost); }
+  async deleteDirectCost(id: string): Promise<void> { return this.memStorage.deleteDirectCost(id); }
   
   async getDREData(year: number, month: number): Promise<any> { return this.memStorage.getDREData(year, month); }
   async getKPIData(): Promise<any> { return this.memStorage.getKPIData(); }

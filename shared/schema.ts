@@ -145,6 +145,23 @@ export const categories = pgTable("categories", {
   createdAt: timestamp("created_at").default(sql`now()`),
 });
 
+// Custos Diretos
+export const directCosts = pgTable("direct_costs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  contractId: varchar("contract_id").references(() => contracts.id).notNull(),
+  date: timestamp("date").notNull(),
+  category: text("category").notNull(),
+  description: text("description").notNull(),
+  supplier: text("supplier"),
+  value: decimal("value", { precision: 12, scale: 2 }).notNull(),
+  costCenter: text("cost_center"),
+  invoiceNumber: text("invoice_number"),
+  dueDate: timestamp("due_date"),
+  status: text("status").notNull().default("pendente"),
+  createdAt: timestamp("created_at").default(sql`now()`),
+  updatedAt: timestamp("updated_at").default(sql`now()`),
+});
+
 // Users
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -224,6 +241,16 @@ export const insertCategorySchema = createInsertSchema(categories).omit({
   createdAt: true,
 });
 
+export const insertDirectCostSchema = createInsertSchema(directCosts, {
+  date: z.coerce.date(),
+  dueDate: z.coerce.date().optional().nullable(),
+  value: z.coerce.string(),
+}).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export const insertUserSchema = createInsertSchema(users, {
   email: z.string().email("Email inválido"),
   password: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
@@ -259,6 +286,8 @@ export type Report = typeof reports.$inferSelect;
 export type InsertReport = z.infer<typeof insertReportSchema>;
 export type Category = typeof categories.$inferSelect;
 export type InsertCategory = z.infer<typeof insertCategorySchema>;
+export type DirectCost = typeof directCosts.$inferSelect;
+export type InsertDirectCost = z.infer<typeof insertDirectCostSchema>;
 export type User = typeof users.$inferSelect;
 
 // Tabela de preferências de notificação
