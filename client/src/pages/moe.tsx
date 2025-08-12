@@ -223,11 +223,10 @@ export default function MOE() {
                           name="email"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-white">Email</FormLabel>
+                              <FormLabel className="text-white">Data</FormLabel>
                               <FormControl>
                                 <Input 
-                                  type="email"
-                                  placeholder="email@empresa.com" 
+                                  type="date"
                                   className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
                                   {...field} 
                                 />
@@ -328,7 +327,7 @@ export default function MOE() {
                           name="fringeRate"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-white">Taxa Fringe (%)</FormLabel>
+                              <FormLabel className="text-white">Faturado Extra</FormLabel>
                               <FormControl>
                                 <Input 
                                   type="number" 
