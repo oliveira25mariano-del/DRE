@@ -170,6 +170,8 @@ export default function NotificationSystem({ userRole = 'user' }: { userRole?: '
   const [soundEnabled, setSoundEnabled] = useState(() => 
     localStorage.getItem('notifications-sound') !== 'false'
   );
+  const [activeNotifications, setActiveNotifications] = useState<Set<string>>(new Set());
+  const [selectedChannels, setSelectedChannels] = useState<Record<string, string[]>>({});
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -245,20 +247,24 @@ export default function NotificationSystem({ userRole = 'user' }: { userRole?: '
   };
 
   const handleToggleNotification = (template: NotificationTemplate, enabled: boolean) => {
-    const existingPreference = findPreferenceForTemplate(template.id);
-    
-    const preference: NotificationPreference = {
-      id: existingPreference?.id || `pref-${Date.now()}`,
-      userId: 'current-user',
-      type: template.type,
-      category: template.category,
-      enabled,
-      channels: enabled ? template.defaultChannels : [],
-      conditions: {},
-      priority: 'medium'
-    };
+    setActiveNotifications(prev => {
+      const newSet = new Set(prev);
+      if (enabled) {
+        newSet.add(template.id);
+        setSelectedChannels(prevChannels => ({
+          ...prevChannels,
+          [template.id]: template.defaultChannels
+        }));
+      } else {
+        newSet.delete(template.id);
+        setSelectedChannels(prevChannels => {
+          const { [template.id]: removed, ...rest } = prevChannels;
+          return rest;
+        });
+      }
+      return newSet;
+    });
 
-    // Simular atualização local
     toast({
       title: enabled ? "Notificação ativada" : "Notificação desativada",
       description: `${template.name} ${enabled ? 'ativada' : 'desativada'} com sucesso.`
@@ -266,7 +272,11 @@ export default function NotificationSystem({ userRole = 'user' }: { userRole?: '
   };
 
   const handleChannelChange = (template: NotificationTemplate, channels: string[]) => {
-    // Simular atualização de canais
+    setSelectedChannels(prev => ({
+      ...prev,
+      [template.id]: channels
+    }));
+
     toast({
       title: "Canais atualizados",
       description: `Canais de notificação para ${template.name} foram atualizados.`
@@ -293,9 +303,9 @@ export default function NotificationSystem({ userRole = 'user' }: { userRole?: '
         >
           <Bell className="w-4 h-4 mr-2" />
           Notificações
-          {preferences.filter(p => p.enabled).length > 0 && (
+          {activeNotifications.size > 0 && (
             <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-red-500 text-xs">
-              {preferences.filter(p => p.enabled).length}
+              {activeNotifications.size}
             </Badge>
           )}
         </Button>
@@ -347,6 +357,7 @@ export default function NotificationSystem({ userRole = 'user' }: { userRole?: '
                     <Switch
                       checked={soundEnabled}
                       onCheckedChange={handleSoundToggle}
+                      className="data-[state=checked]:bg-blue-600 data-[state=unchecked]:bg-gray-500"
                     />
                   </div>
                 </CardContent>
@@ -377,8 +388,8 @@ export default function NotificationSystem({ userRole = 'user' }: { userRole?: '
                       <CardContent className="space-y-3">
                         {typeTemplates.map(template => {
                           const IconComponent = template.icon;
-                          const preference = findPreferenceForTemplate(template.id);
-                          const isEnabled = preference?.enabled || false;
+                          const isEnabled = activeNotifications.has(template.id);
+                          const templateChannels = selectedChannels[template.id] || [];
 
                           return (
                             <div key={template.id} className="space-y-3 p-3 bg-blue-900/20 rounded-lg">
@@ -399,6 +410,7 @@ export default function NotificationSystem({ userRole = 'user' }: { userRole?: '
                                   onCheckedChange={(checked) => 
                                     handleToggleNotification(template, checked)
                                   }
+                                  className="data-[state=checked]:bg-blue-600 data-[state=unchecked]:bg-gray-500"
                                 />
                               </div>
 
@@ -408,7 +420,7 @@ export default function NotificationSystem({ userRole = 'user' }: { userRole?: '
                                     <Label className="text-blue-200 text-xs">Canais de Notificação:</Label>
                                     <div className="flex flex-wrap gap-2 mt-1">
                                       {Object.entries(CHANNEL_ICONS).map(([channel, ChannelIcon]) => {
-                                        const isSelected = preference?.channels.includes(channel as any) || false;
+                                        const isSelected = templateChannels.includes(channel);
                                         
                                         return (
                                           <Button
@@ -421,7 +433,7 @@ export default function NotificationSystem({ userRole = 'user' }: { userRole?: '
                                                 : 'bg-transparent border-blue-600/30 text-blue-200 hover:bg-blue-600/30'
                                             }`}
                                             onClick={() => {
-                                              const currentChannels = preference?.channels || [];
+                                              const currentChannels = templateChannels;
                                               const newChannels = isSelected
                                                 ? currentChannels.filter(c => c !== channel)
                                                 : [...currentChannels, channel];
@@ -436,12 +448,12 @@ export default function NotificationSystem({ userRole = 'user' }: { userRole?: '
                                     </div>
                                   </div>
 
-                                  {preference && (
+                                  {isEnabled && (
                                     <Button
                                       variant="ghost"
                                       size="sm"
                                       className="h-7 text-xs text-red-300 hover:text-red-200 hover:bg-red-600/20"
-                                      onClick={() => preference.id && deletePreferenceMutation.mutate(preference.id)}
+                                      onClick={() => handleToggleNotification(template, false)}
                                     >
                                       <Trash2 className="w-3 h-3 mr-1" />
                                       Remover
@@ -500,13 +512,13 @@ export default function NotificationSystem({ userRole = 'user' }: { userRole?: '
               <div className="grid grid-cols-2 gap-4 text-center">
                 <div>
                   <div className="text-2xl font-bold text-white">
-                    {preferences.filter(p => p.enabled).length}
+                    {activeNotifications.size}
                   </div>
                   <div className="text-xs text-blue-300">Ativas</div>
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-white">
-                    {preferences.length}
+                    {availableTemplates.length}
                   </div>
                   <div className="text-xs text-blue-300">Total</div>
                 </div>
