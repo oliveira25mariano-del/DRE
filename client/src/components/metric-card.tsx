@@ -113,44 +113,41 @@ export default function MetricCard({
 
   return (
     <Card className={`glass-effect ${colors.border}`}>
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <p className="text-sm font-medium text-blue-100">{title}</p>
-              {badge && (
-                <Badge variant="secondary" className="text-xs">
-                  {badge}
-                </Badge>
-              )}
-            </div>
-            
-            <p className="text-2xl font-bold text-white">
-              {typeof value === 'number' 
-                ? new Intl.NumberFormat('pt-BR', {
-                    style: 'currency',
-                    currency: 'BRL',
-                    minimumFractionDigits: 0
-                  }).format(value)
-                : value
-              }
-            </p>
-            
-            {subtitle && (
-              <p className="text-xs text-blue-300">{subtitle}</p>
-            )}
-            
-            {change !== undefined && (
-              <div className={`flex items-center text-sm ${trendClasses[trend]}`}>
-                <TrendIcon className="w-4 h-4 mr-1" />
-                <span>{formatChange()}</span>
-              </div>
+      <CardContent className="p-6 relative">
+        <div className="absolute top-4 right-4">
+          <Icon className={`${colors.icon} w-5 h-5`} />
+        </div>
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-medium text-blue-100">{title}</p>
+            {badge && (
+              <Badge variant="secondary" className="text-xs">
+                {badge}
+              </Badge>
             )}
           </div>
           
-          <div className={`${colors.bg} p-3 rounded-full`}>
-            <Icon className={`${colors.icon} w-6 h-6`} />
-          </div>
+          <p className="text-2xl font-bold text-white">
+            {typeof value === 'number' 
+              ? new Intl.NumberFormat('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL',
+                  minimumFractionDigits: 0
+                }).format(value)
+              : value
+            }
+          </p>
+          
+          {subtitle && (
+            <p className="text-xs text-blue-300">{subtitle}</p>
+          )}
+          
+          {change !== undefined && (
+            <div className={`flex items-center text-sm ${trendClasses[trend]}`}>
+              <TrendIcon className="w-4 h-4 mr-1" />
+              <span>{formatChange()}</span>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
