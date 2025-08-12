@@ -12,7 +12,8 @@ import {
   FileBarChart,
   DollarSign,
   HelpCircle,
-  Presentation
+  Presentation,
+  Plug
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import opusLogo from "@assets/Logo-Grupo-Opus_1754948245317.png";
@@ -26,6 +27,7 @@ const menuItems = [
 
 const analysisItems = [
   { path: "/predictions", label: "Previsões ML", icon: Brain, id: "sidebar-predictions" },
+  { path: "/integrations", label: "Integrações", icon: Plug, id: "sidebar-integrations" },
   { path: "/audit", label: "Auditoria", icon: Search, id: "sidebar-audit" },
   { path: "/alerts", label: "Alertas", icon: Bell, id: "sidebar-alerts" },
   { path: "/faturamento", label: "Provisões", icon: DollarSign, id: "sidebar-billing" },

@@ -48,6 +48,7 @@ The platform incorporates several key features and design patterns:
 - **Modo de Apresentação Executiva:** Sistema completo com 4 slides profissionais, avanço automático configurável e controles avançados
 - **Sistema de Relatórios Avançados:** Implementação de módulo de relatórios com templates personalizáveis, filtros avançados e opções de exportação
 - **Machine Learning Preditivo:** Sistema avançado de ML com 4 modelos (predição de custos, previsão de receitas, detecção de anomalias, otimização de recursos), análise preditiva de 3-24 meses e sugestões inteligentes de otimização
+- **Sistema de Integrações Externas:** Plataforma completa para conectar com sistemas contábeis (Contabilizei), bancários (Banco do Brasil), RH (Senior) e ERPs (SAP), com monitoramento de status, logs detalhados e sincronização automática
 
 ### Próximas Funcionalidades Sugeridas
 **Análise Financeira Avançada:**
