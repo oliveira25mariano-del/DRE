@@ -42,6 +42,7 @@ interface BillingData {
   vendaMoe: number;
   outros: number;
   // Fringe Benefits
+  efetivo: number;
   fringePlanejado: number;
   fringeExecutado: number;
 }
@@ -95,6 +96,7 @@ export default function Billing() {
       descontoSla: 1200,
       vendaMoe: 3800,
       outros: 1500,
+      efetivo: 42000,
       fringePlanejado: 42000,
       fringeExecutado: 40500
     },
@@ -115,6 +117,7 @@ export default function Billing() {
       descontoSla: 0,
       vendaMoe: 4200,
       outros: 2100,
+      efetivo: 78400,
       fringePlanejado: 78400,
       fringeExecutado: 77000
     },
@@ -135,6 +138,7 @@ export default function Billing() {
       descontoSla: 800,
       vendaMoe: 2100,
       outros: 950,
+      efetivo: 23800,
       fringePlanejado: 23800,
       fringeExecutado: 25760
     },
@@ -155,6 +159,7 @@ export default function Billing() {
       descontoSla: 2500,
       vendaMoe: 1900,
       outros: 1800,
+      efetivo: 89600,
       fringePlanejado: 89600,
       fringeExecutado: 83440
     },
@@ -175,6 +180,7 @@ export default function Billing() {
       descontoSla: 0,
       vendaMoe: 0,
       outros: 0,
+      efetivo: 126000,
       fringePlanejado: 126000,
       fringeExecutado: 0
     }
@@ -388,6 +394,7 @@ export default function Billing() {
                     "Desconto SLA": bill.descontoSla,
                     "Venda MOE": bill.vendaMoe,
                     "Outros": bill.outros,
+                    "Efetivo": bill.efetivo,
                     "Fringe Planejado": bill.fringePlanejado,
                     "Fringe Executado": bill.fringeExecutado,
                     "Vencimento": format(new Date(bill.dueDate), 'dd/MM/yyyy', { locale: ptBR })
@@ -601,12 +608,18 @@ export default function Billing() {
                         </div>
 
                         {/* Fringe Row */}
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 pt-3 border-t border-blue-400/20">
+                        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 pt-3 border-t border-blue-400/20">
                           <div className="text-center">
                             <p className="text-sm text-blue-200">Fringe</p>
                           </div>
                           <div className="text-center">
-                            <p className="text-sm text-blue-200">( Efetivo ) Fringe Planejado</p>
+                            <p className="text-sm text-blue-200">Efetivo</p>
+                            <p className="text-lg font-semibold text-purple-300">
+                              R$ {bill.efetivo.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-sm text-blue-200">Fringe Planejado</p>
                             <p className="text-lg font-semibold text-blue-300">
                               R$ {bill.fringePlanejado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                             </p>
@@ -890,9 +903,16 @@ export default function Billing() {
               {/* Fringe Section */}
               <div>
                 <h3 className="text-white text-sm font-medium mb-2">Fringe</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                   <div>
-                    <label className="text-white text-xs font-medium">( Efetivo ) Fringe Planejado</label>
+                    <label className="text-white text-xs font-medium">Efetivo</label>
+                    <p className="text-purple-300 bg-blue-600/20 p-2 rounded text-sm mt-1">
+                      R$ {selectedBilling.efetivo.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <label className="text-white text-xs font-medium">Fringe Planejado</label>
                     <p className="text-blue-300 bg-blue-600/20 p-2 rounded text-sm mt-1">
                       R$ {selectedBilling.fringePlanejado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </p>
@@ -1211,9 +1231,18 @@ export default function Billing() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="text-white text-sm font-medium">( Efetivo ) Fringe Planejado (R$)</label>
+                <label className="text-white text-sm font-medium">Efetivo (R$)</label>
+                <Input 
+                  type="number" 
+                  placeholder="0,00"
+                  className="bg-blue-600/30 border-blue-400/30 text-white" 
+                />
+              </div>
+              
+              <div>
+                <label className="text-white text-sm font-medium">Fringe Planejado (R$)</label>
                 <Input 
                   type="number" 
                   placeholder="0,00"
