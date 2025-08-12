@@ -35,7 +35,14 @@ The platform incorporates several key features and design patterns:
 - **Employee Management:** Full CRUD operations for employee records, persisted in PostgreSQL.
 - **Monthly Billing System:** Analyzes predicted vs. actual vs. utilization rates by contract, month, and year, including indirect costs tracking (Glosas, Desconto SLA, Venda MOE) and a "Provisão Geral" tab for comparative analysis.
 - **Direct Costs Management:** Comprehensive module with PostgreSQL integration for CRUD operations, validation, and real-time UI updates for direct costs.
+- **Advanced Filtering System:** Real-time filtering capabilities for direct costs by Contract, Month, Year, and Category with PostgreSQL integration and immediate UI updates.
 - **UI Consistency:** Standardized icon usage and consistent layout patterns across all modules for a unified user experience.
+
+### Recent Changes (August 2025)
+- **Filter System Implementation:** Complete implementation of real-time filtering system for direct costs with PostgreSQL backend integration
+- **Data Persistence:** Successfully migrated from in-memory to PostgreSQL storage for direct costs with full CRUD operations
+- **Authentication Fixes:** Resolved API request format issues in admin panel for proper user management
+- **Test Data Creation:** Established comprehensive test dataset with multiple contracts, categories, and time periods for filter validation
 
 ## External Dependencies
 
