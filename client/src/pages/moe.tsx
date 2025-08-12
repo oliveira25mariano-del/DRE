@@ -125,7 +125,7 @@ export default function MOE() {
                 <p className="text-sm font-medium text-blue-100">Total MOE</p>
                 <p className="text-2xl font-bold text-white">{formatCurrency(totalMOECost)}</p>
               </div>
-              <div className="bg-blue-500/20 p-3 rounded-full">
+              <div className="flex items-center justify-center bg-blue-500/20 rounded-full w-12 h-12">
                 <Users className="text-blue-400 w-6 h-6" />
               </div>
             </div>
@@ -139,7 +139,7 @@ export default function MOE() {
                 <p className="text-sm font-medium text-blue-100">Colaboradores Ativos</p>
                 <p className="text-2xl font-bold text-white">{activeEmployees.length}</p>
               </div>
-              <div className="bg-green-500/20 p-3 rounded-full">
+              <div className="flex items-center justify-center bg-green-500/20 rounded-full w-12 h-12">
                 <Users className="text-green-400 w-6 h-6" />
               </div>
             </div>
@@ -155,7 +155,7 @@ export default function MOE() {
                   {activeEmployees.reduce((sum: number, emp: Employee) => sum + parseFloat(emp.hoursWorked || "0"), 0).toFixed(0)}h
                 </p>
               </div>
-              <div className="bg-amber-500/20 p-3 rounded-full">
+              <div className="flex items-center justify-center bg-amber-500/20 rounded-full w-12 h-12">
                 <Clock className="text-amber-400 w-6 h-6" />
               </div>
             </div>
@@ -175,7 +175,7 @@ export default function MOE() {
                   )}
                 </p>
               </div>
-              <div className="bg-purple-500/20 p-3 rounded-full">
+              <div className="flex items-center justify-center bg-purple-500/20 rounded-full w-12 h-12">
                 <Users className="text-purple-400 w-6 h-6" />
               </div>
             </div>
