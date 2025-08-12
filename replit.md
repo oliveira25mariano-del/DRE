@@ -16,6 +16,8 @@ This is a comprehensive financial management system (Sistema DRE) built with Rea
 
 **Personalized Notification System (Aug 12, 2025):** Comprehensive notification system implemented with role-based templates and user customization. Features 8+ notification templates across 4 categories (financial, system, contracts, budget), 4 communication channels (email, push, SMS, dashboard), individual preference controls per notification type, sound settings, and notification history with read status. System includes admin-specific notifications (login alerts, system maintenance) and user-specific financial alerts (revenue targets, cost overruns, contract renewals). All preferences managed through lateral panel interface with real-time configuration updates. Switch components fully functional with proper visual feedback (color change and position movement) and local state management for responsive user interactions.
 
+**Report Settings Panel (Aug 12, 2025):** Complete configuration system for reports module implemented with comprehensive settings dialog. Features general configurations (default format, language, signature), notification settings for report events, and security options (double approval, audit logging, encryption). Accessible through Settings button in reports interface with organized sections and functional switches for all options. Integrates seamlessly with existing UI theme and provides toast feedback for saved configurations.
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.

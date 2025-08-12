@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -243,6 +243,9 @@ export default function Reports() {
                 <DialogContent className="max-w-4xl bg-blue-bg border-blue-400/30">
                   <DialogHeader>
                     <DialogTitle className="text-white">Criar Novo Relatório</DialogTitle>
+                    <DialogDescription className="text-blue-200">
+                      Configure os detalhes do novo relatório incluindo tipo, agendamento e entrega.
+                    </DialogDescription>
                   </DialogHeader>
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -452,6 +455,9 @@ export default function Reports() {
                 <DialogContent className="max-w-2xl bg-blue-bg border-blue-400/30">
                   <DialogHeader>
                     <DialogTitle className="text-white">Configurações de Relatórios</DialogTitle>
+                    <DialogDescription className="text-blue-200">
+                      Ajuste as configurações gerais, notificações e segurança do sistema de relatórios.
+                    </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-6">
                     {/* Configurações Gerais */}
