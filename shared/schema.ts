@@ -74,6 +74,7 @@ export const glosas = pgTable("glosas", {
   contractId: varchar("contract_id").references(() => contracts.id).notNull(),
   description: text("description").notNull(),
   amount: decimal("amount", { precision: 12, scale: 2 }).notNull(),
+  attestationCosts: decimal("attestation_costs", { precision: 12, scale: 2 }),
   date: timestamp("date").notNull(),
   reason: text("reason"),
   status: text("status").notNull().default("pending"),

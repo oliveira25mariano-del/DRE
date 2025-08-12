@@ -63,6 +63,7 @@ export default function Glosas() {
       contractId: "",
       description: "",
       amount: "0",
+      attestationCosts: "0",
       date: new Date(),
       reason: "",
       status: "pending",
@@ -178,7 +179,7 @@ export default function Glosas() {
                   </DialogHeader>
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <FormField
                           control={form.control}
                           name="contractId"
@@ -210,6 +211,26 @@ export default function Glosas() {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className="text-white">Valor (R$)</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  type="number" 
+                                  step="0.01"
+                                  placeholder="0,00" 
+                                  className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
+                                  {...field} 
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="attestationCosts"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-white">Custos de Glosas de Atestado (R$)</FormLabel>
                               <FormControl>
                                 <Input 
                                   type="number" 
@@ -415,6 +436,9 @@ export default function Glosas() {
                         Valor
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">
+                        Custos de Atestado
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">
                         Data
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">
@@ -440,6 +464,9 @@ export default function Glosas() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-red-400">
                             {formatCurrency(glosa.amount)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-orange-400">
+                            {glosa.attestationCosts ? formatCurrency(glosa.attestationCosts) : 'R$ 0,00'}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                             {format(new Date(glosa.date), "dd/MM/yyyy", { locale: ptBR })}
