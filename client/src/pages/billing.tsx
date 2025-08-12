@@ -600,10 +600,10 @@ export default function Billing() {
                           </div>
                         </div>
 
-                        {/* Fringe Benefits Row */}
+                        {/* Fringe Row */}
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 pt-3 border-t border-blue-400/20">
                           <div className="text-center">
-                            <p className="text-sm text-blue-200">Fringe Benefits</p>
+                            <p className="text-sm text-blue-200">Fringe</p>
                           </div>
                           <div className="text-center">
                             <p className="text-sm text-blue-200">Fringe Planejado</p>
@@ -887,9 +887,9 @@ export default function Billing() {
                 </div>
               </div>
 
-              {/* Fringe Benefits Section */}
+              {/* Fringe Section */}
               <div>
-                <h3 className="text-white text-sm font-medium mb-2">Fringe Benefits</h3>
+                <h3 className="text-white text-sm font-medium mb-2">Fringe</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <div>
                     <label className="text-white text-xs font-medium">Fringe Planejado</label>
