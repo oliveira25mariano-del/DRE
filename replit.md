@@ -43,6 +43,7 @@ The platform incorporates several key features and design patterns:
 - **Persistência de Dados:** Migração bem-sucedida do armazenamento em memória para PostgreSQL com operações CRUD completas
 - **Correções de Autenticação:** Resolução de problemas de formato de requisições API no painel administrativo
 - **Dados de Teste:** Criação de dataset abrangente com múltiplos contratos, categorias e períodos para validação dos filtros
+- **Padronização Visual:** Atualização das cores dos gráficos para tonalidades de azul, mantendo consistência com o branding da empresa Opus
 
 ### Próximas Funcionalidades Sugeridas
 **Análise Financeira Avançada:**
