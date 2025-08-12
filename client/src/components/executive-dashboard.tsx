@@ -113,7 +113,7 @@ const ExecutiveDashboard: React.FC = () => {
 
   // Generate executive metrics
   const executiveMetrics = useMemo((): ExecutiveMetrics => {
-    const baseRevenue = realtimeMetrics?.revenue?.current || 450000;
+    const baseRevenue = (realtimeMetrics as any)?.revenue?.current || 450000;
     const baseCosts = 320000;
     
     return {

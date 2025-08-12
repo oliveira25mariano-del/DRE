@@ -27,11 +27,12 @@ const menuItems = [
 
 const analysisItems = [
   { path: "/executive-dashboard", label: "Dashboard Executivo", icon: BarChart3, id: "sidebar-executive" },
+  { path: "/financial-analysis", label: "Análise Financeira", icon: DollarSign, id: "sidebar-financial" },
   { path: "/predictions", label: "Previsões ML", icon: Brain, id: "sidebar-predictions" },
   { path: "/integrations", label: "Integrações", icon: Plug, id: "sidebar-integrations" },
   { path: "/audit", label: "Auditoria", icon: Search, id: "sidebar-audit" },
   { path: "/alerts", label: "Alertas", icon: Bell, id: "sidebar-alerts" },
-  { path: "/faturamento", label: "Provisões", icon: DollarSign, id: "sidebar-billing" },
+  { path: "/faturamento", label: "Provisões", icon: FileBarChart, id: "sidebar-billing" },
   { path: "/reports", label: "Relatórios", icon: FileBarChart, id: "sidebar-reports" },
   { path: "/presentation", label: "Apresentação", icon: Presentation, id: "sidebar-presentation" },
 ];
