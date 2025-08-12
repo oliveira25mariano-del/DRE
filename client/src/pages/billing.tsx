@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { 
   Plus, Search, DollarSign, TrendingUp, TrendingDown, 
-  Calendar, FileBarChart, Target, CheckCircle2, AlertCircle,
+  Calendar, FileBarChart, Target, CheckCircle2, AlertCircle, AlertTriangle,
   Download, Eye, Edit, Filter, BarChart3, PieChart
 } from "lucide-react";
 import { queryClient } from "@/lib/queryClient";
@@ -36,6 +36,10 @@ interface BillingData {
   status: 'nf_emitida' | 'aguardando_po' | 'aguardando_sla' | 'aguardando_aprovacao';
   dueDate: string;
   createdAt: string;
+  // Custos Indiretos
+  glosas: number;
+  descontoSla: number;
+  vendaMoe: number;
 }
 
 const MONTHS = [
@@ -81,7 +85,10 @@ export default function Billing() {
       utilizationRate: 96.7,
       status: "nf_emitida",
       dueDate: "2025-09-15",
-      createdAt: "2025-08-01T00:00:00Z"
+      createdAt: "2025-08-01T00:00:00Z",
+      glosas: 2500,
+      descontoSla: 1200,
+      vendaMoe: 3800
     },
     {
       id: "2",
@@ -95,7 +102,10 @@ export default function Billing() {
       utilizationRate: 98.2,
       status: "aguardando_po",
       dueDate: "2025-09-20",
-      createdAt: "2025-08-01T00:00:00Z"
+      createdAt: "2025-08-01T00:00:00Z",
+      glosas: 5600,
+      descontoSla: 0,
+      vendaMoe: 4200
     },
     {
       id: "3",
@@ -109,7 +119,10 @@ export default function Billing() {
       utilizationRate: 108.2,
       status: "nf_emitida",
       dueDate: "2025-08-15",
-      createdAt: "2025-07-01T00:00:00Z"
+      createdAt: "2025-07-01T00:00:00Z",
+      glosas: 1800,
+      descontoSla: 800,
+      vendaMoe: 2100
     },
     {
       id: "4",
@@ -123,7 +136,10 @@ export default function Billing() {
       utilizationRate: 93.1,
       status: "aguardando_sla",
       dueDate: "2025-09-10",
-      createdAt: "2025-08-01T00:00:00Z"
+      createdAt: "2025-08-01T00:00:00Z",
+      glosas: 3200,
+      descontoSla: 2500,
+      vendaMoe: 1900
     },
     {
       id: "5",
@@ -137,7 +153,10 @@ export default function Billing() {
       utilizationRate: 0,
       status: "aguardando_aprovacao",
       dueDate: "2025-09-25",
-      createdAt: "2025-08-01T00:00:00Z"
+      createdAt: "2025-08-01T00:00:00Z",
+      glosas: 0,
+      descontoSla: 0,
+      vendaMoe: 0
     }
   ];
 
@@ -193,6 +212,12 @@ export default function Billing() {
 
   const billingEfficiency = totalPredicted > 0 ? (totalBilled / totalPredicted) * 100 : 0;
   const collectionRate = totalBilled > 0 ? (totalReceived / totalBilled) * 100 : 0;
+  
+  // Calculate indirect costs
+  const totalGlosas = filteredBilling.reduce((sum, bill) => sum + bill.glosas, 0);
+  const totalDescontoSla = filteredBilling.reduce((sum, bill) => sum + bill.descontoSla, 0);
+  const totalVendaMoe = filteredBilling.reduce((sum, bill) => sum + bill.vendaMoe, 0);
+  const totalIndirectCosts = totalGlosas + totalDescontoSla + totalVendaMoe;
 
   // Chart data
   const monthlyData = MONTHS.map(month => {
@@ -219,7 +244,7 @@ export default function Billing() {
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         <Card className="glass-effect border-blue-200/20">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
@@ -267,6 +292,21 @@ export default function Billing() {
               </div>
               <div className="bg-purple-500/20 p-3 rounded-full">
                 <CheckCircle2 className="text-purple-400 w-6 h-6" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="glass-effect border-blue-200/20">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-blue-100">Custos Indiretos</p>
+                <p className="text-2xl font-bold text-red-300">R$ {(totalIndirectCosts / 1000).toFixed(0)}K</p>
+                <p className="text-xs text-red-300 mt-1">{totalBilled > 0 ? ((totalIndirectCosts / totalBilled) * 100).toFixed(1) : 0}% do faturado</p>
+              </div>
+              <div className="bg-red-500/20 p-3 rounded-full">
+                <AlertTriangle className="text-red-400 w-6 h-6" />
               </div>
             </div>
           </CardContent>
@@ -417,68 +457,96 @@ export default function Billing() {
                 {filteredBilling.map((bill) => (
                   <Card key={bill.id} className="glass-effect border-blue-400/30">
                     <CardContent className="p-6">
-                      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
-                        <div className="lg:col-span-3">
-                          <h3 className="font-medium text-white">{bill.contractName}</h3>
-                          <p className="text-sm text-blue-200">
-                            {MONTHS.find(m => m.value === bill.month)?.label} {bill.year}
-                          </p>
+                      <div className="space-y-4">
+                        {/* Header Row */}
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                          <div className="lg:col-span-3">
+                            <h3 className="font-medium text-white">{bill.contractName}</h3>
+                            <p className="text-sm text-blue-200">
+                              {MONTHS.find(m => m.value === bill.month)?.label} {bill.year}
+                            </p>
+                          </div>
+                          
+                          <div className="lg:col-span-2 text-center">
+                            <p className="text-sm text-blue-200">Previsto</p>
+                            <p className="text-lg font-semibold text-white">
+                              R$ {(bill.predictedAmount / 1000).toFixed(0)}K
+                            </p>
+                          </div>
+                          
+                          <div className="lg:col-span-2 text-center">
+                            <p className="text-sm text-blue-200">Faturado</p>
+                            <p className="text-lg font-semibold text-white">
+                              R$ {(bill.billedAmount / 1000).toFixed(0)}K
+                            </p>
+                          </div>
+                          
+                          <div className="lg:col-span-2 text-center">
+                            <p className="text-sm text-blue-200">Aproveitamento</p>
+                            <p className={`text-lg font-semibold ${getUtilizationColor(bill.utilizationRate)}`}>
+                              {bill.utilizationRate.toFixed(1)}%
+                            </p>
+                            <Progress 
+                              value={Math.min(bill.utilizationRate, 100)} 
+                              className="w-full h-2 mt-1"
+                            />
+                          </div>
+                          
+                          <div className="lg:col-span-2 text-center">
+                            <Badge className={getStatusColor(bill.status)}>
+                              {getStatusLabel(bill.status)}
+                            </Badge>
+                          </div>
+                          
+                          <div className="lg:col-span-1 flex justify-end space-x-2">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-blue-300 hover:text-white"
+                              onClick={() => {
+                                setSelectedBilling(bill);
+                                setIsViewDialogOpen(true);
+                              }}
+                            >
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-blue-300 hover:text-white"
+                              onClick={() => {
+                                setSelectedBilling(bill);
+                                setIsEditDialogOpen(true);
+                              }}
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </div>
-                        
-                        <div className="lg:col-span-2 text-center">
-                          <p className="text-sm text-blue-200">Previsto</p>
-                          <p className="text-lg font-semibold text-white">
-                            R$ {(bill.predictedAmount / 1000).toFixed(0)}K
-                          </p>
-                        </div>
-                        
-                        <div className="lg:col-span-2 text-center">
-                          <p className="text-sm text-blue-200">Faturado</p>
-                          <p className="text-lg font-semibold text-white">
-                            R$ {(bill.billedAmount / 1000).toFixed(0)}K
-                          </p>
-                        </div>
-                        
-                        <div className="lg:col-span-2 text-center">
-                          <p className="text-sm text-blue-200">Aproveitamento</p>
-                          <p className={`text-lg font-semibold ${getUtilizationColor(bill.utilizationRate)}`}>
-                            {bill.utilizationRate.toFixed(1)}%
-                          </p>
-                          <Progress 
-                            value={Math.min(bill.utilizationRate, 100)} 
-                            className="w-full h-2 mt-1"
-                          />
-                        </div>
-                        
-                        <div className="lg:col-span-2 text-center">
-                          <Badge className={getStatusColor(bill.status)}>
-                            {getStatusLabel(bill.status)}
-                          </Badge>
-                        </div>
-                        
-                        <div className="lg:col-span-1 flex justify-end space-x-2">
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="text-blue-300 hover:text-white"
-                            onClick={() => {
-                              setSelectedBilling(bill);
-                              setIsViewDialogOpen(true);
-                            }}
-                          >
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="text-blue-300 hover:text-white"
-                            onClick={() => {
-                              setSelectedBilling(bill);
-                              setIsEditDialogOpen(true);
-                            }}
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
+
+                        {/* Custos Indiretos Row */}
+                        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 pt-3 border-t border-blue-400/20">
+                          <div className="text-center">
+                            <p className="text-sm text-blue-200">Custos Indiretos</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-sm text-blue-200">Glosas</p>
+                            <p className="text-lg font-semibold text-red-300">
+                              R$ {bill.glosas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-sm text-blue-200">Desconto SLA</p>
+                            <p className="text-lg font-semibold text-yellow-300">
+                              R$ {bill.descontoSla.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-sm text-blue-200">Venda MOE</p>
+                            <p className="text-lg font-semibold text-orange-300">
+                              R$ {bill.vendaMoe.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </CardContent>
@@ -714,6 +782,33 @@ export default function Billing() {
                 </div>
               </div>
               
+              {/* Custos Indiretos Section */}
+              <div>
+                <h3 className="text-white text-lg font-medium mb-4">Custos Indiretos</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-white text-sm font-medium">Glosas</label>
+                    <p className="text-red-300 bg-blue-600/20 p-3 rounded-lg mt-1">
+                      R$ {selectedBilling.glosas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <label className="text-white text-sm font-medium">Desconto SLA</label>
+                    <p className="text-yellow-300 bg-blue-600/20 p-3 rounded-lg mt-1">
+                      R$ {selectedBilling.descontoSla.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <label className="text-white text-sm font-medium">Venda MOE</label>
+                    <p className="text-orange-300 bg-blue-600/20 p-3 rounded-lg mt-1">
+                      R$ {selectedBilling.vendaMoe.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
               <div className="flex justify-end">
                 <Button 
                   variant="outline" 
@@ -834,6 +929,39 @@ export default function Billing() {
                     defaultValue={selectedBilling.dueDate.split('T')[0]}
                     className="bg-blue-600/30 border-blue-400/30 text-white"
                   />
+                </div>
+              </div>
+              
+              {/* Custos Indiretos Section */}
+              <div>
+                <h3 className="text-white text-lg font-medium mb-4">Custos Indiretos</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-white text-sm font-medium">Glosas (R$)</label>
+                    <Input 
+                      type="number"
+                      defaultValue={selectedBilling.glosas}
+                      className="bg-blue-600/30 border-blue-400/30 text-white"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="text-white text-sm font-medium">Desconto SLA (R$)</label>
+                    <Input 
+                      type="number"
+                      defaultValue={selectedBilling.descontoSla}
+                      className="bg-blue-600/30 border-blue-400/30 text-white"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="text-white text-sm font-medium">Venda MOE (R$)</label>
+                    <Input 
+                      type="number"
+                      defaultValue={selectedBilling.vendaMoe}
+                      className="bg-blue-600/30 border-blue-400/30 text-white"
+                    />
+                  </div>
                 </div>
               </div>
               
