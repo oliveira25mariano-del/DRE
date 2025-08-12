@@ -495,7 +495,7 @@ export default function Billing() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="list" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 bg-blue-600/30">
+            <TabsList className="grid w-full grid-cols-5 bg-blue-600/30">
               <TabsTrigger value="list" className="data-[state=active]:bg-blue-600">
                 Lista
               </TabsTrigger>
@@ -504,6 +504,9 @@ export default function Billing() {
               </TabsTrigger>
               <TabsTrigger value="analysis" className="data-[state=active]:bg-blue-600">
                 Análise
+              </TabsTrigger>
+              <TabsTrigger value="custos-diretos" className="data-[state=active]:bg-blue-600">
+                Custos Diretos
               </TabsTrigger>
               <TabsTrigger value="provisao" className="data-[state=active]:bg-blue-600">
                 Provisão Geral
@@ -842,6 +845,271 @@ export default function Billing() {
                     )}
                   </CardContent>
                 </Card>
+              </div>
+            </TabsContent>
+
+            {/* Custos Diretos Tab */}
+            <TabsContent value="custos-diretos" className="space-y-6">
+              <div className="space-y-6">
+                {/* Header */}
+                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center">
+                  <div>
+                    <h3 className="text-xl font-semibold text-white">Gestão de Custos Diretos</h3>
+                    <p className="text-blue-200 mt-1">Controle e acompanhamento de custos diretos por categoria</p>
+                  </div>
+                  <Button 
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    onClick={() => {/* Add new cost entry */}}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Novo Custo
+                  </Button>
+                </div>
+
+                {/* Filtros */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div>
+                    <label className="text-white text-sm font-medium mb-2 block">Contrato</label>
+                    <Select value={selectedContract} onValueChange={setSelectedContract}>
+                      <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
+                        <SelectValue placeholder="Todos os contratos" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todos os contratos</SelectItem>
+                        {[...new Set(billingData.map(b => b.contractName))].map(contractName => (
+                          <SelectItem key={contractName} value={contractName}>
+                            {contractName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <label className="text-white text-sm font-medium mb-2 block">Mês</label>
+                    <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                      <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
+                        <SelectValue placeholder="Todos os meses" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todos os meses</SelectItem>
+                        {MONTHS.map(month => (
+                          <SelectItem key={month.value} value={month.value.toString()}>
+                            {month.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <label className="text-white text-sm font-medium mb-2 block">Ano</label>
+                    <Select value={selectedYear} onValueChange={setSelectedYear}>
+                      <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
+                        <SelectValue placeholder="Ano" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="2025">2025</SelectItem>
+                        <SelectItem value="2024">2024</SelectItem>
+                        <SelectItem value="2023">2023</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <label className="text-white text-sm font-medium mb-2 block">Categoria</label>
+                    <Select>
+                      <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
+                        <SelectValue placeholder="Todas as categorias" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todas as categorias</SelectItem>
+                        <SelectItem value="folha">Folha</SelectItem>
+                        <SelectItem value="insumos">Insumos</SelectItem>
+                        <SelectItem value="epis">EPIs</SelectItem>
+                        <SelectItem value="ferramentas">Ferramentas</SelectItem>
+                        <SelectItem value="combustivel">Combustível</SelectItem>
+                        <SelectItem value="manutencao">Manutenção de equipamentos</SelectItem>
+                        <SelectItem value="locacao">Locação de Equipamento</SelectItem>
+                        <SelectItem value="budget">Budget Clara</SelectItem>
+                        <SelectItem value="hospedagem">Hospedagem</SelectItem>
+                        <SelectItem value="alimentacao">Alimentação</SelectItem>
+                        <SelectItem value="frete">Frete</SelectItem>
+                        <SelectItem value="escritorio">Material de escritório</SelectItem>
+                        <SelectItem value="uniformes">Uniformes</SelectItem>
+                        <SelectItem value="coffee">Coffee break</SelectItem>
+                        <SelectItem value="acoes">Ações</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Cards de Resumo por Categoria */}
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                  {[
+                    { category: 'Folha', value: 85000, icon: '👥', color: 'blue' },
+                    { category: 'Insumos', value: 42000, icon: '🔧', color: 'green' },
+                    { category: 'EPIs', value: 8500, icon: '🦺', color: 'yellow' },
+                    { category: 'Combustível', value: 15000, icon: '⛽', color: 'orange' },
+                    { category: 'Alimentação', value: 12000, icon: '🍽️', color: 'purple' }
+                  ].map((item, index) => (
+                    <Card key={index} className="glass-effect border-blue-200/20">
+                      <CardContent className="p-4 relative">
+                        <div className="absolute top-3 right-3 text-lg">{item.icon}</div>
+                        <div>
+                          <p className="text-sm font-medium text-blue-100">{item.category}</p>
+                          <p className="text-xl font-bold text-white">R$ {(item.value / 1000).toFixed(0)}K</p>
+                          <p className="text-xs text-blue-300 mt-1">Este mês</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+
+                {/* Tabela de Custos Diretos */}
+                <Card className="glass-effect border-blue-200/20">
+                  <CardHeader>
+                    <CardTitle className="text-white">Registro de Custos Diretos</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b border-blue-400/20">
+                            <th className="text-left py-3 px-4 text-blue-200 font-medium">Data</th>
+                            <th className="text-left py-3 px-4 text-blue-200 font-medium">Categoria</th>
+                            <th className="text-left py-3 px-4 text-blue-200 font-medium">Descrição</th>
+                            <th className="text-left py-3 px-4 text-blue-200 font-medium">Contrato</th>
+                            <th className="text-left py-3 px-4 text-blue-200 font-medium">Valor</th>
+                            <th className="text-left py-3 px-4 text-blue-200 font-medium">Status</th>
+                            <th className="text-left py-3 px-4 text-blue-200 font-medium">Ações</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {/* Sample Data - Replace with real data */}
+                          {[
+                            { date: '01/08/2025', category: 'Folha', description: 'Folha de pagamento agosto', contract: 'Shopping Curitiba - PR', value: 85000, status: 'Pago' },
+                            { date: '05/08/2025', category: 'Insumos', description: 'Material de construção', contract: 'Shopping Curitiba - PR', value: 15000, status: 'Pendente' },
+                            { date: '10/08/2025', category: 'EPIs', description: 'Equipamentos de segurança', contract: 'Obra Hospital São Paulo', value: 3500, status: 'Aprovado' },
+                            { date: '15/08/2025', category: 'Combustível', description: 'Abastecimento máquinas', contract: 'Shopping Curitiba - PR', value: 2800, status: 'Pago' },
+                            { date: '20/08/2025', category: 'Alimentação', description: 'Voucher refeição equipe', contract: 'Reformas Escritório Central', value: 4200, status: 'Processando' }
+                          ].map((cost, index) => (
+                            <tr key={index} className="border-b border-blue-400/10 hover:bg-blue-600/10">
+                              <td className="py-3 px-4 text-white text-sm">{cost.date}</td>
+                              <td className="py-3 px-4 text-white text-sm">
+                                <Badge variant="outline" className="border-blue-400/30 text-blue-200">
+                                  {cost.category}
+                                </Badge>
+                              </td>
+                              <td className="py-3 px-4 text-white text-sm">{cost.description}</td>
+                              <td className="py-3 px-4 text-blue-200 text-sm">{cost.contract}</td>
+                              <td className="py-3 px-4 text-white text-sm font-medium">
+                                R$ {cost.value.toLocaleString('pt-BR')}
+                              </td>
+                              <td className="py-3 px-4 text-sm">
+                                <Badge 
+                                  variant={cost.status === 'Pago' ? 'default' : cost.status === 'Pendente' ? 'destructive' : 'secondary'}
+                                  className={
+                                    cost.status === 'Pago' 
+                                      ? 'bg-green-500/20 text-green-300 border-green-400/30'
+                                      : cost.status === 'Pendente'
+                                      ? 'bg-red-500/20 text-red-300 border-red-400/30'
+                                      : 'bg-yellow-500/20 text-yellow-300 border-yellow-400/30'
+                                  }
+                                >
+                                  {cost.status}
+                                </Badge>
+                              </td>
+                              <td className="py-3 px-4">
+                                <div className="flex space-x-1">
+                                  <Button size="sm" variant="ghost" className="h-7 w-7 p-0 hover:bg-blue-600/30">
+                                    <Eye className="w-3 h-3 text-blue-300" />
+                                  </Button>
+                                  <Button size="sm" variant="ghost" className="h-7 w-7 p-0 hover:bg-blue-600/30">
+                                    <Edit className="w-3 h-3 text-blue-300" />
+                                  </Button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Gráfico de Distribuição por Categoria */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <Card className="glass-effect border-blue-200/20">
+                    <CardHeader>
+                      <CardTitle className="text-white">Distribuição por Categoria</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ResponsiveContainer width="100%" height={300}>
+                        <RechartsPieChart>
+                          <Pie
+                            data={[
+                              { name: 'Folha', value: 85000, color: '#3B82F6' },
+                              { name: 'Insumos', value: 42000, color: '#10B981' },
+                              { name: 'Combustível', value: 15000, color: '#F59E0B' },
+                              { name: 'Alimentação', value: 12000, color: '#8B5CF6' },
+                              { name: 'EPIs', value: 8500, color: '#EF4444' },
+                              { name: 'Outros', value: 18500, color: '#6B7280' }
+                            ]}
+                            dataKey="value"
+                            nameKey="name"
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={100}
+                            label={(entry) => `${entry.name}: R$ ${(entry.value / 1000).toFixed(0)}K`}
+                          >
+                            {[
+                              { name: 'Folha', value: 85000, color: '#3B82F6' },
+                              { name: 'Insumos', value: 42000, color: '#10B981' },
+                              { name: 'Combustível', value: 15000, color: '#F59E0B' },
+                              { name: 'Alimentação', value: 12000, color: '#8B5CF6' },
+                              { name: 'EPIs', value: 8500, color: '#EF4444' },
+                              { name: 'Outros', value: 18500, color: '#6B7280' }
+                            ].map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <Tooltip />
+                        </RechartsPieChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="glass-effect border-blue-200/20">
+                    <CardHeader>
+                      <CardTitle className="text-white">Evolução Mensal</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ResponsiveContainer width="100%" height={300}>
+                        <BarChart data={[
+                          { month: 'Jun', folha: 82000, insumos: 38000, outros: 45000 },
+                          { month: 'Jul', folha: 84000, insumos: 41000, outros: 42000 },
+                          { month: 'Ago', folha: 85000, insumos: 42000, outros: 54000 }
+                        ]}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                          <XAxis dataKey="month" stroke="#9CA3AF" />
+                          <YAxis stroke="#9CA3AF" />
+                          <Tooltip 
+                            contentStyle={{ 
+                              backgroundColor: '#1E3A8A', 
+                              border: '1px solid #3B82F6', 
+                              borderRadius: '8px',
+                              color: '#fff'
+                            }} 
+                          />
+                          <Bar dataKey="folha" fill="#3B82F6" name="Folha" />
+                          <Bar dataKey="insumos" fill="#10B981" name="Insumos" />
+                          <Bar dataKey="outros" fill="#F59E0B" name="Outros" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
+                </div>
               </div>
             </TabsContent>
 
