@@ -106,7 +106,7 @@ export default function Billing() {
   });
 
   // Filter function for direct costs
-  const filteredDirectCosts = directCosts.filter((cost: any) => {
+  const filteredDirectCosts = (directCosts as any[]).filter((cost: any) => {
     const costDate = new Date(cost.date);
     const costMonth = costDate.getMonth() + 1;
     const costYear = costDate.getFullYear();
@@ -652,7 +652,7 @@ export default function Billing() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Todos contratos</SelectItem>
-                    {contracts.map((contract: any) => (
+                    {(contracts as any[]).map((contract: any) => (
                       <SelectItem key={contract.id} value={contract.id}>
                         {contract.name}
                       </SelectItem>
@@ -970,7 +970,7 @@ export default function Billing() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">Todos os contratos</SelectItem>
-                        {contracts.map((contract: any) => (
+                        {(contracts as any[]).map((contract: any) => (
                           <SelectItem key={contract.id} value={contract.id}>
                             {contract.name}
                           </SelectItem>
@@ -1081,7 +1081,7 @@ export default function Billing() {
                         </thead>
                         <tbody>
                           {/* Custos Diretos Cadastrados */}
-                          {filteredDirectCosts.length > 0 ? filteredDirectCosts.map((cost: any, index) => (
+                          {filteredDirectCosts.length > 0 ? filteredDirectCosts.map((cost: any, index: number) => (
                             <tr key={index} className="border-b border-blue-400/10 hover:bg-blue-600/10">
                               <td className="py-3 px-4 text-white text-sm">
                                 {new Date(cost.date).toLocaleDateString('pt-BR')}
@@ -1093,7 +1093,7 @@ export default function Billing() {
                               </td>
                               <td className="py-3 px-4 text-white text-sm">{cost.description}</td>
                               <td className="py-3 px-4 text-blue-200 text-sm">
-                                {contracts.find((c: any) => c.id === cost.contractId)?.name || cost.contractId}
+                                {(contracts as any[]).find((c: any) => c.id === cost.contractId)?.name || cost.contractId}
                               </td>
                               <td className="py-3 px-4 text-white text-sm font-medium">
                                 R$ {parseFloat(cost.value).toLocaleString('pt-BR')}
@@ -1126,7 +1126,7 @@ export default function Billing() {
                           )) : (
                             <tr>
                               <td colSpan={7} className="py-8 px-4 text-center text-blue-200">
-                                {directCosts.length === 0 ? 'Nenhum custo direto cadastrado ainda.' : 'Nenhum custo encontrado com os filtros aplicados.'}
+                                {(directCosts as any[]).length === 0 ? 'Nenhum custo direto cadastrado ainda.' : 'Nenhum custo encontrado com os filtros aplicados.'}
                               </td>
                             </tr>
                           )}
@@ -1438,18 +1438,18 @@ export default function Billing() {
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">
             <DollarSign className="w-5 h-5" />
-            Custos Diretos Cadastrados ({directCosts.length})
+            Custos Diretos Cadastrados ({(directCosts as any[]).length})
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {directCosts.length === 0 ? (
+          {(directCosts as any[]).length === 0 ? (
             <div className="text-center py-8">
               <p className="text-blue-200">Nenhum custo direto cadastrado ainda.</p>
               <p className="text-blue-300 text-sm mt-2">Use o botão "Novo Custo" para adicionar registros.</p>
             </div>
           ) : (
             <div className="grid gap-4">
-              {directCosts.map((cost: any) => (
+              {(directCosts as any[]).map((cost: any) => (
                 <div key={cost.id} className="bg-blue-800/30 rounded-lg p-4 border border-blue-400/20">
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div>
