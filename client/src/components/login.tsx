@@ -35,10 +35,7 @@ export default function Login({ onLogin, onSwitchToRegister }: LoginProps) {
       }
 
       // Chamar API de autenticação
-      const response = await apiRequest("/api/admin/authenticate", {
-        method: "POST",
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await apiRequest("POST", "/api/admin/authenticate", { email, password });
 
       const userData = {
         id: response.id,
