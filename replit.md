@@ -45,6 +45,8 @@ The platform incorporates several key features and design patterns:
 - **Dados de Teste:** Criação de dataset abrangente com múltiplos contratos, categorias e períodos para validação dos filtros
 - **Padronização Visual:** Atualização das cores dos gráficos para tonalidades de azul, mantendo consistência com o branding da empresa Opus
 - **Mudança de Nomenclatura:** Alteração de "Faturamento" para "Provisões" em toda a interface para melhor clareza dos conceitos financeiros
+- **Modo de Apresentação Executiva:** Sistema completo com 4 slides profissionais, avanço automático configurável e controles avançados
+- **Sistema de Relatórios Avançados:** Implementação de módulo de relatórios com templates personalizáveis, filtros avançados e opções de exportação
 
 ### Próximas Funcionalidades Sugeridas
 **Análise Financeira Avançada:**
