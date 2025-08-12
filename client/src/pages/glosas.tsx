@@ -123,7 +123,7 @@ export default function Glosas() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-blue-100">Glosas Pendentes</p>
+                <p className="text-sm font-medium text-blue-100">Glosas de Atestados</p>
                 <p className="text-2xl font-bold text-white">
                   {filteredGlosas.filter(g => g.status === 'pending').length}
                 </p>
@@ -139,7 +139,7 @@ export default function Glosas() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-blue-100">Taxa de Aprovação</p>
+                <p className="text-sm font-medium text-blue-100">Taxa de Impacto na Medição Final</p>
                 <p className="text-2xl font-bold text-white">
                   {filteredGlosas.length > 0 
                     ? `${((filteredGlosas.filter(g => g.status === 'approved').length / filteredGlosas.length) * 100).toFixed(1)}%`
