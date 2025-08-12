@@ -33,7 +33,7 @@ interface BillingData {
   billedAmount: number;
   receivedAmount: number;
   utilizationRate: number;
-  status: 'pending' | 'billed' | 'received' | 'overdue';
+  status: 'nf_emitida' | 'aguardando_po' | 'aguardando_sla' | 'aguardando_aprovacao';
   dueDate: string;
   createdAt: string;
 }
@@ -79,7 +79,7 @@ export default function Billing() {
       billedAmount: 145000,
       receivedAmount: 145000,
       utilizationRate: 96.7,
-      status: "received",
+      status: "nf_emitida",
       dueDate: "2025-09-15",
       createdAt: "2025-08-01T00:00:00Z"
     },
@@ -93,7 +93,7 @@ export default function Billing() {
       billedAmount: 275000,
       receivedAmount: 0,
       utilizationRate: 98.2,
-      status: "billed",
+      status: "aguardando_po",
       dueDate: "2025-09-20",
       createdAt: "2025-08-01T00:00:00Z"
     },
@@ -107,7 +107,7 @@ export default function Billing() {
       billedAmount: 92000,
       receivedAmount: 92000,
       utilizationRate: 108.2,
-      status: "received",
+      status: "nf_emitida",
       dueDate: "2025-08-15",
       createdAt: "2025-07-01T00:00:00Z"
     },
@@ -121,7 +121,7 @@ export default function Billing() {
       billedAmount: 298000,
       receivedAmount: 0,
       utilizationRate: 93.1,
-      status: "overdue",
+      status: "aguardando_sla",
       dueDate: "2025-09-10",
       createdAt: "2025-08-01T00:00:00Z"
     },
@@ -135,7 +135,7 @@ export default function Billing() {
       billedAmount: 0,
       receivedAmount: 0,
       utilizationRate: 0,
-      status: "pending",
+      status: "aguardando_aprovacao",
       dueDate: "2025-09-25",
       createdAt: "2025-08-01T00:00:00Z"
     }
@@ -159,20 +159,20 @@ export default function Billing() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "received": return "bg-green-500/20 text-green-300";
-      case "billed": return "bg-blue-500/20 text-blue-300";
-      case "pending": return "bg-yellow-500/20 text-yellow-300";
-      case "overdue": return "bg-red-500/20 text-red-300";
+      case "nf_emitida": return "bg-green-500/20 text-green-300";
+      case "aguardando_po": return "bg-blue-500/20 text-blue-300";
+      case "aguardando_sla": return "bg-yellow-500/20 text-yellow-300";
+      case "aguardando_aprovacao": return "bg-red-500/20 text-red-300";
       default: return "bg-gray-500/20 text-gray-300";
     }
   };
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case "received": return "Recebido";
-      case "billed": return "Faturado";
-      case "pending": return "Pendente";
-      case "overdue": return "Vencido";
+      case "nf_emitida": return "NF Emitida";
+      case "aguardando_po": return "Aguardando PO";
+      case "aguardando_sla": return "Aguardando SLA";
+      case "aguardando_aprovacao": return "Aguardando aprovação shopping";
       default: return status;
     }
   };
@@ -404,10 +404,10 @@ export default function Billing() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Todos status</SelectItem>
-                    <SelectItem value="pending">Pendente</SelectItem>
-                    <SelectItem value="billed">Faturado</SelectItem>
-                    <SelectItem value="received">Recebido</SelectItem>
-                    <SelectItem value="overdue">Vencido</SelectItem>
+                    <SelectItem value="nf_emitida">NF Emitida</SelectItem>
+                    <SelectItem value="aguardando_po">Aguardando PO</SelectItem>
+                    <SelectItem value="aguardando_sla">Aguardando SLA</SelectItem>
+                    <SelectItem value="aguardando_aprovacao">Aguardando aprovação shopping</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -819,10 +819,10 @@ export default function Billing() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="pending">Pendente</SelectItem>
-                      <SelectItem value="billed">Faturado</SelectItem>
-                      <SelectItem value="received">Recebido</SelectItem>
-                      <SelectItem value="overdue">Vencido</SelectItem>
+                      <SelectItem value="nf_emitida">NF Emitida</SelectItem>
+                      <SelectItem value="aguardando_po">Aguardando PO</SelectItem>
+                      <SelectItem value="aguardando_sla">Aguardando SLA</SelectItem>
+                      <SelectItem value="aguardando_aprovacao">Aguardando aprovação shopping</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
