@@ -119,65 +119,57 @@ export default function MOE() {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="glass-effect border-blue-200/20">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-blue-100">Total MOE</p>
-                <p className="text-2xl font-bold text-white">{formatCurrency(totalMOECost)}</p>
-              </div>
-              <div className="flex items-center justify-center bg-blue-500/20 rounded-full w-12 h-12 flex-shrink-0">
-                <Users className="text-blue-400 w-6 h-6" />
-              </div>
+          <CardContent className="p-6 relative">
+            <div className="absolute top-4 right-4">
+              <Users className="text-blue-400 w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-blue-100">Total MOE</p>
+              <p className="text-2xl font-bold text-white">{formatCurrency(totalMOECost)}</p>
             </div>
           </CardContent>
         </Card>
 
         <Card className="glass-effect border-blue-200/20">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-blue-100">Colaboradores Ativos</p>
-                <p className="text-2xl font-bold text-white">{activeEmployees.length}</p>
-              </div>
-              <div className="flex items-center justify-center bg-green-500/20 rounded-full w-12 h-12 flex-shrink-0">
-                <Users className="text-green-400 w-6 h-6" />
-              </div>
+          <CardContent className="p-6 relative">
+            <div className="absolute top-4 right-4">
+              <Users className="text-green-400 w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-blue-100">Colaboradores Ativos</p>
+              <p className="text-2xl font-bold text-white">{activeEmployees.length}</p>
             </div>
           </CardContent>
         </Card>
 
         <Card className="glass-effect border-blue-200/20">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-blue-100">Horas Trabalhadas</p>
-                <p className="text-2xl font-bold text-white">
-                  {activeEmployees.reduce((sum: number, emp: Employee) => sum + parseFloat(emp.hoursWorked || "0"), 0).toFixed(0)}h
-                </p>
-              </div>
-              <div className="flex items-center justify-center bg-amber-500/20 rounded-full w-12 h-12 flex-shrink-0">
-                <Clock className="text-amber-400 w-6 h-6" />
-              </div>
+          <CardContent className="p-6 relative">
+            <div className="absolute top-4 right-4">
+              <Clock className="text-amber-400 w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-blue-100">Horas Trabalhadas</p>
+              <p className="text-2xl font-bold text-white">
+                {activeEmployees.reduce((sum: number, emp: Employee) => sum + parseFloat(emp.hoursWorked || "0"), 0).toFixed(0)}h
+              </p>
             </div>
           </CardContent>
         </Card>
 
         <Card className="glass-effect border-blue-200/20">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-blue-100">Taxa Média/Hora</p>
-                <p className="text-2xl font-bold text-white">
-                  {formatCurrency(
-                    activeEmployees.length > 0
-                      ? activeEmployees.reduce((sum: number, emp: Employee) => sum + parseFloat(emp.hourlyRate || "0"), 0) / activeEmployees.length
-                      : 0
-                  )}
-                </p>
-              </div>
-              <div className="flex items-center justify-center bg-purple-500/20 rounded-full w-12 h-12 flex-shrink-0">
-                <Users className="text-purple-400 w-6 h-6" />
-              </div>
+          <CardContent className="p-6 relative">
+            <div className="absolute top-4 right-4">
+              <Users className="text-purple-400 w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-blue-100">Taxa Média/Hora</p>
+              <p className="text-2xl font-bold text-white">
+                {formatCurrency(
+                  activeEmployees.length > 0
+                    ? activeEmployees.reduce((sum: number, emp: Employee) => sum + parseFloat(emp.hourlyRate || "0"), 0) / activeEmployees.length
+                    : 0
+                )}
+              </p>
             </div>
           </CardContent>
         </Card>
