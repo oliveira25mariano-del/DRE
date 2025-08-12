@@ -801,7 +801,10 @@ class DatabaseStorage implements IStorage {
   // Delegating other methods to MemStorage for now
   private memStorage = new MemStorage();
   
-  async getContracts(): Promise<Contract[]> { return this.memStorage.getContracts(); }
+  async getContracts(): Promise<Contract[]> { 
+    // Para agora, buscar do MemStorage que tem os dados padrão
+    return this.memStorage.getContracts(); 
+  }
   async getContract(id: string): Promise<Contract | undefined> { return this.memStorage.getContract(id); }
   async createContract(contract: InsertContract): Promise<Contract> { return this.memStorage.createContract(contract); }
   async updateContract(id: string, contract: Partial<InsertContract>): Promise<Contract> { return this.memStorage.updateContract(id, contract); }

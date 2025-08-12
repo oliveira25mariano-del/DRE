@@ -59,7 +59,7 @@ export const employees = pgTable("employees", {
   name: text("name").notNull(),
   email: text("email").notNull(),
   position: text("position").notNull(),
-  contractId: varchar("contract_id").references(() => contracts.id).notNull(),
+  contractId: varchar("contract_id").notNull(),
   baseSalary: decimal("base_salary", { precision: 10, scale: 2 }).notNull(),
   fringeRate: decimal("fringe_rate", { precision: 5, scale: 2 }).notNull(),
   hoursWorked: decimal("hours_worked", { precision: 6, scale: 2 }),
