@@ -14,6 +14,7 @@ import MOE from "./pages/moe";
 import Fringe from "./pages/fringe";
 import Predictions from "./pages/predictions";
 import Integrations from "./pages/integrations";
+import ExecutiveDashboardPage from "./pages/executive-dashboard";
 import Audit from "./pages/audit";
 import Alerts from "./pages/alerts";
 import Reports from "./pages/reports";
@@ -87,6 +88,7 @@ function Router() {
         <Route path="/fringe" component={Fringe} />
         <Route path="/predictions" component={Predictions} />
         <Route path="/integrations" component={Integrations} />
+        <Route path="/executive-dashboard" component={ExecutiveDashboardPage} />
         <Route path="/audit" component={Audit} />
         <Route path="/alerts" component={Alerts} />
         <Route path="/reports" component={Reports} />
