@@ -57,10 +57,10 @@ const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
 
 export default function Billing() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedMonth, setSelectedMonth] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState("all");
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
-  const [selectedContract, setSelectedContract] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState("");
+  const [selectedContract, setSelectedContract] = useState("all");
+  const [selectedStatus, setSelectedStatus] = useState("all");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const { toast } = useToast();
 
@@ -146,10 +146,10 @@ export default function Billing() {
 
   const filteredBilling = billingData.filter((bill) => {
     const matchesSearch = bill.contractName.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesMonth = !selectedMonth || bill.month.toString() === selectedMonth;
+    const matchesMonth = !selectedMonth || selectedMonth === "all" || bill.month.toString() === selectedMonth;
     const matchesYear = !selectedYear || bill.year.toString() === selectedYear;
-    const matchesContract = !selectedContract || bill.contractId === selectedContract;
-    const matchesStatus = !selectedStatus || bill.status === selectedStatus;
+    const matchesContract = !selectedContract || selectedContract === "all" || bill.contractId === selectedContract;
+    const matchesStatus = !selectedStatus || selectedStatus === "all" || bill.status === selectedStatus;
     
     return matchesSearch && matchesMonth && matchesYear && matchesContract && matchesStatus;
   });
@@ -344,7 +344,7 @@ export default function Billing() {
                     <SelectValue placeholder="Todos os meses" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todos os meses</SelectItem>
+                    <SelectItem value="all">Todos os meses</SelectItem>
                     {MONTHS.map(month => (
                       <SelectItem key={month.value} value={month.value.toString()}>
                         {month.label}
@@ -369,7 +369,7 @@ export default function Billing() {
                     <SelectValue placeholder="Todos contratos" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todos contratos</SelectItem>
+                    <SelectItem value="all">Todos contratos</SelectItem>
                     {contracts.map((contract: any) => (
                       <SelectItem key={contract.id} value={contract.id}>
                         {contract.name}
@@ -383,7 +383,7 @@ export default function Billing() {
                     <SelectValue placeholder="Todos status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todos status</SelectItem>
+                    <SelectItem value="all">Todos status</SelectItem>
                     <SelectItem value="pending">Pendente</SelectItem>
                     <SelectItem value="billed">Faturado</SelectItem>
                     <SelectItem value="received">Recebido</SelectItem>
