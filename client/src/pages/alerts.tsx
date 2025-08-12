@@ -140,57 +140,49 @@ export default function Alerts() {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="glass-effect border-blue-200/20">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-100">Alertas Críticos</p>
-                <p className="text-2xl font-bold text-white">{criticalAlerts.length}</p>
-              </div>
-              <div className="bg-red-500/20 p-3 rounded-full">
-                <AlertTriangle className="text-red-400 w-6 h-6" />
-              </div>
+          <CardContent className="p-6 relative">
+            <div className="absolute top-4 right-4">
+              <AlertTriangle className="text-red-400 w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-blue-100">Alertas Críticos</p>
+              <p className="text-2xl font-bold text-white">{criticalAlerts.length}</p>
             </div>
           </CardContent>
         </Card>
 
         <Card className="glass-effect border-blue-200/20">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-100">Não Lidos</p>
-                <p className="text-2xl font-bold text-white">{unreadAlerts.length}</p>
-              </div>
-              <div className="bg-yellow-500/20 p-3 rounded-full">
-                <Bell className="text-yellow-400 w-6 h-6" />
-              </div>
+          <CardContent className="p-6 relative">
+            <div className="absolute top-4 right-4">
+              <Bell className="text-yellow-400 w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-blue-100">Não Lidos</p>
+              <p className="text-2xl font-bold text-white">{unreadAlerts.length}</p>
             </div>
           </CardContent>
         </Card>
 
         <Card className="glass-effect border-blue-200/20">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-100">Resolvidos</p>
-                <p className="text-2xl font-bold text-white">{resolvedAlerts.length}</p>
-              </div>
-              <div className="bg-green-500/20 p-3 rounded-full">
-                <CheckCircle className="text-green-400 w-6 h-6" />
-              </div>
+          <CardContent className="p-6 relative">
+            <div className="absolute top-4 right-4">
+              <CheckCircle className="text-green-400 w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-blue-100">Resolvidos</p>
+              <p className="text-2xl font-bold text-white">{resolvedAlerts.length}</p>
             </div>
           </CardContent>
         </Card>
 
         <Card className="glass-effect border-blue-200/20">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-100">Total Alertas</p>
-                <p className="text-2xl font-bold text-white">{filteredAlerts.length}</p>
-              </div>
-              <div className="bg-blue-500/20 p-3 rounded-full">
-                <Bell className="text-blue-400 w-6 h-6" />
-              </div>
+          <CardContent className="p-6 relative">
+            <div className="absolute top-4 right-4">
+              <Bell className="text-blue-400 w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-blue-100">Total Alertas</p>
+              <p className="text-2xl font-bold text-white">{filteredAlerts.length}</p>
             </div>
           </CardContent>
         </Card>

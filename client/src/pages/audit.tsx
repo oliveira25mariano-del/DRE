@@ -70,57 +70,49 @@ export default function Audit() {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="glass-effect border-blue-200/20">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-100">Total de Operações</p>
-                <p className="text-2xl font-bold text-white">{totalOperations.toLocaleString()}</p>
-              </div>
-              <div className="bg-blue-500/20 p-3 rounded-full">
-                <FileSearch className="text-blue-400 w-6 h-6" />
-              </div>
+          <CardContent className="p-6 relative">
+            <div className="absolute top-4 right-4">
+              <FileSearch className="text-blue-400 w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-blue-100">Total de Operações</p>
+              <p className="text-2xl font-bold text-white">{totalOperations.toLocaleString()}</p>
             </div>
           </CardContent>
         </Card>
 
         <Card className="glass-effect border-blue-200/20">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-100">Últimas 24h</p>
-                <p className="text-2xl font-bold text-white">{recentOperations}</p>
-              </div>
-              <div className="bg-emerald-500/20 p-3 rounded-full">
-                <History className="text-emerald-400 w-6 h-6" />
-              </div>
+          <CardContent className="p-6 relative">
+            <div className="absolute top-4 right-4">
+              <History className="text-emerald-400 w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-blue-100">Últimas 24h</p>
+              <p className="text-2xl font-bold text-white">{recentOperations}</p>
             </div>
           </CardContent>
         </Card>
 
         <Card className="glass-effect border-blue-200/20">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-100">Usuários Ativos</p>
-                <p className="text-2xl font-bold text-white">{uniqueUsers}</p>
-              </div>
-              <div className="bg-purple-500/20 p-3 rounded-full">
-                <FileSearch className="text-purple-400 w-6 h-6" />
-              </div>
+          <CardContent className="p-6 relative">
+            <div className="absolute top-4 right-4">
+              <FileSearch className="text-purple-400 w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-blue-100">Usuários Ativos</p>
+              <p className="text-2xl font-bold text-white">{uniqueUsers}</p>
             </div>
           </CardContent>
         </Card>
 
         <Card className="glass-effect border-blue-200/20">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-100">Tabelas Monitoradas</p>
-                <p className="text-2xl font-bold text-white">{uniqueTables.length}</p>
-              </div>
-              <div className="bg-amber-500/20 p-3 rounded-full">
-                <AlertCircle className="text-amber-400 w-6 h-6" />
-              </div>
+          <CardContent className="p-6 relative">
+            <div className="absolute top-4 right-4">
+              <AlertCircle className="text-amber-400 w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-blue-100">Tabelas Monitoradas</p>
+              <p className="text-2xl font-bold text-white">{uniqueTables.length}</p>
             </div>
           </CardContent>
         </Card>
