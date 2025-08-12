@@ -21,7 +21,6 @@ const menuItems = [
   { path: "/contracts", label: "Contratos", icon: FileText, id: "sidebar-contracts" },
   { path: "/glosas", label: "Glosas", icon: AlertTriangle, id: "sidebar-glosas" },
   { path: "/moe", label: "MOE", icon: Users, id: "sidebar-moe" },
-  { path: "/fringe", label: "Fringe Benefits", icon: UserPlus, id: "sidebar-fringe" },
 ];
 
 const analysisItems = [
