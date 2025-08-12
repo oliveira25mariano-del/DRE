@@ -15,7 +15,7 @@ import { randomUUID } from "crypto";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
-import { users } from "@shared/schema";
+import { users, employees } from "@shared/schema";
 
 export interface IStorage {
   // Contracts
@@ -750,4 +750,118 @@ export class MemStorage implements IStorage {
 }
 
 // Use database storage for production
-export const storage = new MemStorage();
+// DatabaseStorage implementation
+class DatabaseStorage implements IStorage {
+  // Employees
+  async getEmployees(contractId?: string): Promise<Employee[]> {
+    if (contractId) {
+      return await db.select().from(employees).where(eq(employees.contractId, contractId));
+    }
+    return await db.select().from(employees);
+  }
+
+  async getEmployee(id: string): Promise<Employee | undefined> {
+    const [employee] = await db.select().from(employees).where(eq(employees.id, id));
+    return employee;
+  }
+
+  async createEmployee(insertEmployee: InsertEmployee): Promise<Employee> {
+    const [employee] = await db
+      .insert(employees)
+      .values({
+        ...insertEmployee,
+        baseSalary: insertEmployee.baseSalary.toString(),
+        fringeRate: insertEmployee.fringeRate.toString(),
+        hoursWorked: insertEmployee.hoursWorked?.toString(),
+        hourlyRate: insertEmployee.hourlyRate?.toString(),
+      })
+      .returning();
+    return employee;
+  }
+
+  async updateEmployee(id: string, insertEmployee: Partial<InsertEmployee>): Promise<Employee> {
+    const [employee] = await db
+      .update(employees)
+      .set({
+        ...insertEmployee,
+        ...(insertEmployee.baseSalary && { baseSalary: insertEmployee.baseSalary.toString() }),
+        ...(insertEmployee.fringeRate && { fringeRate: insertEmployee.fringeRate.toString() }),
+        ...(insertEmployee.hoursWorked && { hoursWorked: insertEmployee.hoursWorked.toString() }),
+        ...(insertEmployee.hourlyRate && { hourlyRate: insertEmployee.hourlyRate.toString() }),
+      })
+      .where(eq(employees.id, id))
+      .returning();
+    return employee;
+  }
+
+  async deleteEmployee(id: string): Promise<void> {
+    await db.delete(employees).where(eq(employees.id, id));
+  }
+
+  // Delegating other methods to MemStorage for now
+  private memStorage = new MemStorage();
+  
+  async getContracts(): Promise<Contract[]> { return this.memStorage.getContracts(); }
+  async getContract(id: string): Promise<Contract | undefined> { return this.memStorage.getContract(id); }
+  async createContract(contract: InsertContract): Promise<Contract> { return this.memStorage.createContract(contract); }
+  async updateContract(id: string, contract: Partial<InsertContract>): Promise<Contract> { return this.memStorage.updateContract(id, contract); }
+  async deleteContract(id: string): Promise<void> { return this.memStorage.deleteContract(id); }
+  
+  async getBudgets(contractId?: string): Promise<Budget[]> { return this.memStorage.getBudgets(contractId); }
+  async getBudget(id: string): Promise<Budget | undefined> { return this.memStorage.getBudget(id); }
+  async createBudget(budget: InsertBudget): Promise<Budget> { return this.memStorage.createBudget(budget); }
+  async updateBudget(id: string, budget: Partial<InsertBudget>): Promise<Budget> { return this.memStorage.updateBudget(id, budget); }
+  async deleteBudget(id: string): Promise<void> { return this.memStorage.deleteBudget(id); }
+  
+  async getActuals(contractId?: string): Promise<Actual[]> { return this.memStorage.getActuals(contractId); }
+  async getActual(id: string): Promise<Actual | undefined> { return this.memStorage.getActual(id); }
+  async createActual(actual: InsertActual): Promise<Actual> { return this.memStorage.createActual(actual); }
+  async updateActual(id: string, actual: Partial<InsertActual>): Promise<Actual> { return this.memStorage.updateActual(id, actual); }
+  async deleteActual(id: string): Promise<void> { return this.memStorage.deleteActual(id); }
+  
+  async getGlosas(contractId?: string): Promise<Glosa[]> { return this.memStorage.getGlosas(contractId); }
+  async getGlosa(id: string): Promise<Glosa | undefined> { return this.memStorage.getGlosa(id); }
+  async createGlosa(glosa: InsertGlosa): Promise<Glosa> { return this.memStorage.createGlosa(glosa); }
+  async updateGlosa(id: string, glosa: Partial<InsertGlosa>): Promise<Glosa> { return this.memStorage.updateGlosa(id, glosa); }
+  async deleteGlosa(id: string): Promise<void> { return this.memStorage.deleteGlosa(id); }
+  
+  async getPredictions(contractId?: string): Promise<Prediction[]> { return this.memStorage.getPredictions(contractId); }
+  async getPrediction(id: string): Promise<Prediction | undefined> { return this.memStorage.getPrediction(id); }
+  async createPrediction(prediction: InsertPrediction): Promise<Prediction> { return this.memStorage.createPrediction(prediction); }
+  async updatePrediction(id: string, prediction: Partial<InsertPrediction>): Promise<Prediction> { return this.memStorage.updatePrediction(id, prediction); }
+  async deletePrediction(id: string): Promise<void> { return this.memStorage.deletePrediction(id); }
+  
+  async getAuditLogs(tableName?: string, recordId?: string): Promise<AuditLog[]> { return this.memStorage.getAuditLogs(tableName, recordId); }
+  async createAuditLog(auditLog: InsertAuditLog): Promise<AuditLog> { return this.memStorage.createAuditLog(auditLog); }
+  
+  async getAlerts(): Promise<Alert[]> { return this.memStorage.getAlerts(); }
+  async getAlert(id: string): Promise<Alert | undefined> { return this.memStorage.getAlert(id); }
+  async createAlert(alert: InsertAlert): Promise<Alert> { return this.memStorage.createAlert(alert); }
+  async updateAlert(id: string, alert: Partial<InsertAlert>): Promise<Alert> { return this.memStorage.updateAlert(id, alert); }
+  async deleteAlert(id: string): Promise<void> { return this.memStorage.deleteAlert(id); }
+  
+  async getReports(): Promise<Report[]> { return this.memStorage.getReports(); }
+  async getReport(id: string): Promise<Report | undefined> { return this.memStorage.getReport(id); }
+  async createReport(report: InsertReport): Promise<Report> { return this.memStorage.createReport(report); }
+  async updateReport(id: string, report: Partial<InsertReport>): Promise<Report> { return this.memStorage.updateReport(id, report); }
+  async deleteReport(id: string): Promise<void> { return this.memStorage.deleteReport(id); }
+  
+  async getCategories(): Promise<Category[]> { return this.memStorage.getCategories(); }
+  async getCategory(id: string): Promise<Category | undefined> { return this.memStorage.getCategory(id); }
+  async createCategory(category: InsertCategory): Promise<Category> { return this.memStorage.createCategory(category); }
+  async updateCategory(id: string, category: Partial<InsertCategory>): Promise<Category> { return this.memStorage.updateCategory(id, category); }
+  async deleteCategory(id: string): Promise<void> { return this.memStorage.deleteCategory(id); }
+  
+  async getDREData(year: number, month: number): Promise<any> { return this.memStorage.getDREData(year, month); }
+  async getKPIData(): Promise<any> { return this.memStorage.getKPIData(); }
+  
+  async getUsers(): Promise<User[]> { return this.memStorage.getUsers(); }
+  async getUser(id: string): Promise<User | undefined> { return this.memStorage.getUser(id); }
+  async getUserByEmail(email: string): Promise<User | undefined> { return this.memStorage.getUserByEmail(email); }
+  async createUser(user: InsertUser): Promise<User> { return this.memStorage.createUser(user); }
+  async updateUser(id: string, user: Partial<InsertUser>): Promise<User> { return this.memStorage.updateUser(id, user); }
+  async authenticateUser(email: string, password: string): Promise<User | null> { return this.memStorage.authenticateUser(email, password); }
+  async updateLastLogin(id: string): Promise<void> { return this.memStorage.updateLastLogin(id); }
+}
+
+export const storage = new DatabaseStorage();
