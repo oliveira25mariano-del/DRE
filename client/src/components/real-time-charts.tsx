@@ -124,99 +124,99 @@ export default function RealtimeCharts() {
       {/* KPIs em Tempo Real */}
       <div className={getLayoutClasses()}>
         <Card className={getCardClasses()}>
-          <CardContent className={config.compactCards ? "p-4" : "p-6"}>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-300">Receita Total</p>
-                <p className="text-2xl font-bold text-white">
-                  {formatCurrency(metrics?.revenue.current || 0)}
-                </p>
-                {shouldShowTrends && (
-                  <div className="flex items-center mt-2">
-                    {(metrics?.revenue.change || 0) >= 0 ? (
-                      <TrendingUp className="w-4 h-4 text-green-400 mr-1" />
-                    ) : (
-                      <TrendingDown className="w-4 h-4 text-red-400 mr-1" />
-                    )}
-                    <span className={`text-sm ${(metrics?.revenue.change || 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                      {formatPercent(Math.abs(metrics?.revenue.change || 0))}
-                    </span>
-                  </div>
+          <CardContent className={`${config.compactCards ? "p-4" : "p-6"} relative`}>
+            <div className="absolute top-4 right-4">
+              <DollarSign className="w-5 h-5 text-green-400" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-blue-300">Receita Total</p>
+              <p className="text-2xl font-bold text-white">
+                {formatCurrency(metrics?.revenue.current || 0)}
+              </p>
+              {shouldShowTrends && (
+                <div className="flex items-center mt-2">
+                  {(metrics?.revenue.change || 0) >= 0 ? (
+                    <TrendingUp className="w-4 h-4 text-green-400 mr-1" />
+                  ) : (
+                    <TrendingDown className="w-4 h-4 text-red-400 mr-1" />
+                  )}
+                  <span className={`text-sm ${(metrics?.revenue.change || 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {formatPercent(Math.abs(metrics?.revenue.change || 0))}
+                  </span>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="glass-effect border-blue-200/20">
+          <CardContent className="p-6 relative">
+            <div className="absolute top-4 right-4">
+              <Target className="w-5 h-5 text-orange-400" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-blue-300">Custos Totais</p>
+              <p className="text-2xl font-bold text-white">
+                {formatCurrency(metrics?.costs.current || 0)}
+              </p>
+              <div className="flex items-center mt-2">
+                {(metrics?.costs.change || 0) <= 0 ? (
+                  <TrendingDown className="w-4 h-4 text-green-400 mr-1" />
+                ) : (
+                  <TrendingUp className="w-4 h-4 text-red-400 mr-1" />
                 )}
+                <span className={`text-sm ${(metrics?.costs.change || 0) <= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  {formatPercent(Math.abs(metrics?.costs.change || 0))}
+                </span>
               </div>
-              <DollarSign className="w-8 h-8 text-green-400" />
             </div>
           </CardContent>
         </Card>
 
         <Card className="glass-effect border-blue-200/20">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-300">Custos Totais</p>
-                <p className="text-2xl font-bold text-white">
-                  {formatCurrency(metrics?.costs.current || 0)}
-                </p>
-                <div className="flex items-center mt-2">
-                  {(metrics?.costs.change || 0) <= 0 ? (
-                    <TrendingDown className="w-4 h-4 text-green-400 mr-1" />
-                  ) : (
-                    <TrendingUp className="w-4 h-4 text-red-400 mr-1" />
-                  )}
-                  <span className={`text-sm ${(metrics?.costs.change || 0) <= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                    {formatPercent(Math.abs(metrics?.costs.change || 0))}
-                  </span>
-                </div>
+          <CardContent className="p-6 relative">
+            <div className="absolute top-4 right-4">
+              <Activity className="w-5 h-5 text-blue-400" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-blue-300">Lucro Líquido</p>
+              <p className="text-2xl font-bold text-white">
+                {formatCurrency(metrics?.profit.current || 0)}
+              </p>
+              <div className="flex items-center mt-2">
+                {(metrics?.profit.change || 0) >= 0 ? (
+                  <TrendingUp className="w-4 h-4 text-green-400 mr-1" />
+                ) : (
+                  <TrendingDown className="w-4 h-4 text-red-400 mr-1" />
+                )}
+                <span className={`text-sm ${(metrics?.profit.change || 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  {formatPercent(Math.abs(metrics?.profit.change || 0))}
+                </span>
               </div>
-              <Target className="w-8 h-8 text-orange-400" />
             </div>
           </CardContent>
         </Card>
 
         <Card className="glass-effect border-blue-200/20">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-300">Lucro Líquido</p>
-                <p className="text-2xl font-bold text-white">
-                  {formatCurrency(metrics?.profit.current || 0)}
-                </p>
-                <div className="flex items-center mt-2">
-                  {(metrics?.profit.change || 0) >= 0 ? (
-                    <TrendingUp className="w-4 h-4 text-green-400 mr-1" />
-                  ) : (
-                    <TrendingDown className="w-4 h-4 text-red-400 mr-1" />
-                  )}
-                  <span className={`text-sm ${(metrics?.profit.change || 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                    {formatPercent(Math.abs(metrics?.profit.change || 0))}
-                  </span>
-                </div>
-              </div>
-              <Activity className="w-8 h-8 text-blue-400" />
+          <CardContent className="p-6 relative">
+            <div className="absolute top-4 right-4">
+              <PieChartIcon className="w-5 h-5 text-purple-400" />
             </div>
-          </CardContent>
-        </Card>
-
-        <Card className="glass-effect border-blue-200/20">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-300">Margem (%)</p>
-                <p className="text-2xl font-bold text-white">
-                  {formatPercent(metrics?.margin.current || 0)}
-                </p>
-                <div className="flex items-center mt-2">
-                  {(metrics?.margin.change || 0) >= 0 ? (
-                    <TrendingUp className="w-4 h-4 text-green-400 mr-1" />
-                  ) : (
-                    <TrendingDown className="w-4 h-4 text-red-400 mr-1" />
-                  )}
-                  <span className={`text-sm ${(metrics?.margin.change || 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                    {formatPercent(Math.abs(metrics?.margin.change || 0))}
-                  </span>
-                </div>
+            <div>
+              <p className="text-sm font-medium text-blue-300">Margem (%)</p>
+              <p className="text-2xl font-bold text-white">
+                {formatPercent(metrics?.margin.current || 0)}
+              </p>
+              <div className="flex items-center mt-2">
+                {(metrics?.margin.change || 0) >= 0 ? (
+                  <TrendingUp className="w-4 h-4 text-green-400 mr-1" />
+                ) : (
+                  <TrendingDown className="w-4 h-4 text-red-400 mr-1" />
+                )}
+                <span className={`text-sm ${(metrics?.margin.change || 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  {formatPercent(Math.abs(metrics?.margin.change || 0))}
+                </span>
               </div>
-              <PieChartIcon className="w-8 h-8 text-purple-400" />
             </div>
           </CardContent>
         </Card>
