@@ -92,6 +92,13 @@ export default function Billing() {
   const { toast } = useToast();
   const queryClientHook = useQueryClient();
 
+  // Query to fetch direct costs
+  const { data: directCosts = [] } = useQuery({
+    queryKey: ['/api/direct-costs'],
+    staleTime: 0,
+    refetchOnMount: true,
+  });
+
   // Mutation for creating new direct cost
   const createDirectCostMutation = useMutation({
     mutationFn: async (costData: any) => {
@@ -1403,6 +1410,62 @@ export default function Billing() {
             </TabsContent>
 
           </Tabs>
+        </CardContent>
+      </Card>
+
+      {/* Direct Costs Section */}
+      <Card className="bg-blue-900/50 border-blue-400/30 mt-6">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <DollarSign className="w-5 h-5" />
+            Custos Diretos Cadastrados ({directCosts.length})
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {directCosts.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-blue-200">Nenhum custo direto cadastrado ainda.</p>
+              <p className="text-blue-300 text-sm mt-2">Use o botão "Novo Custo" para adicionar registros.</p>
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              {directCosts.map((cost: any) => (
+                <div key={cost.id} className="bg-blue-800/30 rounded-lg p-4 border border-blue-400/20">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                      <p className="text-blue-200 text-sm">Data</p>
+                      <p className="text-white font-medium">
+                        {format(new Date(cost.date), "dd/MM/yyyy", { locale: ptBR })}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-blue-200 text-sm">Categoria</p>
+                      <p className="text-white font-medium capitalize">{cost.category}</p>
+                    </div>
+                    <div>
+                      <p className="text-blue-200 text-sm">Valor</p>
+                      <p className="text-white font-medium">R$ {parseFloat(cost.value).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                    </div>
+                    <div>
+                      <p className="text-blue-200 text-sm">Status</p>
+                      <Badge variant={cost.status === 'pago' ? 'default' : cost.status === 'aprovado' ? 'secondary' : 'outline'}>
+                        {cost.status}
+                      </Badge>
+                    </div>
+                  </div>
+                  <div className="mt-3">
+                    <p className="text-blue-200 text-sm">Descrição</p>
+                    <p className="text-white">{cost.description}</p>
+                  </div>
+                  {cost.supplier && (
+                    <div className="mt-2">
+                      <p className="text-blue-200 text-sm">Fornecedor: <span className="text-white font-medium">{cost.supplier}</span></p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
 
