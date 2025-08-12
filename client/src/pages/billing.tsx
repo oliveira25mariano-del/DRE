@@ -543,7 +543,7 @@ export default function Billing() {
                           </div>
                           <div className="text-center">
                             <p className="text-sm text-blue-200">Venda MOE</p>
-                            <p className="text-lg font-semibold text-orange-300">
+                            <p className="text-lg font-semibold text-green-300">
                               R$ {bill.vendaMoe.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                             </p>
                           </div>
@@ -801,7 +801,7 @@ export default function Billing() {
                   
                   <div>
                     <label className="text-white text-xs font-medium">Venda MOE</label>
-                    <p className="text-orange-300 bg-blue-600/20 p-2 rounded text-sm mt-1">
+                    <p className="text-green-300 bg-blue-600/20 p-2 rounded text-sm mt-1">
                       R$ {selectedBilling.vendaMoe.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </p>
                   </div>
