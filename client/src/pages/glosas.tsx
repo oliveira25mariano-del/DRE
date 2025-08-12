@@ -133,50 +133,44 @@ export default function Glosas() {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="glass-effect border-blue-200/20">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-100">Total de Glosas</p>
-                <p className="text-2xl font-bold text-white">{formatCurrency(totalGlosas)}</p>
-              </div>
-              <div className="bg-red-500/20 p-3 rounded-full">
-                <AlertTriangle className="text-red-400 w-6 h-6" />
-              </div>
+          <CardContent className="p-6 relative">
+            <div className="absolute top-4 right-4">
+              <AlertTriangle className="text-red-400 w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-blue-100">Total de Glosas</p>
+              <p className="text-2xl font-bold text-white">{formatCurrency(totalGlosas)}</p>
             </div>
           </CardContent>
         </Card>
 
         <Card className="glass-effect border-blue-200/20">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-100">Total Custos de Atestado</p>
-                <p className="text-2xl font-bold text-orange-400">
-                  {formatCurrency(totalAttestationCosts)}
-                </p>
-              </div>
-              <div className="bg-orange-500/20 p-3 rounded-full">
-                <AlertTriangle className="text-orange-400 w-6 h-6" />
-              </div>
+          <CardContent className="p-6 relative">
+            <div className="absolute top-4 right-4">
+              <AlertTriangle className="text-orange-400 w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-blue-100">Total Custos de Atestado</p>
+              <p className="text-2xl font-bold text-orange-400">
+                {formatCurrency(totalAttestationCosts)}
+              </p>
             </div>
           </CardContent>
         </Card>
 
         <Card className="glass-effect border-blue-200/20">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-100">Taxa de Impacto na Medição Final</p>
-                <p className="text-2xl font-bold text-red-400">
-                  {calculateImpactRate()}%
-                </p>
-                <p className="text-xs text-blue-300 mt-1">
-                  Baseado no faturamento total
-                </p>
-              </div>
-              <div className="bg-red-500/20 p-3 rounded-full">
-                <AlertTriangle className="text-red-400 w-6 h-6" />
-              </div>
+          <CardContent className="p-6 relative">
+            <div className="absolute top-4 right-4">
+              <AlertTriangle className="text-red-400 w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-blue-100">Taxa de Impacto na Medição Final</p>
+              <p className="text-2xl font-bold text-red-400">
+                {calculateImpactRate()}%
+              </p>
+              <p className="text-xs text-blue-300 mt-1">
+                Baseado no faturamento total
+              </p>
             </div>
           </CardContent>
         </Card>
