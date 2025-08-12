@@ -41,6 +41,9 @@ interface BillingData {
   descontoSla: number;
   vendaMoe: number;
   outros: number;
+  // Fringe Benefits
+  fringePlanejado: number;
+  fringeExecutado: number;
 }
 
 const MONTHS = [
@@ -91,7 +94,9 @@ export default function Billing() {
       glosas: 2500,
       descontoSla: 1200,
       vendaMoe: 3800,
-      outros: 1500
+      outros: 1500,
+      fringePlanejado: 42000,
+      fringeExecutado: 40500
     },
     {
       id: "2",
@@ -109,7 +114,9 @@ export default function Billing() {
       glosas: 5600,
       descontoSla: 0,
       vendaMoe: 4200,
-      outros: 2100
+      outros: 2100,
+      fringePlanejado: 78400,
+      fringeExecutado: 77000
     },
     {
       id: "3",
@@ -127,7 +134,9 @@ export default function Billing() {
       glosas: 1800,
       descontoSla: 800,
       vendaMoe: 2100,
-      outros: 950
+      outros: 950,
+      fringePlanejado: 23800,
+      fringeExecutado: 25760
     },
     {
       id: "4",
@@ -145,7 +154,9 @@ export default function Billing() {
       glosas: 3200,
       descontoSla: 2500,
       vendaMoe: 1900,
-      outros: 1800
+      outros: 1800,
+      fringePlanejado: 89600,
+      fringeExecutado: 83440
     },
     {
       id: "5",
@@ -163,7 +174,9 @@ export default function Billing() {
       glosas: 0,
       descontoSla: 0,
       vendaMoe: 0,
-      outros: 0
+      outros: 0,
+      fringePlanejado: 126000,
+      fringeExecutado: 0
     }
   ];
 
@@ -375,6 +388,8 @@ export default function Billing() {
                     "Desconto SLA": bill.descontoSla,
                     "Venda MOE": bill.vendaMoe,
                     "Outros": bill.outros,
+                    "Fringe Planejado": bill.fringePlanejado,
+                    "Fringe Executado": bill.fringeExecutado,
                     "Vencimento": format(new Date(bill.dueDate), 'dd/MM/yyyy', { locale: ptBR })
                   }));
                   
@@ -403,7 +418,7 @@ export default function Billing() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="list" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 bg-blue-600/30">
+            <TabsList className="grid w-full grid-cols-3 bg-blue-600/30">
               <TabsTrigger value="list" className="data-[state=active]:bg-blue-600">
                 Lista
               </TabsTrigger>
@@ -412,9 +427,6 @@ export default function Billing() {
               </TabsTrigger>
               <TabsTrigger value="analysis" className="data-[state=active]:bg-blue-600">
                 Análise
-              </TabsTrigger>
-              <TabsTrigger value="fringe" className="data-[state=active]:bg-blue-600">
-                Fringe P x F
               </TabsTrigger>
             </TabsList>
 
@@ -587,6 +599,25 @@ export default function Billing() {
                             </p>
                           </div>
                         </div>
+
+                        {/* Fringe Benefits Row */}
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 pt-3 border-t border-blue-400/20">
+                          <div className="text-center">
+                            <p className="text-sm text-blue-200">Fringe Benefits</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-sm text-blue-200">Fringe Planejado</p>
+                            <p className="text-lg font-semibold text-blue-300">
+                              R$ {bill.fringePlanejado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-sm text-blue-200">Fringe Executado</p>
+                            <p className="text-lg font-semibold text-cyan-300">
+                              R$ {bill.fringeExecutado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -731,150 +762,7 @@ export default function Billing() {
               </div>
             </TabsContent>
 
-            <TabsContent value="fringe" className="space-y-6">
-              <Card className="glass-effect border-blue-400/30">
-                <CardHeader>
-                  <CardTitle className="text-white text-lg">Fringe Benefits: Planejado x Faturado</CardTitle>
-                  <p className="text-sm text-blue-200">
-                    Comparativo detalhado entre fringe benefits planejados e faturados por contrato
-                  </p>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {filteredBilling.map((bill) => (
-                      <Card key={`fringe-${bill.id}`} className="glass-effect border-blue-400/30">
-                        <CardContent className="p-4">
-                          <div className="space-y-3">
-                            {/* Contract Header */}
-                            <div className="flex justify-between items-center">
-                              <div>
-                                <h3 className="font-medium text-white">{bill.contractName}</h3>
-                                <p className="text-sm text-blue-200">
-                                  {MONTHS.find(m => m.value === bill.month)?.label} {bill.year}
-                                </p>
-                              </div>
-                              <Badge className={getStatusColor(bill.status)}>
-                                {getStatusLabel(bill.status)}
-                              </Badge>
-                            </div>
 
-                            {/* Fringe Benefits Comparison */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                              {/* Planejado */}
-                              <div className="space-y-3">
-                                <h4 className="text-white font-medium text-sm border-b border-blue-400/30 pb-2">
-                                  Fringe Benefits Planejados
-                                </h4>
-                                <div className="space-y-2">
-                                  <div className="flex justify-between items-center p-2 bg-blue-600/20 rounded">
-                                    <span className="text-blue-200 text-sm">Vale Alimentação</span>
-                                    <span className="text-white font-medium">
-                                      R$ {(bill.predictedAmount * 0.08).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                                    </span>
-                                  </div>
-                                  <div className="flex justify-between items-center p-2 bg-blue-600/20 rounded">
-                                    <span className="text-blue-200 text-sm">Vale Transporte</span>
-                                    <span className="text-white font-medium">
-                                      R$ {(bill.predictedAmount * 0.05).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                                    </span>
-                                  </div>
-                                  <div className="flex justify-between items-center p-2 bg-blue-600/20 rounded">
-                                    <span className="text-blue-200 text-sm">Plano de Saúde</span>
-                                    <span className="text-white font-medium">
-                                      R$ {(bill.predictedAmount * 0.12).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                                    </span>
-                                  </div>
-                                  <div className="flex justify-between items-center p-2 bg-blue-600/20 rounded">
-                                    <span className="text-blue-200 text-sm">Seguro de Vida</span>
-                                    <span className="text-white font-medium">
-                                      R$ {(bill.predictedAmount * 0.03).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                                    </span>
-                                  </div>
-                                  <div className="border-t border-blue-400/30 pt-2 mt-2">
-                                    <div className="flex justify-between items-center p-2 bg-blue-500/20 rounded font-medium">
-                                      <span className="text-blue-100">Total Planejado</span>
-                                      <span className="text-white">
-                                        R$ {(bill.predictedAmount * 0.28).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Faturado */}
-                              <div className="space-y-3">
-                                <h4 className="text-white font-medium text-sm border-b border-blue-400/30 pb-2">
-                                  Fringe Benefits Faturados
-                                </h4>
-                                <div className="space-y-2">
-                                  <div className="flex justify-between items-center p-2 bg-green-600/20 rounded">
-                                    <span className="text-green-200 text-sm">Vale Alimentação</span>
-                                    <span className="text-white font-medium">
-                                      R$ {(bill.billedAmount * 0.085).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                                    </span>
-                                  </div>
-                                  <div className="flex justify-between items-center p-2 bg-green-600/20 rounded">
-                                    <span className="text-green-200 text-sm">Vale Transporte</span>
-                                    <span className="text-white font-medium">
-                                      R$ {(bill.billedAmount * 0.048).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                                    </span>
-                                  </div>
-                                  <div className="flex justify-between items-center p-2 bg-green-600/20 rounded">
-                                    <span className="text-green-200 text-sm">Plano de Saúde</span>
-                                    <span className="text-white font-medium">
-                                      R$ {(bill.billedAmount * 0.115).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                                    </span>
-                                  </div>
-                                  <div className="flex justify-between items-center p-2 bg-green-600/20 rounded">
-                                    <span className="text-green-200 text-sm">Seguro de Vida</span>
-                                    <span className="text-white font-medium">
-                                      R$ {(bill.billedAmount * 0.032).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                                    </span>
-                                  </div>
-                                  <div className="border-t border-blue-400/30 pt-2 mt-2">
-                                    <div className="flex justify-between items-center p-2 bg-green-500/20 rounded font-medium">
-                                      <span className="text-green-100">Total Faturado</span>
-                                      <span className="text-white">
-                                        R$ {(bill.billedAmount * 0.28).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Variance Analysis */}
-                            <div className="border-t border-blue-400/30 pt-3">
-                              <h4 className="text-white font-medium text-sm mb-3">Análise de Variação</h4>
-                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div className="text-center p-3 bg-blue-600/20 rounded">
-                                  <p className="text-blue-200 text-sm">Diferença Total</p>
-                                  <p className={`text-lg font-semibold ${(bill.billedAmount * 0.28) - (bill.predictedAmount * 0.28) >= 0 ? 'text-green-300' : 'text-red-300'}`}>
-                                    R$ {((bill.billedAmount * 0.28) - (bill.predictedAmount * 0.28)).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                                  </p>
-                                </div>
-                                <div className="text-center p-3 bg-blue-600/20 rounded">
-                                  <p className="text-blue-200 text-sm">% de Variação</p>
-                                  <p className={`text-lg font-semibold ${(bill.billedAmount / bill.predictedAmount - 1) * 100 >= 0 ? 'text-green-300' : 'text-red-300'}`}>
-                                    {((bill.billedAmount / bill.predictedAmount - 1) * 100).toFixed(1)}%
-                                  </p>
-                                </div>
-                                <div className="text-center p-3 bg-blue-600/20 rounded">
-                                  <p className="text-blue-200 text-sm">Status</p>
-                                  <p className={`text-sm font-medium ${Math.abs(((bill.billedAmount / bill.predictedAmount - 1) * 100)) <= 5 ? 'text-green-300' : 'text-yellow-300'}`}>
-                                    {Math.abs(((bill.billedAmount / bill.predictedAmount - 1) * 100)) <= 5 ? 'Dentro do Orçamento' : 'Atenção Necessária'}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
           </Tabs>
         </CardContent>
       </Card>
@@ -994,6 +882,26 @@ export default function Billing() {
                     <label className="text-white text-xs font-medium">Outros</label>
                     <p className="text-orange-300 bg-blue-600/20 p-2 rounded text-sm mt-1">
                       R$ {selectedBilling.outros.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Fringe Benefits Section */}
+              <div>
+                <h3 className="text-white text-sm font-medium mb-2">Fringe Benefits</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-white text-xs font-medium">Fringe Planejado</label>
+                    <p className="text-blue-300 bg-blue-600/20 p-2 rounded text-sm mt-1">
+                      R$ {selectedBilling.fringePlanejado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <label className="text-white text-xs font-medium">Fringe Executado</label>
+                    <p className="text-cyan-300 bg-blue-600/20 p-2 rounded text-sm mt-1">
+                      R$ {selectedBilling.fringeExecutado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </p>
                   </div>
                 </div>
@@ -1265,7 +1173,7 @@ export default function Billing() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
                 <label className="text-white text-sm font-medium">Glosas (R$)</label>
                 <Input 
@@ -1295,6 +1203,26 @@ export default function Billing() {
               
               <div>
                 <label className="text-white text-sm font-medium">Outros (R$)</label>
+                <Input 
+                  type="number" 
+                  placeholder="0,00"
+                  className="bg-blue-600/30 border-blue-400/30 text-white" 
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-white text-sm font-medium">Fringe Planejado (R$)</label>
+                <Input 
+                  type="number" 
+                  placeholder="0,00"
+                  className="bg-blue-600/30 border-blue-400/30 text-white" 
+                />
+              </div>
+              
+              <div>
+                <label className="text-white text-sm font-medium">Fringe Executado (R$)</label>
                 <Input 
                   type="number" 
                   placeholder="0,00"
