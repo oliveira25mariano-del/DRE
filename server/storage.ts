@@ -1301,8 +1301,6 @@ class DatabaseStorage implements IStorage {
   
   // Payroll
   async getPayroll(filters?: { contractId?: string; year?: number; month?: number; quarter?: number; period?: string }): Promise<Payroll[]> {
-    let query = db.select().from(payroll);
-    
     if (filters) {
       const conditions = [];
       
@@ -1320,11 +1318,12 @@ class DatabaseStorage implements IStorage {
       }
       
       if (conditions.length > 0) {
-        query = query.where(and(...conditions));
+        const results = await db.select().from(payroll).where(and(...conditions));
+        return results;
       }
     }
     
-    const results = await query;
+    const results = await db.select().from(payroll);
     return results;
   }
   
