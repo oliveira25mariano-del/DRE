@@ -389,7 +389,7 @@ export default function MOE() {
                 className="border-blue-400/30 text-white hover:bg-blue-600/30"
                 onClick={async () => {
                   const exportData = filteredEmployees.map((employee: Employee) => {
-                    const contract = contracts.find((c: any) => c.id === employee.contractId);
+                    const contract = (contracts as any[]).find((c: any) => c.id === employee.contractId);
                     const baseSalary = parseFloat(employee.baseSalary || "0");
                     const hourlyRate = parseFloat(employee.hourlyRate || "0");
                     const hoursWorked = parseFloat(employee.hoursWorked || "0");
@@ -414,8 +414,8 @@ export default function MOE() {
                         currency: 'BRL'
                       }),
                       "Status": employee.active ? "Ativo" : "Inativo",
-                      "Data Admissão": employee.hireDate ? new Date(employee.hireDate).toLocaleDateString('pt-BR') : "N/A",
-                      "CPF": employee.cpf || "N/A"
+                      "Data Admissão": (employee as any).hireDate ? new Date((employee as any).hireDate).toLocaleDateString('pt-BR') : "N/A",
+                      "CPF": (employee as any).cpf || "N/A"
                     };
                   });
 

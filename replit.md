@@ -53,8 +53,43 @@ The platform incorporates several key features and design patterns:
 - **Padronização Visual Completa (Agosto 2025):** Unificação total de todos os gráficos da aplicação para uso exclusivo de tonalidades de azul, garantindo consistência visual em 100% da interface - incluindo Financial Analysis, Dashboard Executivo, KPI Cards, Real-time Charts, e todos os componentes visuais
 - **Sistema de Análise Financeira:** Implementação completa com visões mensais, acumuladas e anuais por contrato, comparativo orçado vs. realizado com indicadores visuais e KPIs executivos funcionais
 - **Sistema de Permissões Granulares (Agosto 2025):** Controle de acesso por contrato específico no painel administrativo, permitindo que administradores definam quais contratos cada usuário pode visualizar, com campos `restrictToOwnContracts` e `allowedContracts` no schema
-- **Sistema de Exportação Completo (Agosto 2025):** Implementação de funcionalidade de exportação em PDF, CSV, Excel e JSON em todos os botões de exportar do sistema, incluindo DRE, Provisões, Logs de Auditoria, Fringe Benefits e Contratos, com modal de seleção de formato e geração de PDFs profissionais
+- **Sistema de Exportação Universal (Agosto 2025):** Implementação completa de funcionalidade de exportação em PDF, CSV, Excel e JSON em TODOS os botões de exportar do sistema: DRE, Provisões, Logs de Auditoria, Fringe Benefits, Contratos, Análise Financeira, Glosas e MOE, com modal interativo de seleção de formato, geração de PDFs profissionais com títulos/subtítulos/marca d'água, e biblioteca exportUtils centralizada
 - **Correção de Erros Críticos:** Resolução definitiva do erro yAxisId nos gráficos Recharts e eliminação de todos os erros LSP, garantindo aplicação 100% funcional
+
+## Sistema de Exportação Universal - Configurações Técnicas (Agosto 2025)
+
+### Estrutura Implementada:
+- **Biblioteca Centralizada:** `client/src/lib/exportUtils.ts` com funções universais
+- **Modal Interativo:** Componente de seleção com 4 formatos (PDF, CSV, Excel, JSON)
+- **PDFs Profissionais:** Títulos, subtítulos, marca d'água e orientação configurável
+- **Dados Inteligentes:** Exportação baseada em filtros aplicados em cada página
+
+### Páginas com Exportação Completa:
+1. **DRE** - Demonstrativo do Resultado do Exercício
+2. **Provisões/Billing** - Dados de faturamento mensal
+3. **Logs de Auditoria** - Histórico completo de ações do sistema
+4. **Fringe Benefits** - Benefícios dos colaboradores
+5. **Contratos** - Gestão de contratos ativos
+6. **Análise Financeira** - Visões mensais, trimestrais e anuais
+7. **Glosas** - Controle de glosas por contrato
+8. **MOE** - Mão de Obra Externa
+
+### IDs para Exportação PDF:
+- `#dre-content` - Tabela DRE principal
+- `#billing-content` - Conteúdo de provisões
+- `#audit-table-content` - Tabela de auditoria
+- `#fringe-table-content` - Tabela de fringe benefits
+- `#contracts-table-content` - Tabela de contratos
+- `#financial-analysis-content` - Análise financeira
+- `#glosas-table-content` - Tabela de glosas
+- `#moe-table-content` - Tabela de MOE
+
+### Configurações Salvas para Manutenção:
+- Todos os componentes usam `exportUtils.showExportModal()`
+- Dados formatados em português brasileiro (R$, dd/MM/yyyy)
+- Tratamento de erros com toast notifications
+- Tipagem corrigida com `(contracts as any[])` onde necessário
+- Estrutura consistente em todas as implementações
 
 ### Próximas Funcionalidades Sugeridas
 **Análise Financeira Avançada:**
