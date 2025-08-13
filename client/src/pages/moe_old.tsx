@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Plus, Search, Eye, Edit, Trash2, Users, BarChart3 } from "lucide-react";
+import { Plus, Search, Eye, Edit, Trash2, Users, Clock, BarChart3 } from "lucide-react";
 import { queryClient } from "@/lib/queryClient";
 import { apiRequest } from "@/lib/queryClient";
 import { useForm } from "react-hook-form";
@@ -16,7 +16,8 @@ import { insertEmployeeSchema, type Employee, type InsertEmployee } from "@share
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { Dialog as AnalysisDialog, DialogContent as AnalysisDialogContent, DialogHeader as AnalysisDialogHeader, DialogTitle as AnalysisDialogTitle, DialogDescription as AnalysisDialogDescription } from "@/components/ui/dialog";
 
 export default function MOE() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -27,10 +28,12 @@ export default function MOE() {
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [editForm, setEditForm] = useState<InsertEmployee | null>(null);
   const { toast } = useToast();
 
-  const { data: employees = [], isLoading } = useQuery({
+  const { data: employees = [], isLoading, refetch } = useQuery({
     queryKey: ["/api/employees"],
+    refetchOnWindowFocus: true,
   });
 
   const { data: contracts = [] } = useQuery({
@@ -39,12 +42,29 @@ export default function MOE() {
 
   const createMutation = useMutation({
     mutationFn: async (data: InsertEmployee) => {
-      return await apiRequest("POST", "/api/employees", data);
+      console.log("Enviando dados:", data);
+      const result = await apiRequest("POST", "/api/employees", data);
+      console.log("Resultado:", result);
+      return result;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("Colaborador criado com sucesso:", data);
+      // Invalidar queries e forçar refetch imediato
       queryClient.invalidateQueries({ queryKey: ["/api/employees"] });
+      refetch();
+      
+      form.reset({
+        name: "",
+        email: "",
+        position: "",
+        contractId: "",
+        baseSalary: "0",
+        fringeRate: "0",
+        hoursWorked: "0",
+        hourlyRate: "0",
+        active: true,
+      });
       setIsCreateDialogOpen(false);
-      form.reset();
       toast({
         title: "Sucesso",
         description: "Colaborador criado com sucesso!",
@@ -60,14 +80,14 @@ export default function MOE() {
   });
 
   const editMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: InsertEmployee }) => {
+    mutationFn: async ({ id, data }: { id: string, data: InsertEmployee }) => {
       return await apiRequest("PATCH", `/api/employees/${id}`, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/employees"] });
+      refetch();
       setIsEditDialogOpen(false);
       setSelectedEmployee(null);
-      editForm.reset();
       toast({
         title: "Sucesso",
         description: "Colaborador atualizado com sucesso!",
@@ -88,6 +108,7 @@ export default function MOE() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/employees"] });
+      refetch();
       toast({
         title: "Sucesso",
         description: "Colaborador excluído com sucesso!",
@@ -117,7 +138,7 @@ export default function MOE() {
     },
   });
 
-  const editForm = useForm<InsertEmployee>({
+  const editFormConfig = useForm<InsertEmployee>({
     resolver: zodResolver(insertEmployeeSchema),
     defaultValues: {
       name: "",
@@ -133,9 +154,11 @@ export default function MOE() {
   });
 
   const filteredEmployees = (employees as Employee[]).filter((employee: Employee) => {
-    const matchesSearch = employee.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesContract = !selectedContract || selectedContract === 'all' || employee.contractId === selectedContract;
-    const matchesPosition = !selectedPosition || selectedPosition === 'all' || employee.position === selectedPosition;
+    const matchesSearch = employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         employee.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesContract = selectedContract === "all" || employee.contractId === selectedContract;
+    const matchesPosition = selectedPosition === "all" || employee.position === selectedPosition;
+    
     return matchesSearch && matchesContract && matchesPosition;
   });
 
@@ -165,32 +188,7 @@ export default function MOE() {
     }
   };
 
-  const handleView = (employee: Employee) => {
-    setSelectedEmployee(employee);
-    setIsViewDialogOpen(true);
-  };
 
-  const handleEdit = (employee: Employee) => {
-    setSelectedEmployee(employee);
-    editForm.reset({
-      name: employee.name,
-      email: employee.email || "",
-      position: employee.position,
-      contractId: employee.contractId,
-      baseSalary: employee.baseSalary || "0",
-      fringeRate: employee.fringeRate || "0",
-      hoursWorked: employee.hoursWorked || "0",
-      hourlyRate: employee.hourlyRate || "0",
-      active: employee.active,
-    });
-    setIsEditDialogOpen(true);
-  };
-
-  const handleDelete = (id: string) => {
-    if (window.confirm("Tem certeza que deseja excluir este colaborador?")) {
-      deleteMutation.mutate(id);
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -223,11 +221,13 @@ export default function MOE() {
         <Card className="glass-effect border-blue-200/20">
           <CardContent className="p-6 relative">
             <div className="absolute top-4 right-4">
-              <Users className="text-orange-400 w-5 h-5" />
+              <Clock className="text-amber-400 w-5 h-5" />
             </div>
             <div>
-              <p className="text-sm font-medium text-blue-100">Total Colaboradores</p>
-              <p className="text-2xl font-bold text-white">{(employees as Employee[]).length}</p>
+              <p className="text-sm font-medium text-blue-100">Horas Trabalhadas</p>
+              <p className="text-2xl font-bold text-white">
+                {activeEmployees.reduce((sum: number, emp: Employee) => sum + parseFloat(emp.hoursWorked || "0"), 0).toFixed(0)}h
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -238,12 +238,13 @@ export default function MOE() {
               <Users className="text-purple-400 w-5 h-5" />
             </div>
             <div>
-              <p className="text-sm font-medium text-blue-100">Média Hora</p>
+              <p className="text-sm font-medium text-blue-100">Taxa Média/Hora</p>
               <p className="text-2xl font-bold text-white">
-                {activeEmployees.length > 0 
-                  ? formatCurrency(activeEmployees.reduce((sum, emp) => sum + parseFloat(emp.hourlyRate || "0"), 0) / activeEmployees.length)
-                  : formatCurrency(0)
-                }
+                {formatCurrency(
+                  activeEmployees.length > 0
+                    ? activeEmployees.reduce((sum: number, emp: Employee) => sum + parseFloat(emp.hourlyRate || "0"), 0) / activeEmployees.length
+                    : 0
+                )}
               </p>
             </div>
           </CardContent>
@@ -298,6 +299,24 @@ export default function MOE() {
 
                         <FormField
                           control={form.control}
+                          name="email"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-white">Data</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  type="date"
+                                  className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
+                                  {...field} 
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
                           name="position"
                           render={({ field }) => (
                             <FormItem>
@@ -320,7 +339,7 @@ export default function MOE() {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className="text-white">Contrato</FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value}>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
                                 <FormControl>
                                   <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
                                     <SelectValue placeholder="Selecione um contrato" />
@@ -341,10 +360,53 @@ export default function MOE() {
 
                         <FormField
                           control={form.control}
+                          name="baseSalary"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-white">Salário Base (R$)</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  type="number" 
+                                  step="0.01"
+                                  placeholder="0,00" 
+                                  className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
+                                  {...field} 
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
                           name="hourlyRate"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className="text-white">Taxa Horária (R$)</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  type="number" 
+                                  step="0.01"
+                                  placeholder="0,00" 
+                                  className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
+                                  value={field.value || ""}
+                                  onChange={field.onChange}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="fringeRate"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-white">Faturado Extra</FormLabel>
                               <FormControl>
                                 <Input 
                                   type="number" 
@@ -371,7 +433,16 @@ export default function MOE() {
                                   step="0.5"
                                   placeholder="0" 
                                   className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
-                                  {...field} 
+                                  value={field.value || ""}
+                                  onChange={(e) => {
+                                    field.onChange(e);
+                                    // Automatizar cálculo do Total MOE
+                                    const hoursWorked = parseFloat(e.target.value || "0");
+                                    const hourlyRate = parseFloat(form.getValues("hourlyRate") || "0");
+                                    // O Total MOE será calculado automaticamente na tabela (Taxa/Hora × Horas)
+                                  }}
+                                  onBlur={field.onBlur}
+                                  name={field.name}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -409,24 +480,23 @@ export default function MOE() {
         </CardHeader>
         <CardContent>
           {/* Filters */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400 w-4 h-4" />
-                <Input
-                  placeholder="Buscar colaborador..."
-                  className="pl-10 bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="relative">
+              <Search className="absolute left-3 top-2.5 text-blue-300 w-4 h-4" />
+              <Input
+                type="text"
+                placeholder="Buscar colaborador..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
+              />
             </div>
             <Select value={selectedContract} onValueChange={setSelectedContract}>
-              <SelectTrigger className="w-[200px] bg-blue-600/30 border-blue-400/30 text-white">
-                <SelectValue placeholder="Contrato" />
+              <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
+                <SelectValue placeholder="Todos os contratos" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos os Contratos</SelectItem>
+                <SelectItem value="all">Todos os contratos</SelectItem>
                 {(contracts as any[]).map((contract: any) => (
                   <SelectItem key={contract.id} value={contract.id}>
                     {contract.name}
@@ -434,52 +504,65 @@ export default function MOE() {
                 ))}
               </SelectContent>
             </Select>
+            <Select value={selectedPosition} onValueChange={setSelectedPosition}>
+              <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
+                <SelectValue placeholder="Todos os cargos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os cargos</SelectItem>
+                {Array.from(new Set((employees as Employee[]).map((emp: Employee) => emp.position))).map((position: string) => (
+                  <SelectItem key={position} value={position}>
+                    {position}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
-          {/* Table */}
-          <div className="relative overflow-hidden bg-blue-600/20 rounded-lg border border-blue-400/30">
+          {/* Employees Table */}
+          <div className="bg-blue-400/10 rounded-lg overflow-hidden">
             {isLoading ? (
               <div className="p-8 text-center">
-                <div className="text-white">Carregando colaboradores...</div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400 mx-auto"></div>
+                <p className="text-blue-200 mt-2">Carregando colaboradores...</p>
               </div>
             ) : filteredEmployees.length === 0 ? (
-              <div className="p-8 text-center">
-                <Users className="mx-auto h-12 w-12 text-blue-400 mb-4" />
-                <div className="text-white font-medium">Nenhum colaborador encontrado</div>
-                <p className="text-blue-200 mt-2">Adicione o primeiro colaborador ao sistema MOE.</p>
+              <div className="p-8 text-center text-blue-200">
+                <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>Nenhum colaborador encontrado</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-blue-400/30">
-                  <thead className="bg-blue-600/40">
+              <div id="moe-table-content" className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-blue-400/20">
+                  <thead className="bg-blue-500/20">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-blue-200 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">
                         Colaborador
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-blue-200 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">
                         Contrato
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-blue-200 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">
                         Cargo
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-blue-200 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">
                         Taxa/Hora
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-blue-200 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">
                         Horas
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-blue-200 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">
                         Total MOE
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-blue-200 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">
                         Status
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-blue-200 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">
                         Ações
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-blue-400/20">
+                  <tbody className="bg-blue-400/5 divide-y divide-blue-400/10">
                     {filteredEmployees.map((employee: Employee) => {
                       const contract = (contracts as any[]).find((c: any) => c.id === employee.contractId);
                       const totalMOE = parseFloat(employee.hoursWorked || "0") * parseFloat(employee.hourlyRate || "0");
@@ -525,7 +608,11 @@ export default function MOE() {
                                 size="sm" 
                                 variant="ghost" 
                                 className="text-blue-300 hover:text-blue-100"
-                                onClick={() => handleView(employee)}
+                                onClick={() => {
+                                  setSelectedEmployee(employee);
+                                  setIsViewDialogOpen(true);
+                                }}
+                                data-testid={`button-view-${employee.id}`}
                               >
                                 <Eye className="w-4 h-4" />
                               </Button>
@@ -533,7 +620,22 @@ export default function MOE() {
                                 size="sm" 
                                 variant="ghost" 
                                 className="text-yellow-300 hover:text-yellow-100"
-                                onClick={() => handleEdit(employee)}
+                                onClick={() => {
+                                  setSelectedEmployee(employee);
+                                  editFormConfig.reset({
+                                    name: employee.name,
+                                    email: employee.email || "",
+                                    position: employee.position,
+                                    contractId: employee.contractId,
+                                    baseSalary: employee.baseSalary || "0",
+                                    fringeRate: employee.fringeRate || "0",
+                                    hoursWorked: employee.hoursWorked || "0",
+                                    hourlyRate: employee.hourlyRate || "0",
+                                    active: employee.active,
+                                  });
+                                  setIsEditDialogOpen(true);
+                                }}
+                                data-testid={`button-edit-${employee.id}`}
                               >
                                 <Edit className="w-4 h-4" />
                               </Button>
@@ -541,7 +643,12 @@ export default function MOE() {
                                 size="sm" 
                                 variant="ghost" 
                                 className="text-red-300 hover:text-red-100"
-                                onClick={() => handleDelete(employee.id)}
+                                onClick={() => {
+                                  if (window.confirm("Tem certeza que deseja excluir este colaborador?")) {
+                                    deleteMutation.mutate(employee.id);
+                                  }
+                                }}
+                                data-testid={`button-delete-${employee.id}`}
                               >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
@@ -558,231 +665,25 @@ export default function MOE() {
         </CardContent>
       </Card>
 
-      {/* View Modal */}
-      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="max-w-2xl bg-blue-bg border-blue-400/30">
-          <DialogHeader>
-            <DialogTitle className="text-white">Detalhes do Colaborador</DialogTitle>
-            <DialogDescription className="text-blue-200">
-              Informações completas do colaborador selecionado
-            </DialogDescription>
-          </DialogHeader>
-          {selectedEmployee && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="text-sm font-medium text-blue-200">Nome Completo</label>
-                  <div className="bg-blue-600/20 rounded p-2">
-                    <div className="text-sm text-white">{selectedEmployee.name}</div>
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-blue-200">Email</label>
-                  <div className="bg-blue-600/20 rounded p-2">
-                    <div className="text-sm text-white">{selectedEmployee.email || 'N/A'}</div>
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-blue-200">Cargo</label>
-                  <div className="bg-blue-600/20 rounded p-2">
-                    <div className="text-sm text-white">{selectedEmployee.position}</div>
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-blue-200">Contrato</label>
-                  <div className="bg-blue-600/20 rounded p-2">
-                    <div className="text-sm text-white">
-                      {(contracts as any[]).find((c: any) => c.id === selectedEmployee.contractId)?.name || 'N/A'}
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-blue-200">Taxa Horária</label>
-                  <div className="bg-blue-600/20 rounded p-2">
-                    <div className="text-sm text-white">{formatCurrency(selectedEmployee.hourlyRate || "0")}</div>
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-blue-200">Horas Trabalhadas</label>
-                  <div className="bg-blue-600/20 rounded p-2">
-                    <div className="text-sm text-white">{parseFloat(selectedEmployee.hoursWorked || "0").toFixed(1)}h</div>
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-blue-200">Total MOE</label>
-                  <div className="bg-blue-600/20 rounded p-2">
-                    <div className="text-sm font-medium text-green-400">
-                      {formatCurrency(parseFloat(selectedEmployee.hoursWorked || "0") * parseFloat(selectedEmployee.hourlyRate || "0"))}
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-blue-200">Status</label>
-                  <div className="bg-blue-600/20 rounded p-2">
-                    <Badge className={selectedEmployee.active ? "bg-green-500/20 text-green-300" : "bg-red-500/20 text-red-300"}>
-                      {selectedEmployee.active ? 'Ativo' : 'Inativo'}
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Edit Modal */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-4xl bg-blue-bg border-blue-400/30">
-          <DialogHeader>
-            <DialogTitle className="text-white">Editar Colaborador</DialogTitle>
-            <DialogDescription className="text-blue-200">
-              Edite os dados do colaborador selecionado
-            </DialogDescription>
-          </DialogHeader>
-          <Form {...editForm}>
-            <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  control={editForm.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-white">Nome Completo</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="Nome do colaborador" 
-                          className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={editForm.control}
-                  name="position"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-white">Cargo</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="Ex: Desenvolvedor Sênior" 
-                          className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={editForm.control}
-                  name="contractId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-white">Contrato</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
-                            <SelectValue placeholder="Selecione um contrato" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {(contracts as any[]).map((contract: any) => (
-                            <SelectItem key={contract.id} value={contract.id}>
-                              {contract.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={editForm.control}
-                  name="hourlyRate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-white">Taxa Horária (R$)</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          step="0.01"
-                          placeholder="0,00" 
-                          className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={editForm.control}
-                  name="hoursWorked"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-white">Horas Trabalhadas</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          step="0.5"
-                          placeholder="0" 
-                          className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="flex justify-end space-x-4">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  className="border-blue-400/30 text-white hover:bg-blue-600/30"
-                  onClick={() => {
-                    setIsEditDialogOpen(false);
-                    setSelectedEmployee(null);
-                    editForm.reset();
-                  }}
-                >
-                  Cancelar
-                </Button>
-                <Button type="submit" disabled={editMutation.isPending} className="bg-blue-600 hover:bg-blue-700">
-                  {editMutation.isPending ? "Salvando..." : "Salvar Alterações"}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Analysis Modal */}
-      <Dialog open={isAnalysisOpen} onOpenChange={setIsAnalysisOpen}>
-        <DialogContent className="max-w-4xl bg-blue-bg border-blue-400/30">
-          <DialogHeader>
-            <DialogTitle className="text-white">Análise MOE - Total Vendido por Contrato e Mês</DialogTitle>
-            <DialogDescription className="text-blue-200">
+      {/* Gráfico de Análise Modal */}
+      <AnalysisDialog open={isAnalysisOpen} onOpenChange={setIsAnalysisOpen}>
+        <AnalysisDialogContent className="max-w-4xl bg-blue-bg border-blue-400/30">
+          <AnalysisDialogHeader>
+            <AnalysisDialogTitle className="text-white">Análise MOE - Total Vendido por Contrato e Mês</AnalysisDialogTitle>
+            <AnalysisDialogDescription className="text-blue-200">
               Visualização dinâmica do Total MOE vendido por contrato e período
-            </DialogDescription>
-          </DialogHeader>
-          <div className="p-6" style={{ height: '300px' }}>
+            </AnalysisDialogDescription>
+          </AnalysisDialogHeader>
+          <div className="p-6">
             {(() => {
+              // Preparar dados do gráfico
               const chartData = (employees as Employee[]).reduce((acc: any[], employee: Employee) => {
                 if (!employee.active) return acc;
                 
                 const contract = (contracts as any[]).find((c: any) => c.id === employee.contractId);
                 const contractName = contract?.name || "Contrato Indefinido";
                 
+                // Usar a data de hoje para simular dados mensais (em uma implementação real, você teria datas específicas)
                 const currentDate = new Date();
                 const monthKey = format(currentDate, "MMM/yyyy", { locale: ptBR });
                 const contractMonth = `${contractName} - ${monthKey}`;
@@ -804,67 +705,345 @@ export default function MOE() {
                 return acc;
               }, []);
 
-              const formatTooltipValue = (value: number) => {
-                return new Intl.NumberFormat('pt-BR', {
-                  style: 'currency',
-                  currency: 'BRL'
-                }).format(value);
-              };
+              // Ordenar por nome do contrato e depois por data
+              chartData.sort((a, b) => {
+                const contractCompare = a.contractName.localeCompare(b.contractName);
+                if (contractCompare !== 0) return contractCompare;
+                return a.month.localeCompare(b.month);
+              });
 
-              return chartData.length === 0 ? (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-center">
-                    <BarChart3 className="mx-auto h-12 w-12 text-blue-400 mb-4" />
-                    <p className="text-white font-medium">Nenhum dado disponível</p>
-                    <p className="text-blue-200 text-sm">Adicione colaboradores ativos para visualizar a análise.</p>
+              const totalMOESum = chartData.reduce((sum, item) => sum + item.totalMOE, 0);
+
+              return (
+                <>
+                  <div className="mb-4">
+                    <div className="grid grid-cols-3 gap-3">
+                      <Card className="glass-effect border-blue-200/20">
+                        <CardContent className="p-3">
+                          <div className="text-center">
+                            <p className="text-xs font-medium text-blue-100">Registros</p>
+                            <p className="text-lg font-bold text-white">{chartData.length}</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      <Card className="glass-effect border-blue-200/20">
+                        <CardContent className="p-3">
+                          <div className="text-center">
+                            <p className="text-xs font-medium text-blue-100">Total MOE</p>
+                            <p className="text-lg font-bold text-white">
+                              {totalMOESum.toLocaleString('pt-BR', {
+                                style: 'currency',
+                                currency: 'BRL'
+                              })}
+                            </p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      <Card className="glass-effect border-blue-200/20">
+                        <CardContent className="p-3">
+                          <div className="text-center">
+                            <p className="text-xs font-medium text-blue-100">Contratos</p>
+                            <p className="text-lg font-bold text-white">
+                              {new Set(chartData.map(item => item.contractName)).size}
+                            </p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={chartData}
-                    margin={{
-                      top: 20,
-                      right: 30,
-                      left: 60,
-                      bottom: 80,
-                    }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" stroke="#1e40af" />
-                    <XAxis 
-                      dataKey="contratoMes" 
-                      stroke="#93c5fd" 
-                      fontSize={11}
-                      angle={-45}
-                      textAnchor="end"
-                      height={80}
-                      interval={0}
-                    />
-                    <YAxis 
-                      stroke="#93c5fd" 
-                      fontSize={12}
-                      tickFormatter={(value) => `R$ ${(value / 1000).toFixed(0)}k`}
-                    />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: '#1e3a8a', 
-                        border: '1px solid #3b82f6',
-                        borderRadius: '8px',
-                        color: '#ffffff'
-                      }}
-                      formatter={(value: any) => [formatTooltipValue(value), 'Total MOE']}
-                      labelStyle={{ color: '#93c5fd' }}
-                    />
-                    <Bar 
-                      dataKey="totalMOE" 
-                      fill="#3b82f6"
-                      radius={[4, 4, 0, 0]}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
+                  
+                  <div className="bg-blue-400/5 rounded-lg p-4">
+                    <ResponsiveContainer width="100%" height={300}>
+                      <BarChart 
+                        data={chartData}
+                        margin={{ top: 20, right: 30, left: 80, bottom: 120 }}
+                        barGap={6}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="#3B82F6" opacity={0.3} />
+                        <XAxis 
+                          dataKey="contratoMes" 
+                          tick={{ 
+                            fill: '#DBEAFE', 
+                            fontSize: 10, 
+                            fontWeight: 600
+                          }}
+                          angle={-35}
+                          textAnchor="end"
+                          height={120}
+                          interval={0}
+                        />
+                        <YAxis 
+                          tick={{ 
+                            fill: '#DBEAFE', 
+                            fontSize: 11, 
+                            fontWeight: 600
+                          }}
+                          tickFormatter={(value) => {
+                            if (value >= 1000000) {
+                              return `R$ ${(value/1000000).toFixed(1)}M`;
+                            }
+                            if (value >= 1000) {
+                              return `R$ ${(value/1000).toFixed(0)}k`;
+                            }
+                            return `R$ ${value.toFixed(0)}`;
+                          }}
+                          width={80}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: 'rgba(30, 58, 138, 0.95)',
+                            border: '1px solid #3B82F6',
+                            borderRadius: '8px',
+                            color: '#DBEAFE',
+                            fontSize: '12px'
+                          }}
+                          formatter={(value: any) => [
+                            `${parseFloat(value).toLocaleString('pt-BR', {
+                              style: 'currency',
+                              currency: 'BRL'
+                            })}`,
+                            'Total MOE'
+                          ]}
+                          labelStyle={{ color: '#DBEAFE', fontWeight: 'bold' }}
+                        />
+                        <Legend 
+                          wrapperStyle={{ 
+                            color: '#DBEAFE', 
+                            fontSize: '12px',
+                            fontWeight: '600'
+                          }}
+                        />
+                        <Bar 
+                          dataKey="totalMOE" 
+                          fill="#3B82F6" 
+                          name="Total MOE"
+                          radius={[2, 2, 0, 0]}
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </>
               );
             })()}
           </div>
+        </AnalysisDialogContent>
+      </AnalysisDialog>
+
+      {/* Modal de Visualização */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="max-w-2xl bg-blue-bg border-blue-400/30">
+          <DialogHeader>
+            <DialogTitle className="text-white">Detalhes do Colaborador</DialogTitle>
+            <DialogDescription className="text-blue-200">
+              Visualização completa dos dados do colaborador selecionado
+            </DialogDescription>
+          </DialogHeader>
+          {selectedEmployee && (
+            <div className="space-y-4 p-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-blue-100">Nome</label>
+                  <p className="text-white bg-blue-600/20 rounded p-2">{selectedEmployee.name}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-blue-100">Email/Data</label>
+                  <p className="text-white bg-blue-600/20 rounded p-2">{selectedEmployee.email || "N/A"}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-blue-100">Cargo</label>
+                  <p className="text-white bg-blue-600/20 rounded p-2">{selectedEmployee.position}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-blue-100">Contrato</label>
+                  <p className="text-white bg-blue-600/20 rounded p-2">
+                    {(contracts as any[]).find((c: any) => c.id === selectedEmployee.contractId)?.name || "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-blue-100">Taxa/Hora</label>
+                  <p className="text-white bg-blue-600/20 rounded p-2">{formatCurrency(selectedEmployee.hourlyRate || "0")}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-blue-100">Horas Trabalhadas</label>
+                  <p className="text-white bg-blue-600/20 rounded p-2">{selectedEmployee.hoursWorked}h</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-blue-100">Total MOE</label>
+                  <p className="text-white bg-blue-600/20 rounded p-2 font-bold text-green-300">
+                    {formatCurrency(parseFloat(selectedEmployee.hoursWorked || "0") * parseFloat(selectedEmployee.hourlyRate || "0"))}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-blue-100">Status</label>
+                  <div className="bg-blue-600/20 rounded p-2">
+                    <Badge className={selectedEmployee.active ? "bg-green-500/20 text-green-300" : "bg-red-500/20 text-red-300"}>
+                      {selectedEmployee.active ? 'Ativo' : 'Inativo'}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal de Edição */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-4xl bg-blue-bg border-blue-400/30">
+          <DialogHeader>
+            <DialogTitle className="text-white">Editar Colaborador</DialogTitle>
+            <DialogDescription className="text-blue-200">
+              Edite os dados do colaborador selecionado
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...editFormConfig}>
+            <form onSubmit={editFormConfig.handleSubmit(onEditSubmit)} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  control={editFormConfig.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Nome Completo</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="Nome do colaborador" 
+                          className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={editFormConfig.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Data</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="date"
+                          className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={editFormConfig.control}
+                  name="position"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Cargo</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="Ex: Desenvolvedor Sênior" 
+                          className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={editFormConfig.control}
+                  name="contractId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Contrato</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
+                            <SelectValue placeholder="Selecione um contrato" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {(contracts as any[]).map((contract: any) => (
+                            <SelectItem key={contract.id} value={contract.id}>
+                              {contract.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={editFormConfig.control}
+                  name="hourlyRate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Taxa/Hora (R$)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number"
+                          step="0.01"
+                          placeholder="0.00" 
+                          className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
+                          value={field.value || ""}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                          name={field.name}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={editFormConfig.control}
+                  name="hoursWorked"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Horas Trabalhadas</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number"
+                          step="0.5"
+                          placeholder="0" 
+                          className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
+                          value={field.value || ""}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                          name={field.name}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="flex justify-end space-x-4">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="border-blue-400/30 text-white hover:bg-blue-600/30"
+                  onClick={() => {
+                    setIsEditDialogOpen(false);
+                    setSelectedEmployee(null);
+                    editFormConfig.reset();
+                  }}
+                >
+                  Cancelar
+                </Button>
+                <Button type="submit" disabled={editMutation.isPending} className="bg-blue-600 hover:bg-blue-700">
+                  {editMutation.isPending ? "Salvando..." : "Salvar Alterações"}
+                </Button>
+              </div>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
     </div>
