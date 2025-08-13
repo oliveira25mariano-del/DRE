@@ -121,14 +121,15 @@
   animation: pulse 3s infinite;
 }
 
-/* Recharts donut chart styling */
-.recharts-pie-sector {
+/* Recharts bar chart styling */
+.recharts-bar-rectangle {
   stroke: none !important;
   stroke-width: 0 !important;
 }
 
-.recharts-pie-sector:hover {
-  filter: brightness(1.1) !important;
+.recharts-bar-rectangle:hover,
+.recharts-bar-rectangle:focus {
+  filter: none !important;
   opacity: 1 !important;
 }
 
@@ -136,13 +137,12 @@
 .recharts-text {
   font-weight: 600 !important;
   fill: #DBEAFE !important;
-  font-size: 11px !important;
+  pointer-events: none;
 }
 
-.recharts-pie-label-text {
+.recharts-cartesian-axis-tick text {
   fill: #DBEAFE !important;
   font-weight: 600 !important;
-  font-size: 11px !important;
   pointer-events: none;
 }
 
@@ -151,9 +151,20 @@
   font-weight: 500 !important;
 }
 
-/* Remove tooltip cursor */
+.recharts-cartesian-grid line {
+  stroke: #3B82F6 !important;
+  stroke-opacity: 0.3 !important;
+}
+
+/* Remove tooltip cursor and hover effects */
 .recharts-tooltip-cursor {
   display: none !important;
+}
+
+.recharts-active-bar,
+.recharts-bar:hover .recharts-bar-rectangle {
+  filter: none !important;
+  opacity: 1 !important;
 }
 
 /* Force remove any white backgrounds */

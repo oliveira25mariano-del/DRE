@@ -20,7 +20,7 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 
 export default function Glosas() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -168,26 +168,37 @@ export default function Glosas() {
     return ((totalImpact / baseAmount) * 100).toFixed(1);
   };
 
-  // Prepare analysis chart data for donut chart
-  const analysisData = (contracts as any[]).map((contract: any) => {
-    const contractGlosas = (glosas as Glosa[]).filter((glosa: Glosa) => glosa.contractId === contract.id);
-    const custoGlosa = contractGlosas.reduce((sum, glosa) => sum + parseFloat(glosa.amount), 0);
-    const custoAtestado = contractGlosas.reduce((sum, glosa) => {
-      return sum + (glosa.attestationCosts ? parseFloat(glosa.attestationCosts) : 0);
-    }, 0);
-    const totalCost = custoGlosa + custoAtestado;
+  // Prepare analysis chart data for monthly bar chart
+  const analysisData = () => {
+    const monthlyData: { [key: string]: { custoGlosa: number; custoAtestado: number } } = {};
     
-    return {
-      name: contract.name,
-      value: totalCost,
-      custoGlosa,
-      custoAtestado,
-      fullName: contract.name
-    };
-  }).filter(item => item.value > 0);
+    (glosas as Glosa[]).forEach((glosa: Glosa) => {
+      const month = format(new Date(glosa.date), 'MMM/yyyy', { locale: ptBR });
+      
+      if (!monthlyData[month]) {
+        monthlyData[month] = { custoGlosa: 0, custoAtestado: 0 };
+      }
+      
+      monthlyData[month].custoGlosa += parseFloat(glosa.amount);
+      monthlyData[month].custoAtestado += glosa.attestationCosts ? parseFloat(glosa.attestationCosts) : 0;
+    });
+    
+    return Object.entries(monthlyData)
+      .map(([month, costs]) => ({
+        mes: month,
+        custoGlosa: costs.custoGlosa,
+        custoAtestado: costs.custoAtestado
+      }))
+      .sort((a, b) => {
+        const [monthA, yearA] = a.mes.split('/');
+        const [monthB, yearB] = b.mes.split('/');
+        const dateA = new Date(`${monthA} 1, ${yearA}`);
+        const dateB = new Date(`${monthB} 1, ${yearB}`);
+        return dateA.getTime() - dateB.getTime();
+      });
+  };
 
-  // Colors for the donut chart
-  const COLORS = ['#3B82F6', '#1D4ED8', '#2563EB', '#1E40AF', '#1E3A8A'];
+  const chartData = analysisData();
 
   const onSubmit = (data: InsertGlosa) => {
     const processedData = {
@@ -937,43 +948,46 @@ export default function Glosas() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
-            {analysisData.length === 0 ? (
+            {chartData.length === 0 ? (
               <div className="text-center py-6 text-blue-200">
                 Nenhum dado disponível. Crie algumas glosas primeiro.
               </div>
             ) : (
-              <div className="h-96">
+              <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={analysisData}
-                      cx="50%"
-                      cy="45%"
-                      labelLine={false}
-                      label={(entry) => {
-                        const name = entry.name.length > 15 ? entry.name.substring(0, 15) + "..." : entry.name;
-                        return `${name}: ${formatCurrency(entry.value)}`;
+                  <BarChart 
+                    data={chartData} 
+                    margin={{ top: 20, right: 30, left: 60, bottom: 60 }}
+                    barGap={8}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#3B82F6" opacity={0.3} />
+                    <XAxis 
+                      dataKey="mes" 
+                      tick={{ fill: '#DBEAFE', fontSize: 12, fontWeight: 600 }}
+                      angle={-20}
+                      textAnchor="end"
+                      height={60}
+                      interval={0}
+                    />
+                    <YAxis 
+                      tick={{ fill: '#DBEAFE', fontSize: 11, fontWeight: 600 }}
+                      tickFormatter={(value) => {
+                        if (value >= 1000000) {
+                          return `R$ ${(value/1000000).toFixed(1)}M`;
+                        }
+                        if (value >= 1000) {
+                          return `R$ ${(value/1000).toFixed(0)}k`;
+                        }
+                        return `R$ ${value.toFixed(0)}`;
                       }}
-                      outerRadius={100}
-                      innerRadius={40}
-                      fill="#8884d8"
-                      dataKey="value"
-                      stroke="none"
-                    >
-                      {analysisData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
+                      width={60}
+                    />
                     <Tooltip 
-                      formatter={(value: any, name: any, props: any) => [
-                        <div key="tooltip" className="space-y-1">
-                          <div className="font-semibold">{props.payload.fullName}</div>
-                          <div>Custo Total: {formatCurrency(value)}</div>
-                          <div>Custo Glosa: {formatCurrency(props.payload.custoGlosa)}</div>
-                          <div>Custo Atestado: {formatCurrency(props.payload.custoAtestado)}</div>
-                        </div>
+                      formatter={(value, name) => [
+                        formatCurrency(value as number), 
+                        name === 'custoGlosa' ? 'Custo Glosa' : 'Custo Atestado'
                       ]}
-                      labelStyle={{ color: '#1E40AF', fontSize: '14px', fontWeight: 'bold' }}
+                      labelStyle={{ color: '#1E40AF', fontSize: '13px', fontWeight: 'bold' }}
                       contentStyle={{ 
                         backgroundColor: '#1E3A8A', 
                         border: '1px solid #3B82F6',
@@ -983,31 +997,39 @@ export default function Glosas() {
                         color: '#DBEAFE'
                       }}
                     />
-                    <Legend 
-                      verticalAlign="bottom" 
-                      height={60}
-                      formatter={(value, entry: any) => {
-                        const name = entry.payload.name.length > 20 ? 
-                          entry.payload.name.substring(0, 20) + "..." : 
-                          entry.payload.name;
-                        return <span style={{ color: '#DBEAFE', fontSize: '12px' }}>{name}</span>;
-                      }}
-                      wrapperStyle={{
-                        paddingTop: '10px',
-                        fontSize: '12px'
-                      }}
+                    <Legend
+                      verticalAlign="bottom"
+                      height={40}
+                      wrapperStyle={{ paddingTop: '20px' }}
+                      formatter={(value) => (
+                        <span style={{ color: '#DBEAFE', fontSize: '12px', fontWeight: 500 }}>
+                          {value === 'custoGlosa' ? 'Custo Glosa' : 'Custo Atestado'}
+                        </span>
+                      )}
                     />
-                  </PieChart>
+                    <Bar 
+                      dataKey="custoGlosa" 
+                      fill="#3B82F6" 
+                      radius={[2, 2, 0, 0]}
+                      name="custoGlosa"
+                    />
+                    <Bar 
+                      dataKey="custoAtestado" 
+                      fill="#1D4ED8" 
+                      radius={[2, 2, 0, 0]}
+                      name="custoAtestado"
+                    />
+                  </BarChart>
                 </ResponsiveContainer>
               </div>
             )}
             
             {/* Summary Info */}
-            {analysisData.length > 0 && (
+            {chartData.length > 0 && (
               <div className="mt-4 text-center">
                 <div className="text-sm text-blue-200">
-                  Total de Contratos: {analysisData.length} | 
-                  Custo Total: {formatCurrency(analysisData.reduce((sum, item) => sum + item.value, 0))}
+                  Total de Meses: {chartData.length} | 
+                  Custo Total: {formatCurrency(chartData.reduce((sum, item) => sum + item.custoGlosa + item.custoAtestado, 0))}
                 </div>
               </div>
             )}
