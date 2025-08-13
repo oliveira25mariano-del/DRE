@@ -120,19 +120,6 @@ export default function MOE() {
     },
   });
 
-  // Função para calcular taxa horária baseada no salário mensal
-  const calculateHourlyRate = (monthlySalary: string, hoursWorked: string) => {
-    const salary = parseFloat(monthlySalary || "0");
-    const hours = parseFloat(hoursWorked || "0");
-    if (salary > 0 && hours > 0) {
-      // Considerando 4.33 semanas por mês (52 semanas / 12 meses)
-      const weeklyHours = hours;
-      const monthlyHours = weeklyHours * 4.33;
-      return (salary / monthlyHours).toFixed(2);
-    }
-    return "0.00";
-  };
-
   // Função para calcular custo total (taxa horária * horas trabalhadas semanais)
   const calculateTotalCost = (hourlyRate: string, hoursWorked: string) => {
     const rate = parseFloat(hourlyRate || "0");
@@ -143,27 +130,11 @@ export default function MOE() {
     return "0.00";
   };
 
-  // Observar mudanças no salário e horas para recalcular taxa horária e custo total
-  const watchedSalary = form.watch("baseSalary");
+  // Observar mudanças na taxa horária e horas para recalcular custo total
   const watchedHours = form.watch("hoursWorked");
   const watchedHourlyRate = form.watch("hourlyRate");
   
-  // Atualizar taxa horária quando salário ou horas mudarem
-  useEffect(() => {
-    if (watchedSalary && watchedHours) {
-      const newHourlyRate = calculateHourlyRate(watchedSalary, watchedHours);
-      const currentHourlyRate = form.getValues("hourlyRate");
-      if (newHourlyRate !== currentHourlyRate) {
-        form.setValue("hourlyRate", newHourlyRate, { shouldValidate: false });
-        
-        // Calcular custo total imediatamente após atualizar a taxa horária
-        const newTotalCost = calculateTotalCost(newHourlyRate, watchedHours);
-        form.setValue("fringeRate", newTotalCost, { shouldValidate: false });
-      }
-    }
-  }, [watchedSalary, watchedHours, form]);
-
-  // Atualizar custo total quando apenas as horas mudarem (sem mudança de salário)
+  // Atualizar custo total quando taxa horária ou horas mudarem
   useEffect(() => {
     if (watchedHourlyRate && watchedHours) {
       const newTotalCost = calculateTotalCost(watchedHourlyRate, watchedHours);
@@ -426,27 +397,6 @@ export default function MOE() {
 
                         <FormField
                           control={form.control}
-                          name="baseSalary"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-white">Salário Mensal (R$)</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  type="number" 
-                                  step="0.01"
-                                  placeholder="5000,00" 
-                                  className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
-                                  {...field}
-                                  value={field.value || ""}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
                           name="hoursWorked"
                           render={({ field }) => (
                             <FormItem>
@@ -471,16 +421,15 @@ export default function MOE() {
                           name="hourlyRate"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-white">Taxa Horária (R$) - Automática</FormLabel>
+                              <FormLabel className="text-white">Taxa Horária (R$)</FormLabel>
                               <FormControl>
                                 <Input 
                                   type="number" 
                                   step="0.01"
-                                  placeholder="Calculado automaticamente" 
-                                  className="bg-gray-600/50 border-gray-400/30 text-gray-300 placeholder:text-gray-400"
+                                  placeholder="50,00" 
+                                  className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
                                   {...field}
                                   value={field.value || ""}
-                                  readOnly
                                 />
                               </FormControl>
                               <FormMessage />
