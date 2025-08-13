@@ -244,10 +244,18 @@ export const insertGlosaSchema = createInsertSchema(glosas, {
   createdAt: true,
 });
 
-export const insertPayrollSchema = createInsertSchema(payroll).omit({
+export const insertPayrollSchema = createInsertSchema(payroll, {
+  salarios: z.coerce.string(),
+  horaExtra: z.coerce.string(),
+  beneficios: z.coerce.string(),
+  vt: z.coerce.string(),
+  imestra: z.coerce.string(),
+}).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  contractId: z.string().optional(),
 });
 
 export const insertPredictionSchema = createInsertSchema(predictions).omit({

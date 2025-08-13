@@ -119,15 +119,15 @@ export default function Folha() {
   const handleEdit = (payroll: Payroll) => {
     setEditingPayroll(payroll);
     form.reset({
-      contractId: payroll.contractId,
+      contractId: payroll.contractId || "",
       year: payroll.year,
       month: payroll.month,
       quarter: payroll.quarter,
-      salarios: payroll.salarios,
-      horaExtra: payroll.horaExtra,
-      beneficios: payroll.beneficios,
-      vt: payroll.vt,
-      imestra: payroll.imestra,
+      salarios: payroll.salarios?.toString() || "0",
+      horaExtra: payroll.horaExtra?.toString() || "0",
+      beneficios: payroll.beneficios?.toString() || "0",
+      vt: payroll.vt?.toString() || "0",
+      imestra: payroll.imestra?.toString() || "0",
     });
     setIsDialogOpen(true);
   };
@@ -623,7 +623,7 @@ export default function Folha() {
                     return (
                       <TableRow key={item.id}>
                         <TableCell className="font-medium">
-                          {getContractName(item.contractId)}
+                          {getContractName(item.contractId || "")}
                         </TableCell>
                         <TableCell>
                           {filters.period === "monthly" 
