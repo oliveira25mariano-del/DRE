@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -29,43 +29,40 @@ export default function Contracts() {
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [contractToDelete, setContractToDelete] = useState<Contract | null>(null);
-  const [localContracts, setLocalContracts] = useState<Contract[]>([]);
+
   const { toast } = useToast();
   const { canEdit, isVisualizationOnly } = usePermissions();
 
   const { data: contracts = [], isLoading, refetch } = useQuery<Contract[]>({
     queryKey: ["/api/contracts"],
     refetchOnMount: "always",
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: false,
     staleTime: 0,
     gcTime: 0,
     refetchInterval: false,
     refetchOnReconnect: true,
     networkMode: "always",
-    retry: 2,
+    retry: 1,
     retryDelay: 300,
-    onSuccess: (data) => {
-      setLocalContracts(data);
-    }
   });
 
-  // Use local contracts if available, fallback to server data
-  const displayContracts = localContracts.length > 0 ? localContracts : contracts;
+  // Always use fresh server data, no local state needed
+  const displayContracts = contracts;
 
-  // Update local contracts when server data changes
-  useEffect(() => {
-    if (contracts.length > 0) {
-      setLocalContracts(contracts);
-    }
-  }, [contracts]);
-
-  // Force initial refetch and setup refresh mechanism
-  useEffect(() => {
-    const timer = setTimeout(() => {
+  // Force complete refresh - simplest approach
+  const forceCompleteRefresh = useCallback(async () => {
+    // Step 1: Clear all cache immediately
+    queryClient.removeQueries({ queryKey: ["/api/contracts"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/contracts"] });
+    
+    // Step 2: Force fresh fetch from server
+    await refetch();
+    
+    // Step 3: Additional safety refetch after short delay
+    setTimeout(() => {
       refetch();
-    }, 100);
-    return () => clearTimeout(timer);
-  }, [refetch]);
+    }, 200);
+  }, [refetch, queryClient]);
 
   // Remove automatic refresh - will rely on manual refresh after mutations
   // useEffect(() => {
@@ -82,19 +79,9 @@ export default function Contracts() {
       return await apiRequest("POST", "/api/contracts", data);
     },
     onSuccess: async (newContract) => {
-      // Immediate local state update
-      setLocalContracts(prevContracts => [...prevContracts, newContract]);
+      console.log("✅ Contrato criado, forçando refresh completo");
       
-      // Background cache refresh
-      queryClient.removeQueries({ queryKey: ["/api/contracts"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/contracts"] });
-      
-      setTimeout(async () => {
-        const freshData = await refetch();
-        if (freshData.data) {
-          setLocalContracts(freshData.data);
-        }
-      }, 100);
+      await forceCompleteRefresh();
       
       setIsCreateDialogOpen(false);
       toast({
@@ -116,28 +103,9 @@ export default function Contracts() {
       return await apiRequest("PATCH", `/api/contracts/${id}`, data);
     },
     onSuccess: async (updatedContract, { id, data }) => {
-      console.log("✅ Contrato atualizado, atualizando estado local imediatamente");
+      console.log("✅ Contrato atualizado, forçando refresh completo da tabela");
       
-      // Immediate local state update for instant UI feedback
-      setLocalContracts(prevContracts => 
-        prevContracts.map(contract => 
-          contract.id === id 
-            ? { ...contract, ...data, updatedAt: new Date() }
-            : contract
-        )
-      );
-      
-      // Clean up cache and refetch in background
-      queryClient.removeQueries({ queryKey: ["/api/contracts"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/contracts"] });
-      
-      // Background refresh to sync with server
-      setTimeout(async () => {
-        const freshData = await refetch();
-        if (freshData.data) {
-          setLocalContracts(freshData.data);
-        }
-      }, 100);
+      await forceCompleteRefresh();
       
       setIsEditDialogOpen(false);
       setSelectedContract(null);
@@ -160,21 +128,9 @@ export default function Contracts() {
       return await apiRequest("DELETE", `/api/contracts/${id}`, {});
     },
     onSuccess: async (_, deletedId) => {
-      // Immediate local state update
-      setLocalContracts(prevContracts => 
-        prevContracts.filter(contract => contract.id !== deletedId)
-      );
+      console.log("✅ Contrato deletado, forçando refresh completo");
       
-      // Background cache refresh
-      queryClient.removeQueries({ queryKey: ["/api/contracts"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/contracts"] });
-      
-      setTimeout(async () => {
-        const freshData = await refetch();
-        if (freshData.data) {
-          setLocalContracts(freshData.data);
-        }
-      }, 100);
+      await forceCompleteRefresh();
       
       setIsDeleteDialogOpen(false);
       setContractToDelete(null);
@@ -211,8 +167,7 @@ export default function Contracts() {
     busca: searchTerm,
     categoria: selectedCategory,
     status: selectedStatus,
-    primeiroContrato: displayContracts[0]?.name || "Nenhum",
-    localSync: localContracts.length === contracts.length
+    primeiroContrato: displayContracts[0]?.name || "Nenhum"
   });
 
   const getStatusColor = (status: string) => {
@@ -381,7 +336,7 @@ export default function Contracts() {
                   <div className="mt-4">
                     <p className="text-xs">Debug: Primeiros contratos carregados:</p>
                     <ul className="text-xs">
-                      {displayContracts.slice(0, 3).map((c, i) => (
+                      {displayContracts.slice(0, 3).map((c: Contract, i: number) => (
                         <li key={i}>• {c.name} - {c.category} - {c.status}</li>
                       ))}
                     </ul>
