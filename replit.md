@@ -54,7 +54,9 @@ The platform incorporates several key features and design patterns:
 - **Sistema de Análise Financeira:** Implementação completa com visões mensais, acumuladas e anuais por contrato, comparativo orçado vs. realizado com indicadores visuais e KPIs executivos funcionais
 - **Sistema de Permissões Granulares (Agosto 2025):** Controle de acesso por contrato específico no painel administrativo, permitindo que administradores definam quais contratos cada usuário pode visualizar, com campos `restrictToOwnContracts` e `allowedContracts` no schema
 - **Sistema de Exportação Universal (Agosto 2025):** Implementação completa de funcionalidade de exportação em PDF, CSV, Excel e JSON em TODOS os botões de exportar do sistema: DRE, Provisões, Logs de Auditoria, Fringe Benefits, Contratos, Análise Financeira, Glosas e MOE, com modal interativo de seleção de formato, geração de PDFs profissionais com títulos/subtítulos/marca d'água, e biblioteca exportUtils centralizada
-- **Correção de Erros Críticos:** Resolução definitiva do erro yAxisId nos gráficos Recharts e eliminação de todos os erros LSP, garantindo aplicação 100% funcional
+- **Sistema de Folha de Pagamento (Agosto 2025):** Nova aba "Folha" implementada com campos específicos (Salários, Hora Extra, Benefícios, VT, Imestra), sistema de filtros obrigatórios (contrato, ano, período), integração completa com PostgreSQL, APIs backend funcionais e sistema de exportação universal mantido
+- **Refinamento do Header:** Data reduzida no header principal com formato mais compacto (dd/mmm/yyyy) para otimização do espaço visual
+- **Correção de Erros Críticos:** Resolução definitiva do erro yAxisId nos gráficos Recharts, correção de assinaturas de API requests e eliminação de todos os erros LSP, garantindo aplicação 100% funcional
 
 ## Sistema de Exportação Universal - Configurações Técnicas (Agosto 2025)
 

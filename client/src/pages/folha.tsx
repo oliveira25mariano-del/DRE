@@ -54,7 +54,7 @@ export default function Folha() {
       if (filters.month) params.set("month", filters.month);
       if (filters.quarter) params.set("quarter", filters.quarter);
       
-      return apiRequest(`/api/payroll?${params.toString()}`, "GET");
+      return apiRequest("GET", `/api/payroll?${params.toString()}`);
     },
   });
 
@@ -76,9 +76,9 @@ export default function Folha() {
   const createPayrollMutation = useMutation({
     mutationFn: (data: InsertPayroll) => {
       if (editingPayroll) {
-        return apiRequest(`/api/payroll/${editingPayroll.id}`, "PUT", data);
+        return apiRequest("PUT", `/api/payroll/${editingPayroll.id}`, data);
       }
-      return apiRequest("/api/payroll", "POST", data);
+      return apiRequest("POST", "/api/payroll", data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/payroll"] });
@@ -102,7 +102,7 @@ export default function Folha() {
   });
 
   const deletePayrollMutation = useMutation({
-    mutationFn: (id: string) => apiRequest(`/api/payroll/${id}`, "DELETE"),
+    mutationFn: (id: string) => apiRequest("DELETE", `/api/payroll/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/payroll"] });
       toast({
@@ -171,10 +171,6 @@ export default function Folha() {
   };
 
   const handleExport = () => {
-    if (!exportUtils.showExportModal) {
-      console.warn('Export functionality not available');
-      return;
-    }
     exportUtils.showExportModal({
       title: `Folha de Pagamento - ${getPeriodLabel()}`,
       data: payrollData.map(item => ({

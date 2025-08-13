@@ -144,13 +144,12 @@ export default function Header({ onLogout }: HeaderProps) {
       <div className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center space-x-6">
           <div className="flex flex-col">
-            <div className="text-white text-xs font-medium opacity-80">
+            <div className="text-white text-xs font-medium opacity-70">
               {currentDateTime.toLocaleDateString('pt-BR', { 
-                weekday: 'long',
                 day: 'numeric', 
-                month: 'long', 
+                month: 'short', 
                 year: 'numeric' 
-              }).replace(/^\w/, c => c.toUpperCase())}
+              })}
             </div>
             <div className="flex items-center space-x-3 mt-1">
               <span className="text-white font-mono text-xl font-bold">
