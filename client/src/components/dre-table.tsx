@@ -29,9 +29,9 @@ export default function DRETable() {
   };
 
   const getVarianceColor = (value: number) => {
-    if (value > 0) return "text-emerald-400";
-    if (value < 0) return "text-red-400";
-    return "text-gray-400";
+    if (value > 0) return "text-blue-300";
+    if (value < 0) return "text-blue-400";
+    return "text-blue-200";
   };
 
   if (isLoading) {
@@ -177,7 +177,7 @@ export default function DRETable() {
                 </td>
               </tr>
 
-              <tr className="bg-red-500/20">
+              <tr className="bg-blue-600/20">
                 <td className="py-3 px-4 font-semibold text-white">(-) CUSTOS OPERACIONAIS</td>
                 <td className="py-3 px-4 text-right font-medium text-white">
                   ({formatCurrency(dreData?.costs?.budgeted || 0)})
@@ -193,18 +193,18 @@ export default function DRETable() {
                 </td>
               </tr>
 
-              <tr className="bg-emerald-500/20 border-t-2 border-emerald-400/30">
+              <tr className="bg-blue-700/20 border-t-2 border-blue-400/30">
                 <td className="py-4 px-4 font-bold text-xl text-white">LUCRO LÍQUIDO</td>
                 <td className="py-4 px-4 text-right font-bold text-xl text-white">
                   {formatCurrency(dreData?.profit?.budgeted || 0)}
                 </td>
-                <td className="py-4 px-4 text-right font-bold text-xl text-emerald-400">
+                <td className="py-4 px-4 text-right font-bold text-xl text-blue-200">
                   {formatCurrency(dreData?.profit?.actual || 0)}
                 </td>
-                <td className="py-4 px-4 text-right font-bold text-xl text-emerald-400">
+                <td className="py-4 px-4 text-right font-bold text-xl text-blue-200">
                   +{formatCurrency((dreData?.profit?.actual || 0) - (dreData?.profit?.budgeted || 0))}
                 </td>
-                <td className="py-4 px-4 text-right font-bold text-xl text-emerald-400">
+                <td className="py-4 px-4 text-right font-bold text-xl text-blue-200">
                   +{formatPercent(dreData?.profit?.margin || 0)}
                 </td>
               </tr>
@@ -214,13 +214,13 @@ export default function DRETable() {
                 <td className="py-3 px-4 text-right font-semibold text-blue-100">
                   {formatPercent((dreData?.profit?.budgeted || 0) / (dreData?.revenue?.budgeted || 1) * 100)}
                 </td>
-                <td className="py-3 px-4 text-right font-semibold text-emerald-400">
+                <td className="py-3 px-4 text-right font-semibold text-blue-200">
                   {formatPercent(dreData?.profit?.margin || 0)}
                 </td>
-                <td className="py-3 px-4 text-right font-semibold text-emerald-400">
+                <td className="py-3 px-4 text-right font-semibold text-blue-200">
                   +{formatPercent(Math.abs(dreData?.profit?.margin || 0) - Math.abs((dreData?.profit?.budgeted || 0) / (dreData?.revenue?.budgeted || 1) * 100))}pp
                 </td>
-                <td className="py-3 px-4 text-right font-semibold text-emerald-400">
+                <td className="py-3 px-4 text-right font-semibold text-blue-200">
                   +{formatPercent(5.3)}
                 </td>
               </tr>
