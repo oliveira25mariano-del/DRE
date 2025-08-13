@@ -6,11 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Plus, Search, Eye, Edit, Trash2, AlertTriangle, CalendarIcon } from "lucide-react";
+import { Plus, Search, Eye, Edit, Trash2, AlertTriangle, CalendarIcon, BarChart3 } from "lucide-react";
 import { queryClient } from "@/lib/queryClient";
 import { apiRequest } from "@/lib/queryClient";
 import { useForm } from "react-hook-form";
@@ -21,6 +20,7 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 export default function Glosas() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -29,6 +29,7 @@ export default function Glosas() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isAnalysisOpen, setIsAnalysisOpen] = useState(false);
   const [selectedGlosa, setSelectedGlosa] = useState<Glosa | null>(null);
   const { toast } = useToast();
 
@@ -51,7 +52,7 @@ export default function Glosas() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/glosas"] });
       setIsCreateDialogOpen(false);
-      form.reset(); // Limpar o formulário após sucesso
+      form.reset();
       toast({
         title: "Sucesso",
         description: "Glosa criada com sucesso!",
@@ -148,42 +149,45 @@ export default function Glosas() {
     }).format(numValue);
   };
 
-  const totalGlosas = filteredGlosas.reduce((sum: number, glosa: Glosa) => sum + parseFloat(glosa.amount), 0);
-  const totalAttestationCosts = filteredGlosas.reduce((sum: number, glosa: Glosa) => sum + (glosa.attestationCosts ? parseFloat(glosa.attestationCosts) : 0), 0);
-  
-  // Calcular taxa de impacto na medição final baseada no faturamento total
+  // Calculate totals
+  const totalGlosas = (glosas as Glosa[]).reduce((sum, glosa) => sum + parseFloat(glosa.amount), 0);
+  const totalAttestationCosts = (glosas as Glosa[]).reduce((sum, glosa) => {
+    return sum + (glosa.attestationCosts ? parseFloat(glosa.attestationCosts) : 0);
+  }, 0);
+
   const calculateImpactRate = () => {
-    // Somar total de glosas + custos de atestado de todas as glosas (não apenas filtradas)
-    const allGlosasTotal = (glosas as Glosa[]).reduce((sum: number, glosa: Glosa) => sum + parseFloat(glosa.amount), 0);
-    const allAttestationTotal = (glosas as Glosa[]).reduce((sum: number, glosa: Glosa) => sum + (glosa.attestationCosts ? parseFloat(glosa.attestationCosts) : 0), 0);
-    const totalImpact = allGlosasTotal + allAttestationTotal;
+    const totalBillingAmount = (billingData as any[]).reduce((sum, item) => {
+      return sum + parseFloat(item.actual || "0");
+    }, 0);
     
-    // Calcular faturamento total dos contratos
-    const totalRevenue = (billingData as any[]).reduce((sum: number, item: any) => sum + (item.billedAmount || 0), 0);
+    if (totalBillingAmount === 0) return "0.0";
     
-    // Se não há faturamento, usar valor total dos contratos como base
-    let baseAmount = totalRevenue;
-    if (baseAmount === 0) {
-      baseAmount = (contracts as any[]).reduce((sum: number, contract: any) => sum + Number(contract.totalValue || 0), 0);
-    }
-    
-    if (baseAmount === 0) return "0.0";
+    const totalImpact = totalGlosas + totalAttestationCosts;
+    const baseAmount = totalBillingAmount;
     
     return ((totalImpact / baseAmount) * 100).toFixed(1);
   };
 
-  const onSubmit = (data: InsertGlosa) => {
-    console.log("📝 Dados brutos do formulário de glosa:", data);
+  // Prepare analysis chart data
+  const analysisData = (contracts as any[]).map((contract: any) => {
+    const contractGlosas = (glosas as Glosa[]).filter((glosa: Glosa) => glosa.contractId === contract.id);
+    const totalCost = contractGlosas.reduce((sum, glosa) => {
+      return sum + parseFloat(glosa.amount) + (glosa.attestationCosts ? parseFloat(glosa.attestationCosts) : 0);
+    }, 0);
     
-    // Process data to ensure proper formatting
+    return {
+      contract: contract.name.length > 15 ? contract.name.substring(0, 15) + "..." : contract.name,
+      custo: totalCost,
+    };
+  }).filter(item => item.custo > 0);
+
+  const onSubmit = (data: InsertGlosa) => {
     const processedData = {
       ...data,
       amount: data.amount?.toString() || "0",
       attestationCosts: data.attestationCosts?.toString() || null,
       reason: data.reason || null,
     };
-    
-    console.log("✅ Dados processados para envio:", processedData);
     
     if (selectedGlosa) {
       updateMutation.mutate({ id: selectedGlosa.id, data: processedData });
@@ -212,7 +216,7 @@ export default function Glosas() {
   };
 
   const handleDelete = (glosa: Glosa) => {
-    if (window.confirm(`Tem certeza que deseja excluir a glosa "${glosa.description}"?`)) {
+    if (window.confirm(`Tem certeza que deseja excluir a glosa de "${glosa.description}"?`)) {
       deleteMutation.mutate(glosa.id);
     }
   };
@@ -275,7 +279,7 @@ export default function Glosas() {
               </CardTitle>
               <p className="text-sm text-blue-200">Controle de glosas e ajustes de faturamento</p>
             </div>
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex gap-2">
               <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
                 <DialogTrigger asChild>
                   <Button className="bg-blue-600 hover:bg-blue-700 text-white">
@@ -283,494 +287,34 @@ export default function Glosas() {
                     Nova Glosa
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-lg bg-blue-bg border-blue-400/30">
-                  <DialogHeader>
-                    <DialogTitle className="text-white">Criar Nova Glosa</DialogTitle>
-                  </DialogHeader>
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <FormField
-                          control={form.control}
-                          name="contractId"
-                          render={({ field }) => (
-                            <FormItem className="md:col-span-2">
-                              <FormLabel className="text-white">Contrato</FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value || ""}>
-                                <FormControl>
-                                  <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white h-9">
-                                    <SelectValue placeholder="Selecione um contrato" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {(contracts as any[]).map((contract: any) => (
-                                    <SelectItem key={contract.id} value={contract.id}>
-                                      {contract.name}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="amount"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-white">Valor (R$)</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  type="number" 
-                                  step="0.01"
-                                  placeholder="0,00" 
-                                  className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200 h-9"
-                                  {...field} 
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="attestationCosts"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-white">Custos de Glosas de Atestado (R$)</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  type="number" 
-                                  step="0.01"
-                                  placeholder="0,00" 
-                                  className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200 h-9"
-                                  value={field.value || ""}
-                                  onChange={field.onChange}
-                                  onBlur={field.onBlur}
-                                  name={field.name}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="date"
-                          render={({ field }) => (
-                            <FormItem className="flex flex-col">
-                              <FormLabel className="text-white">Data</FormLabel>
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <FormControl>
-                                    <Button
-                                      variant={"outline"}
-                                      className={cn(
-                                        "w-full pl-3 text-left font-normal bg-blue-600/30 border-blue-400/30 text-white h-9",
-                                        !field.value && "text-blue-200"
-                                      )}
-                                    >
-                                      {field.value ? (
-                                        format(field.value, "dd/MM/yyyy")
-                                      ) : (
-                                        <span>Selecione uma data</span>
-                                      )}
-                                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                    </Button>
-                                  </FormControl>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0" align="start">
-                                  <Calendar
-                                    mode="single"
-                                    selected={field.value}
-                                    onSelect={field.onChange}
-                                    initialFocus
-                                  />
-                                </PopoverContent>
-                              </Popover>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="status"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-white">Status</FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value || "pending"}>
-                                <FormControl>
-                                  <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white h-9">
-                                    <SelectValue placeholder="Selecione o status" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="pending">Pendente</SelectItem>
-                                  <SelectItem value="approved">Aprovada</SelectItem>
-                                  <SelectItem value="rejected">Rejeitada</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-
-                      <FormField
-                        control={form.control}
-                        name="description"
-                        render={({ field }) => (
-                          <FormItem className="col-span-full">
-                            <FormLabel className="text-white">Descrição</FormLabel>
-                            <FormControl>
-                              <Textarea 
-                                placeholder="Descrição da glosa" 
-                                className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
-                                rows={2}
-                                {...field} 
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="reason"
-                        render={({ field }) => (
-                          <FormItem className="col-span-full">
-                            <FormLabel className="text-white">Motivo</FormLabel>
-                            <FormControl>
-                              <Textarea 
-                                placeholder="Motivo da glosa" 
-                                className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
-                                rows={2}
-                                value={field.value || ""}
-                                onChange={field.onChange}
-                                onBlur={field.onBlur}
-                                name={field.name}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <div className="flex justify-end space-x-3 pt-2 col-span-full">
-                        <Button 
-                          type="button" 
-                          variant="outline" 
-                          className="border-blue-400/30 text-white hover:bg-blue-600/30"
-                          onClick={() => setIsCreateDialogOpen(false)}
-                        >
-                          Cancelar
-                        </Button>
-                        <Button type="submit" disabled={createMutation.isPending} className="bg-blue-600 hover:bg-blue-700">
-                          {createMutation.isPending ? "Salvando..." : "Salvar Glosa"}
-                        </Button>
-                      </div>
-                    </form>
-                  </Form>
-                </DialogContent>
               </Dialog>
-
-              {/* View Dialog */}
-              <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-                <DialogContent className="max-w-lg bg-blue-bg border-blue-400/30">
-                  <DialogHeader>
-                    <DialogTitle className="text-white">Detalhes da Glosa</DialogTitle>
-                  </DialogHeader>
-                  {selectedGlosa && (
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-sm font-medium text-blue-100">Contrato</label>
-                          <p className="text-white bg-blue-600/30 rounded p-2 mt-1">
-                            {(contracts as any[]).find(c => c.id === selectedGlosa.contractId)?.name || 'N/A'}
-                          </p>
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium text-blue-100">Valor</label>
-                          <p className="text-white bg-blue-600/30 rounded p-2 mt-1">
-                            {formatCurrency(selectedGlosa.amount)}
-                          </p>
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium text-blue-100">Custos de Atestado</label>
-                          <p className="text-white bg-blue-600/30 rounded p-2 mt-1">
-                            {selectedGlosa.attestationCosts ? formatCurrency(selectedGlosa.attestationCosts) : 'R$ 0,00'}
-                          </p>
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium text-blue-100">Data</label>
-                          <p className="text-white bg-blue-600/30 rounded p-2 mt-1">
-                            {format(new Date(selectedGlosa.date), "dd/MM/yyyy")}
-                          </p>
-                        </div>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-blue-100">Descrição</label>
-                        <p className="text-white bg-blue-600/30 rounded p-2 mt-1">
-                          {selectedGlosa.description}
-                        </p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-blue-100">Motivo</label>
-                        <p className="text-white bg-blue-600/30 rounded p-2 mt-1">
-                          {selectedGlosa.reason || 'N/A'}
-                        </p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-blue-100">Status</label>
-                        <Badge className={`${getStatusColor(selectedGlosa.status)} mt-1`}>
-                          {selectedGlosa.status === 'pending' ? 'Pendente' : 
-                           selectedGlosa.status === 'approved' ? 'Aprovada' : 'Rejeitada'}
-                        </Badge>
-                      </div>
-                    </div>
-                  )}
-                </DialogContent>
-              </Dialog>
-
-              {/* Edit Dialog */}
-              <Dialog open={isEditDialogOpen} onOpenChange={() => {
-                setIsEditDialogOpen(false);
-                setSelectedGlosa(null);
-                form.reset();
-              }}>
-                <DialogContent className="max-w-lg bg-blue-bg border-blue-400/30">
-                  <DialogHeader>
-                    <DialogTitle className="text-white">Editar Glosa</DialogTitle>
-                  </DialogHeader>
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <FormField
-                          control={form.control}
-                          name="contractId"
-                          render={({ field }) => (
-                            <FormItem className="md:col-span-2">
-                              <FormLabel className="text-white">Contrato</FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value || ""}>
-                                <FormControl>
-                                  <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white h-9">
-                                    <SelectValue placeholder="Selecione um contrato" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {(contracts as any[]).map((contract: any) => (
-                                    <SelectItem key={contract.id} value={contract.id}>
-                                      {contract.name}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="amount"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-white">Valor (R$)</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  type="number" 
-                                  step="0.01"
-                                  placeholder="0,00" 
-                                  className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200 h-9"
-                                  {...field} 
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="attestationCosts"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-white">Custos de Glosas de Atestado (R$)</FormLabel>
-                              <FormControl>
-                                <Input 
-                                  type="number" 
-                                  step="0.01"
-                                  placeholder="0,00" 
-                                  className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200 h-9"
-                                  value={field.value || ""}
-                                  onChange={field.onChange}
-                                  onBlur={field.onBlur}
-                                  name={field.name}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="date"
-                          render={({ field }) => (
-                            <FormItem className="flex flex-col">
-                              <FormLabel className="text-white">Data</FormLabel>
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <FormControl>
-                                    <Button
-                                      variant={"outline"}
-                                      className={cn(
-                                        "w-full pl-3 text-left font-normal bg-blue-600/30 border-blue-400/30 text-white h-9",
-                                        !field.value && "text-blue-200"
-                                      )}
-                                    >
-                                      {field.value ? (
-                                        format(field.value, "dd/MM/yyyy")
-                                      ) : (
-                                        <span>Selecione uma data</span>
-                                      )}
-                                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                    </Button>
-                                  </FormControl>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0" align="start">
-                                  <Calendar
-                                    mode="single"
-                                    selected={field.value}
-                                    onSelect={field.onChange}
-                                    initialFocus
-                                  />
-                                </PopoverContent>
-                              </Popover>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="status"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-white">Status</FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value || "pending"}>
-                                <FormControl>
-                                  <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white h-9">
-                                    <SelectValue placeholder="Selecione o status" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="pending">Pendente</SelectItem>
-                                  <SelectItem value="approved">Aprovada</SelectItem>
-                                  <SelectItem value="rejected">Rejeitada</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="description"
-                          render={({ field }) => (
-                            <FormItem className="col-span-full">
-                              <FormLabel className="text-white">Descrição</FormLabel>
-                              <FormControl>
-                                <Textarea 
-                                  placeholder="Descrição da glosa" 
-                                  className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
-                                  rows={2}
-                                  {...field} 
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="reason"
-                          render={({ field }) => (
-                            <FormItem className="col-span-full">
-                              <FormLabel className="text-white">Motivo</FormLabel>
-                              <FormControl>
-                                <Textarea 
-                                  placeholder="Motivo da glosa" 
-                                  className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
-                                  rows={2}
-                                  value={field.value || ""}
-                                  onChange={field.onChange}
-                                  onBlur={field.onBlur}
-                                  name={field.name}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <div className="flex justify-end space-x-3 pt-2 col-span-full">
-                          <Button 
-                            type="button" 
-                            variant="outline" 
-                            className="border-blue-400/30 text-white hover:bg-blue-600/30"
-                            onClick={() => {
-                              setIsEditDialogOpen(false);
-                              setSelectedGlosa(null);
-                              form.reset();
-                            }}
-                          >
-                            Cancelar
-                          </Button>
-                          <Button 
-                            type="submit" 
-                            disabled={updateMutation.isPending} 
-                            className="bg-blue-600 hover:bg-blue-700"
-                          >
-                            {updateMutation.isPending ? "Salvando..." : "Atualizar Glosa"}
-                          </Button>
-                        </div>
-                      </div>
-                    </form>
-                  </Form>
-                </DialogContent>
-              </Dialog>
-
+              <Button 
+                className="bg-green-600 hover:bg-green-700 text-white"
+                onClick={() => setIsAnalysisOpen(true)}
+              >
+                <BarChart3 className="w-4 h-4 mr-2" />
+                Análise
+              </Button>
             </div>
           </div>
-        </CardHeader>
-        <CardContent>
+
           {/* Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="relative">
-              <Search className="absolute left-3 top-2.5 text-blue-300 w-4 h-4" />
+          <div className="flex flex-col sm:flex-row gap-3 mt-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-300 w-4 h-4" />
               <Input
-                type="text"
-                placeholder="Buscar glosa..."
+                placeholder="Buscar por colaborador..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
+                className="pl-10 bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-300"
               />
             </div>
             <Select value={selectedContract} onValueChange={setSelectedContract}>
-              <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
-                <SelectValue placeholder="Todos os contratos" />
+              <SelectTrigger className="w-full sm:w-48 bg-blue-600/30 border-blue-400/30 text-white">
+                <SelectValue placeholder="Filtrar por contrato" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos os contratos</SelectItem>
+                <SelectItem value="">Todos os contratos</SelectItem>
                 {(contracts as any[]).map((contract: any) => (
                   <SelectItem key={contract.id} value={contract.id}>
                     {contract.name}
@@ -779,127 +323,642 @@ export default function Glosas() {
               </SelectContent>
             </Select>
             <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-              <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
-                <SelectValue placeholder="Todos os status" />
+              <SelectTrigger className="w-full sm:w-36 bg-blue-600/30 border-blue-400/30 text-white">
+                <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos os status</SelectItem>
+                <SelectItem value="">Todos</SelectItem>
                 <SelectItem value="pending">Pendente</SelectItem>
                 <SelectItem value="approved">Aprovada</SelectItem>
                 <SelectItem value="rejected">Rejeitada</SelectItem>
               </SelectContent>
             </Select>
           </div>
+        </CardHeader>
 
-          {/* Glosas Table */}
-          <div className="bg-blue-400/10 rounded-lg overflow-hidden">
-            {isLoading ? (
-              <div className="p-8 text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400 mx-auto"></div>
-                <p className="text-blue-200 mt-2">Carregando glosas...</p>
+        <CardContent>
+          {isLoading ? (
+            <div className="text-center py-8">
+              <div className="text-white">Carregando glosas...</div>
+            </div>
+          ) : filteredGlosas.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="text-blue-200">Nenhuma glosa encontrada</div>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-blue-400/10">
+                <thead className="bg-blue-600/20">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">
+                      Colaborador
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">
+                      Contrato
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">
+                      Valor
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">
+                      Custos de Atestado
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">
+                      Data
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">
+                      Ações
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-blue-400/5 divide-y divide-blue-400/10">
+                  {filteredGlosas.map((glosa: Glosa) => {
+                    const contract = (contracts as any[]).find((c: any) => c.id === glosa.contractId);
+                    
+                    return (
+                      <tr key={glosa.id} className="hover:bg-blue-400/10 transition-colors duration-200">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-white">{glosa.description}</div>
+                          <div className="text-sm text-blue-200">{glosa.reason}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-white">{contract?.name || 'N/A'}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-red-400">
+                          {formatCurrency(glosa.amount)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-orange-400">
+                          {glosa.attestationCosts ? formatCurrency(glosa.attestationCosts) : 'R$ 0,00'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                          {format(new Date(glosa.date), "dd/MM/yyyy", { locale: ptBR })}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <Badge className={getStatusColor(glosa.status)}>
+                            {glosa.status === 'pending' ? 'Pendente' : 
+                             glosa.status === 'approved' ? 'Aprovada' : 'Rejeitada'}
+                          </Badge>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <div className="flex space-x-2">
+                            <Button 
+                              size="sm" 
+                              variant="ghost" 
+                              className="text-blue-300 hover:text-blue-100"
+                              onClick={() => handleView(glosa)}
+                              data-testid={`button-view-${glosa.id}`}
+                            >
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="ghost" 
+                              className="text-yellow-300 hover:text-yellow-100"
+                              onClick={() => handleEdit(glosa)}
+                              data-testid={`button-edit-${glosa.id}`}
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="ghost" 
+                              className="text-red-300 hover:text-red-100"
+                              onClick={() => handleDelete(glosa)}
+                              data-testid={`button-delete-${glosa.id}`}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Create Dialog */}
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent className="max-w-md bg-blue-bg border-blue-400/30">
+          <DialogHeader>
+            <DialogTitle className="text-white">Criar Nova Glosa</DialogTitle>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+              <FormField
+                control={form.control}
+                name="contractId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-white">Contrato</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value || ""}>
+                      <FormControl>
+                        <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white h-9">
+                          <SelectValue placeholder="Selecione um contrato" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {(contracts as any[]).map((contract: any) => (
+                          <SelectItem key={contract.id} value={contract.id}>
+                            {contract.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid grid-cols-2 gap-3">
+                <FormField
+                  control={form.control}
+                  name="amount"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Valor (R$)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          step="0.01"
+                          placeholder="0,00" 
+                          className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200 h-9"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="attestationCosts"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Custos Atestado (R$)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          step="0.01"
+                          placeholder="0,00" 
+                          className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200 h-9"
+                          value={field.value || ""}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                          name={field.name}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
-            ) : filteredGlosas.length === 0 ? (
-              <div className="p-8 text-center text-blue-200">
-                <AlertTriangle className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>Nenhuma glosa encontrada</p>
+
+              <div className="grid grid-cols-2 gap-3">
+                <FormField
+                  control={form.control}
+                  name="date"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel className="text-white">Data</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "w-full pl-3 text-left font-normal bg-blue-600/30 border-blue-400/30 text-white h-9",
+                                !field.value && "text-blue-200"
+                              )}
+                            >
+                              {field.value ? (
+                                format(field.value, "dd/MM/yyyy")
+                              ) : (
+                                <span>Selecione uma data</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Status</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value || "pending"}>
+                        <FormControl>
+                          <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white h-9">
+                            <SelectValue placeholder="Selecione o status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="pending">Pendente</SelectItem>
+                          <SelectItem value="approved">Aprovada</SelectItem>
+                          <SelectItem value="rejected">Rejeitada</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-white">Nome do Colaborador(a)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Nome do colaborador" 
+                        className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200 h-9"
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="reason"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-white">Motivo</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Motivo da glosa" 
+                        className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200 h-9"
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                        name={field.name}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex justify-end space-x-3 pt-3">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="border-blue-400/30 text-white hover:bg-blue-600/30"
+                  onClick={() => setIsCreateDialogOpen(false)}
+                >
+                  Cancelar
+                </Button>
+                <Button type="submit" disabled={createMutation.isPending} className="bg-blue-600 hover:bg-blue-700">
+                  {createMutation.isPending ? "Salvando..." : "Salvar Glosa"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Dialog */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="max-w-lg bg-blue-bg border-blue-400/30">
+          <DialogHeader>
+            <DialogTitle className="text-white">Detalhes da Glosa</DialogTitle>
+          </DialogHeader>
+          {selectedGlosa && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-blue-100">Contrato</label>
+                  <p className="text-white bg-blue-600/30 rounded p-2 mt-1">
+                    {(contracts as any[]).find(c => c.id === selectedGlosa.contractId)?.name || 'N/A'}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-blue-100">Valor</label>
+                  <p className="text-white bg-blue-600/30 rounded p-2 mt-1">
+                    {formatCurrency(selectedGlosa.amount)}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-blue-100">Custos de Atestado</label>
+                  <p className="text-white bg-blue-600/30 rounded p-2 mt-1">
+                    {selectedGlosa.attestationCosts ? formatCurrency(selectedGlosa.attestationCosts) : 'R$ 0,00'}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-blue-100">Data</label>
+                  <p className="text-white bg-blue-600/30 rounded p-2 mt-1">
+                    {format(new Date(selectedGlosa.date), "dd/MM/yyyy")}
+                  </p>
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-blue-100">Nome do Colaborador(a)</label>
+                <p className="text-white bg-blue-600/30 rounded p-2 mt-1">
+                  {selectedGlosa.description}
+                </p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-blue-100">Motivo</label>
+                <p className="text-white bg-blue-600/30 rounded p-2 mt-1">
+                  {selectedGlosa.reason || 'N/A'}
+                </p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-blue-100">Status</label>
+                <Badge className={`${getStatusColor(selectedGlosa.status)} mt-1`}>
+                  {selectedGlosa.status === 'pending' ? 'Pendente' : 
+                   selectedGlosa.status === 'approved' ? 'Aprovada' : 'Rejeitada'}
+                </Badge>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={() => {
+        setIsEditDialogOpen(false);
+        setSelectedGlosa(null);
+        form.reset();
+      }}>
+        <DialogContent className="max-w-md bg-blue-bg border-blue-400/30">
+          <DialogHeader>
+            <DialogTitle className="text-white">Editar Glosa</DialogTitle>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+              <FormField
+                control={form.control}
+                name="contractId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-white">Contrato</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value || ""}>
+                      <FormControl>
+                        <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white h-9">
+                          <SelectValue placeholder="Selecione um contrato" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {(contracts as any[]).map((contract: any) => (
+                          <SelectItem key={contract.id} value={contract.id}>
+                            {contract.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid grid-cols-2 gap-3">
+                <FormField
+                  control={form.control}
+                  name="amount"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Valor (R$)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          step="0.01"
+                          placeholder="0,00" 
+                          className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200 h-9"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="attestationCosts"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Custos Atestado (R$)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          step="0.01"
+                          placeholder="0,00" 
+                          className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200 h-9"
+                          value={field.value || ""}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                          name={field.name}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <FormField
+                  control={form.control}
+                  name="date"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel className="text-white">Data</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={"outline"}
+                              className={cn(
+                                "w-full pl-3 text-left font-normal bg-blue-600/30 border-blue-400/30 text-white h-9",
+                                !field.value && "text-blue-200"
+                              )}
+                            >
+                              {field.value ? (
+                                format(field.value, "dd/MM/yyyy")
+                              ) : (
+                                <span>Selecione uma data</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="status"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Status</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value || "pending"}>
+                        <FormControl>
+                          <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white h-9">
+                            <SelectValue placeholder="Selecione o status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="pending">Pendente</SelectItem>
+                          <SelectItem value="approved">Aprovada</SelectItem>
+                          <SelectItem value="rejected">Rejeitada</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-white">Nome do Colaborador(a)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Nome do colaborador" 
+                        className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200 h-9"
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="reason"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-white">Motivo</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Motivo da glosa" 
+                        className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200 h-9"
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                        name={field.name}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex justify-end space-x-3 pt-3">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="border-blue-400/30 text-white hover:bg-blue-600/30"
+                  onClick={() => {
+                    setIsEditDialogOpen(false);
+                    setSelectedGlosa(null);
+                    form.reset();
+                  }}
+                >
+                  Cancelar
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={updateMutation.isPending} 
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  {updateMutation.isPending ? "Salvando..." : "Atualizar Glosa"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Analysis Dialog */}
+      <Dialog open={isAnalysisOpen} onOpenChange={setIsAnalysisOpen}>
+        <DialogContent className="max-w-4xl bg-blue-bg border-blue-400/30">
+          <DialogHeader>
+            <DialogTitle className="text-white">Análise de Custos de Glosas por Contrato</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {analysisData.length === 0 ? (
+              <div className="text-center py-8 text-blue-200">
+                Nenhum dado de análise disponível. Crie algumas glosas primeiro.
               </div>
             ) : (
-              <div id="glosas-table-content" className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-blue-400/20">
-                  <thead className="bg-blue-500/20">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">
-                        Descrição
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">
-                        Contrato
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">
-                        Valor
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">
-                        Custos de Atestado
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">
-                        Data
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-blue-100 uppercase tracking-wider">
-                        Ações
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-blue-400/5 divide-y divide-blue-400/10">
-                    {filteredGlosas.map((glosa: Glosa) => {
-                      const contract = (contracts as any[]).find((c: any) => c.id === glosa.contractId);
-                      
-                      return (
-                        <tr key={glosa.id} className="hover:bg-blue-400/10 transition-colors duration-200">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-white">{glosa.description}</div>
-                            <div className="text-sm text-blue-200">{glosa.reason}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-white">{contract?.name || 'N/A'}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-red-400">
-                            {formatCurrency(glosa.amount)}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-orange-400">
-                            {glosa.attestationCosts ? formatCurrency(glosa.attestationCosts) : 'R$ 0,00'}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                            {format(new Date(glosa.date), "dd/MM/yyyy", { locale: ptBR })}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <Badge className={getStatusColor(glosa.status)}>
-                              {glosa.status === 'pending' ? 'Pendente' : 
-                               glosa.status === 'approved' ? 'Aprovada' : 'Rejeitada'}
-                            </Badge>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <div className="flex space-x-2">
-                              <Button 
-                                size="sm" 
-                                variant="ghost" 
-                                className="text-blue-300 hover:text-blue-100"
-                                onClick={() => handleView(glosa)}
-                                data-testid={`button-view-${glosa.id}`}
-                              >
-                                <Eye className="w-4 h-4" />
-                              </Button>
-                              <Button 
-                                size="sm" 
-                                variant="ghost" 
-                                className="text-yellow-300 hover:text-yellow-100"
-                                onClick={() => handleEdit(glosa)}
-                                data-testid={`button-edit-${glosa.id}`}
-                              >
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                              <Button 
-                                size="sm" 
-                                variant="ghost" 
-                                className="text-red-300 hover:text-red-100"
-                                onClick={() => handleDelete(glosa)}
-                                data-testid={`button-delete-${glosa.id}`}
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+              <div className="h-96">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={analysisData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#3B82F6" opacity={0.3} />
+                    <XAxis 
+                      dataKey="contract" 
+                      tick={{ fill: '#93C5FD', fontSize: 12 }}
+                      angle={-45}
+                      textAnchor="end"
+                      height={80}
+                    />
+                    <YAxis 
+                      tick={{ fill: '#93C5FD' }}
+                      tickFormatter={(value) => formatCurrency(value)}
+                    />
+                    <Tooltip 
+                      formatter={(value) => [formatCurrency(value as number), 'Custo Total']}
+                      labelStyle={{ color: '#1E40AF' }}
+                      contentStyle={{ 
+                        backgroundColor: '#1E3A8A', 
+                        border: '1px solid #3B82F6',
+                        borderRadius: '8px'
+                      }}
+                    />
+                    <Bar 
+                      dataKey="custo" 
+                      fill="#EF4444" 
+                      radius={[4, 4, 0, 0]}
+                      name="Custo Total"
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             )}
           </div>
-        </CardContent>
-      </Card>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
