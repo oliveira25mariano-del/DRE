@@ -16,7 +16,7 @@ import {
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { users, employees, directCosts, payroll } from "@shared/schema";
 
@@ -1301,7 +1301,31 @@ class DatabaseStorage implements IStorage {
   
   // Payroll
   async getPayroll(filters?: { contractId?: string; year?: number; month?: number; quarter?: number; period?: string }): Promise<Payroll[]> {
-    return this.memStorage.getPayroll(filters);
+    let query = db.select().from(payroll);
+    
+    if (filters) {
+      const conditions = [];
+      
+      if (filters.contractId) {
+        conditions.push(eq(payroll.contractId, filters.contractId));
+      }
+      if (filters.year) {
+        conditions.push(eq(payroll.year, filters.year));
+      }
+      if (filters.month) {
+        conditions.push(eq(payroll.month, filters.month));
+      }
+      if (filters.quarter) {
+        conditions.push(eq(payroll.quarter, filters.quarter));
+      }
+      
+      if (conditions.length > 0) {
+        query = query.where(and(...conditions));
+      }
+    }
+    
+    const results = await query;
+    return results;
   }
   
   async getPayrollItem(id: string): Promise<Payroll | undefined> {
