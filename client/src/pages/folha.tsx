@@ -312,12 +312,19 @@ export default function Folha() {
                         <FormItem>
                           <FormLabel>Salários</FormLabel>
                           <FormControl>
-                            <Input 
-                              type="number" 
-                              step="0.01"
-                              placeholder="0.00"
-                              {...field}
-                            />
+                            <div className="relative">
+                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">R$</span>
+                              <Input 
+                                placeholder="0,00" 
+                                {...field}
+                                className="pl-10"
+                                onChange={(e) => {
+                                  const value = e.target.value.replace(/[^\d.,]/g, '');
+                                  field.onChange(value);
+                                }}
+                                data-testid="input-salarios"
+                              />
+                            </div>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -330,12 +337,19 @@ export default function Folha() {
                         <FormItem>
                           <FormLabel>Hora Extra</FormLabel>
                           <FormControl>
-                            <Input 
-                              type="number" 
-                              step="0.01"
-                              placeholder="0.00"
-                              {...field}
-                            />
+                            <div className="relative">
+                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">R$</span>
+                              <Input 
+                                placeholder="0,00" 
+                                {...field}
+                                className="pl-10"
+                                onChange={(e) => {
+                                  const value = e.target.value.replace(/[^\d.,]/g, '');
+                                  field.onChange(value);
+                                }}
+                                data-testid="input-hora-extra"
+                              />
+                            </div>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -350,12 +364,19 @@ export default function Folha() {
                         <FormItem>
                           <FormLabel>Benefícios</FormLabel>
                           <FormControl>
-                            <Input 
-                              type="number" 
-                              step="0.01"
-                              placeholder="0.00"
-                              {...field}
-                            />
+                            <div className="relative">
+                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">R$</span>
+                              <Input 
+                                placeholder="0,00" 
+                                {...field}
+                                className="pl-10"
+                                onChange={(e) => {
+                                  const value = e.target.value.replace(/[^\d.,]/g, '');
+                                  field.onChange(value);
+                                }}
+                                data-testid="input-beneficios"
+                              />
+                            </div>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -368,12 +389,19 @@ export default function Folha() {
                         <FormItem>
                           <FormLabel>VT (Vale Transporte)</FormLabel>
                           <FormControl>
-                            <Input 
-                              type="number" 
-                              step="0.01"
-                              placeholder="0.00"
-                              {...field}
-                            />
+                            <div className="relative">
+                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">R$</span>
+                              <Input 
+                                placeholder="0,00" 
+                                {...field}
+                                className="pl-10"
+                                onChange={(e) => {
+                                  const value = e.target.value.replace(/[^\d.,]/g, '');
+                                  field.onChange(value);
+                                }}
+                                data-testid="input-vt"
+                              />
+                            </div>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -386,12 +414,19 @@ export default function Folha() {
                         <FormItem>
                           <FormLabel>Imestra</FormLabel>
                           <FormControl>
-                            <Input 
-                              type="number" 
-                              step="0.01"
-                              placeholder="0.00"
-                              {...field}
-                            />
+                            <div className="relative">
+                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">R$</span>
+                              <Input 
+                                placeholder="0,00" 
+                                {...field}
+                                className="pl-10"
+                                onChange={(e) => {
+                                  const value = e.target.value.replace(/[^\d.,]/g, '');
+                                  field.onChange(value);
+                                }}
+                                data-testid="input-imestra"
+                              />
+                            </div>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
