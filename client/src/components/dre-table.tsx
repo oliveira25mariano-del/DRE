@@ -4,10 +4,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { FileText, Download } from "lucide-react";
 import { useState } from "react";
+import { exportUtils } from "@/lib/exportUtils";
+import { useToast } from "@/hooks/use-toast";
 
 export default function DRETable() {
   const [selectedYear] = useState(new Date().getFullYear());
   const [selectedMonth] = useState(new Date().getMonth() + 1);
+  const { toast } = useToast();
 
   const { data: dreData, isLoading } = useQuery({
     queryKey: ["/api/analytics/dre", selectedYear, selectedMonth],
@@ -72,7 +75,73 @@ export default function DRETable() {
                 ))}
               </SelectContent>
             </Select>
-            <Button variant="outline" className="border-blue-400/30 text-white hover:bg-blue-600/30">
+            <Button 
+              variant="outline" 
+              className="border-blue-400/30 text-white hover:bg-blue-600/30"
+              onClick={async () => {
+                const dreExportData = [
+                  {
+                    "Descrição": "RECEITA OPERACIONAL BRUTA",
+                    "Orçado (R$)": dreData?.revenue?.budgeted || 0,
+                    "Realizado (R$)": dreData?.revenue?.actual || 0,
+                    "Variação (R$)": dreData?.revenue?.variance || 0,
+                    "Variação (%)": `${(dreData?.revenue?.variancePercent || 0).toFixed(1)}%`
+                  },
+                  {
+                    "Descrição": "(-) CUSTOS OPERACIONAIS",
+                    "Orçado (R$)": -(dreData?.costs?.budgeted || 0),
+                    "Realizado (R$)": -(dreData?.costs?.actual || 0),
+                    "Variação (R$)": -(dreData?.costs?.variance || 0),
+                    "Variação (%)": `${(dreData?.costs?.variancePercent || 0).toFixed(1)}%`
+                  },
+                  {
+                    "Descrição": "= LUCRO BRUTO",
+                    "Orçado (R$)": dreData?.grossProfit?.budgeted || 0,
+                    "Realizado (R$)": dreData?.grossProfit?.actual || 0,
+                    "Variação (R$)": dreData?.grossProfit?.variance || 0,
+                    "Variação (%)": `${(dreData?.grossProfit?.variancePercent || 0).toFixed(1)}%`
+                  },
+                  {
+                    "Descrição": "(-) DESPESAS ADMINISTRATIVAS",
+                    "Orçado (R$)": -(dreData?.adminExpenses?.budgeted || 0),
+                    "Realizado (R$)": -(dreData?.adminExpenses?.actual || 0),
+                    "Variação (R$)": -(dreData?.adminExpenses?.variance || 0),
+                    "Variação (%)": `${(dreData?.adminExpenses?.variancePercent || 0).toFixed(1)}%`
+                  },
+                  {
+                    "Descrição": "= RESULTADO OPERACIONAL (EBITDA)",
+                    "Orçado (R$)": dreData?.ebitda?.budgeted || 0,
+                    "Realizado (R$)": dreData?.ebitda?.actual || 0,
+                    "Variação (R$)": dreData?.ebitda?.variance || 0,
+                    "Variação (%)": `${(dreData?.ebitda?.variancePercent || 0).toFixed(1)}%`
+                  }
+                ];
+
+                try {
+                  await exportUtils.showExportModal(
+                    dreExportData,
+                    `DRE_${selectedYear}_${String(selectedMonth).padStart(2, '0')}`,
+                    'dre-table-content',
+                    {
+                      title: 'Demonstrativo do Resultado do Exercício (DRE)',
+                      subtitle: `Período: ${new Date(selectedYear, selectedMonth - 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}`,
+                      orientation: 'landscape'
+                    }
+                  );
+
+                  toast({
+                    title: "Dados Exportados",
+                    description: "DRE exportado com sucesso!",
+                  });
+                } catch (error) {
+                  toast({
+                    title: "Erro na Exportação",
+                    description: "Erro ao exportar DRE. Tente novamente.",
+                    variant: "destructive",
+                  });
+                }
+              }}
+            >
               <Download className="w-4 h-4 mr-2" />
               Exportar DRE
             </Button>
@@ -80,7 +149,7 @@ export default function DRETable() {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="overflow-x-auto">
+        <div id="dre-table-content" className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b-2 border-blue-400/30">

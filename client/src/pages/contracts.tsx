@@ -14,6 +14,7 @@ import ContractForm from "@/components/contract-form";
 import { type Contract, type InsertContract } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { usePermissions } from "@/hooks/usePermissions";
+import { exportUtils } from "@/lib/exportUtils";
 
 export default function Contracts() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -260,7 +261,47 @@ export default function Contracts() {
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
-              <Button variant="outline" className="border-blue-400/30 text-white hover:bg-blue-600/30">
+              <Button 
+                variant="outline" 
+                className="border-blue-400/30 text-white hover:bg-blue-600/30"
+                onClick={async () => {
+                  const exportData = filteredContracts.map((contract: Contract) => ({
+                    "Nome": contract.name,
+                    "Categoria": contract.category,
+                    "Cliente": contract.clientName,
+                    "Valor": `R$ ${parseFloat(contract.contractValue).toLocaleString('pt-BR')}`,
+                    "Data Início": new Date(contract.startDate).toLocaleDateString('pt-BR'),
+                    "Data Fim": new Date(contract.endDate).toLocaleDateString('pt-BR'),
+                    "Status": contract.status === 'active' ? 'Ativo' : contract.status === 'suspended' ? 'Suspenso' : 'Finalizado',
+                    "Descrição": contract.description || "N/A",
+                    "Observações": contract.notes || "N/A"
+                  }));
+
+                  try {
+                    await exportUtils.showExportModal(
+                      exportData,
+                      `contratos`,
+                      'contracts-table-content',
+                      {
+                        title: 'Relatório de Contratos',
+                        subtitle: `Total de ${filteredContracts.length} contratos - Gerado em ${new Date().toLocaleDateString('pt-BR')}`,
+                        orientation: 'landscape'
+                      }
+                    );
+
+                    toast({
+                      title: "Dados Exportados",
+                      description: `Relatório de contratos exportado com ${filteredContracts.length} registros`,
+                    });
+                  } catch (error) {
+                    toast({
+                      title: "Erro na Exportação",
+                      description: "Erro ao exportar dados. Tente novamente.",
+                      variant: "destructive",
+                    });
+                  }
+                }}
+              >
                 <Download className="w-4 h-4 mr-2" />
                 Exportar
               </Button>
@@ -333,7 +374,7 @@ export default function Contracts() {
                 )}
               </div>
             ) : (
-              <div className="overflow-x-auto">
+              <div id="contracts-table-content" className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-blue-400/20">
                   <thead className="bg-blue-950/95">
                     <tr>

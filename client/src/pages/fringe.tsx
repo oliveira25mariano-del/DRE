@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { exportUtils } from "@/lib/exportUtils";
+import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,6 +13,7 @@ import { type Employee } from "@shared/schema";
 export default function Fringe() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedContract, setSelectedContract] = useState("");
+  const { toast } = useToast();
 
   const { data: employees = [], isLoading } = useQuery({
     queryKey: ["/api/employees"],
@@ -131,7 +134,54 @@ export default function Fringe() {
                 <Calculator className="w-4 h-4 mr-2" />
                 Recalcular Benefícios
               </Button>
-              <Button variant="outline" className="border-blue-400/30 text-white hover:bg-blue-600/30">
+              <Button 
+                variant="outline" 
+                className="border-blue-400/30 text-white hover:bg-blue-600/30"
+                onClick={async () => {
+                  const exportData = filteredEmployees.map((employee: Employee) => {
+                    const baseSalary = parseFloat(employee.baseSalary || "0");
+                    const fringeRate = parseFloat(employee.fringeRate || "0");
+                    const fringeBenefit = baseSalary * (fringeRate / 100);
+                    
+                    return {
+                      "Nome": employee.name,
+                      "Cargo": employee.position,
+                      "Contrato": (contracts as any[]).find((c: any) => c.id === employee.contractId)?.name || employee.contractId,
+                      "Salário Base": `R$ ${baseSalary.toLocaleString('pt-BR')}`,
+                      "Taxa Fringe (%)": `${fringeRate.toFixed(1)}%`,
+                      "Benefício Fringe": `R$ ${fringeBenefit.toLocaleString('pt-BR')}`,
+                      "Status": employee.active ? "Ativo" : "Inativo",
+                      "Data Admissão": new Date(employee.hireDate).toLocaleDateString('pt-BR'),
+                      "CPF": employee.cpf || "N/A",
+                      "Email": employee.email || "N/A"
+                    };
+                  });
+
+                  try {
+                    await exportUtils.showExportModal(
+                      exportData,
+                      `fringe_benefits`,
+                      'fringe-table-content',
+                      {
+                        title: 'Relatório de Fringe Benefits',
+                        subtitle: `Total de ${filteredEmployees.length} colaboradores - Gerado em ${new Date().toLocaleDateString('pt-BR')}`,
+                        orientation: 'landscape'
+                      }
+                    );
+
+                    toast({
+                      title: "Dados Exportados",
+                      description: `Relatório de fringe benefits exportado com ${filteredEmployees.length} colaboradores`,
+                    });
+                  } catch (error) {
+                    toast({
+                      title: "Erro na Exportação",
+                      description: "Erro ao exportar dados. Tente novamente.",
+                      variant: "destructive",
+                    });
+                  }
+                }}
+              >
                 <Download className="w-4 h-4 mr-2" />
                 Exportar
               </Button>
@@ -167,7 +217,7 @@ export default function Fringe() {
           </div>
 
           {/* Fringe Benefits Table */}
-          <div className="bg-blue-400/10 rounded-lg overflow-hidden">
+          <div id="fringe-table-content" className="bg-blue-400/10 rounded-lg overflow-hidden">
             {isLoading ? (
               <div className="p-8 text-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400 mx-auto"></div>

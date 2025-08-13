@@ -19,6 +19,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
+import { exportUtils } from "@/lib/exportUtils";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart as RechartsPieChart, Pie, Cell } from 'recharts';
@@ -543,9 +544,8 @@ export default function Billing() {
               <Button 
                 variant="outline" 
                 className="border-blue-400/30 text-white hover:bg-blue-600/30"
-                onClick={() => {
-                  // Export filtered data to CSV
-                  const csvData = filteredBilling.map(bill => ({
+                onClick={async () => {
+                  const exportData = filteredBilling.map(bill => ({
                     "Contrato": bill.contractName,
                     "Mês": MONTHS.find(m => m.value === bill.month)?.label,
                     "Ano": bill.year,
@@ -563,22 +563,30 @@ export default function Billing() {
                     "Fringe Executado": bill.fringeExecutado,
                     "Vencimento": format(new Date(bill.dueDate), 'dd/MM/yyyy', { locale: ptBR })
                   }));
-                  
-                  const csvContent = [
-                    Object.keys(csvData[0]).join(','),
-                    ...csvData.map(row => Object.values(row).join(','))
-                  ].join('\n');
-                  
-                  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                  const link = document.createElement('a');
-                  link.href = URL.createObjectURL(blob);
-                  link.download = `provisoes_${selectedYear}.csv`;
-                  link.click();
-                  
-                  toast({
-                    title: "Dados Exportados",
-                    description: `Arquivo CSV exportado com ${filteredBilling.length} registros`,
-                  });
+
+                  try {
+                    await exportUtils.showExportModal(
+                      exportData,
+                      `provisoes_${selectedYear}`,
+                      'billing-table-content',
+                      {
+                        title: 'Relatório de Provisões Mensais',
+                        subtitle: `Ano: ${selectedYear} - Total de ${filteredBilling.length} registros`,
+                        orientation: 'landscape'
+                      }
+                    );
+
+                    toast({
+                      title: "Dados Exportados",
+                      description: `Relatório de provisões exportado com ${filteredBilling.length} registros`,
+                    });
+                  } catch (error) {
+                    toast({
+                      title: "Erro na Exportação",
+                      description: "Erro ao exportar dados. Tente novamente.",
+                      variant: "destructive",
+                    });
+                  }
                 }}
               >
                 <Download className="w-4 h-4 mr-2" />
@@ -675,7 +683,7 @@ export default function Billing() {
               </div>
 
               {/* Billing List */}
-              <div className="space-y-4">
+              <div id="billing-table-content" className="space-y-4">
                 {filteredBilling.map((bill) => (
                   <Card key={bill.id} className="glass-effect border-blue-400/30">
                     <CardContent className="p-6">

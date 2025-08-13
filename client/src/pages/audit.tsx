@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { exportUtils } from "@/lib/exportUtils";
+import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,6 +17,7 @@ export default function Audit() {
   const [selectedTable, setSelectedTable] = useState("");
   const [selectedOperation, setSelectedOperation] = useState("");
   const [selectedUser, setSelectedUser] = useState("");
+  const { toast } = useToast();
 
   const { data: auditLogs = [], isLoading } = useQuery({
     queryKey: ["/api/audit-logs"],
@@ -135,7 +138,45 @@ export default function Audit() {
                 <History className="w-4 h-4 mr-2" />
                 Gerar Relatório
               </Button>
-              <Button variant="outline" className="border-blue-400/30 text-white hover:bg-blue-600/30">
+              <Button 
+                variant="outline" 
+                className="border-blue-400/30 text-white hover:bg-blue-600/30"
+                onClick={async () => {
+                  const exportData = filteredLogs.map((log: any) => ({
+                    "Data/Hora": format(new Date(log.timestamp), 'dd/MM/yyyy HH:mm:ss', { locale: ptBR }),
+                    "Tabela": log.tableName,
+                    "Operação": log.operation,
+                    "Usuário": log.userId,
+                    "Registro ID": log.recordId,
+                    "Dados Anteriores": log.oldData ? JSON.stringify(log.oldData) : "N/A",
+                    "Dados Novos": log.newData ? JSON.stringify(log.newData) : "N/A"
+                  }));
+
+                  try {
+                    await exportUtils.showExportModal(
+                      exportData,
+                      `logs_auditoria`,
+                      'audit-logs-content',
+                      {
+                        title: 'Relatório de Logs de Auditoria',
+                        subtitle: `Total de ${filteredLogs.length} registros - Gerado em ${new Date().toLocaleDateString('pt-BR')}`,
+                        orientation: 'landscape'
+                      }
+                    );
+
+                    toast({
+                      title: "Logs Exportados",
+                      description: `Relatório de auditoria exportado com ${filteredLogs.length} registros`,
+                    });
+                  } catch (error) {
+                    toast({
+                      title: "Erro na Exportação",
+                      description: "Erro ao exportar logs. Tente novamente.",
+                      variant: "destructive",
+                    });
+                  }
+                }}
+              >
                 <Download className="w-4 h-4 mr-2" />
                 Exportar Logs
               </Button>
@@ -210,7 +251,7 @@ export default function Audit() {
                 <p>Nenhum log de auditoria encontrado</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
+              <div id="audit-logs-content" className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-blue-400/20">
                   <thead className="bg-blue-500/20">
                     <tr>

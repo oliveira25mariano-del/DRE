@@ -53,6 +53,7 @@ The platform incorporates several key features and design patterns:
 - **Padronização Visual Completa (Agosto 2025):** Unificação total de todos os gráficos da aplicação para uso exclusivo de tonalidades de azul, garantindo consistência visual em 100% da interface - incluindo Financial Analysis, Dashboard Executivo, KPI Cards, Real-time Charts, e todos os componentes visuais
 - **Sistema de Análise Financeira:** Implementação completa com visões mensais, acumuladas e anuais por contrato, comparativo orçado vs. realizado com indicadores visuais e KPIs executivos funcionais
 - **Sistema de Permissões Granulares (Agosto 2025):** Controle de acesso por contrato específico no painel administrativo, permitindo que administradores definam quais contratos cada usuário pode visualizar, com campos `restrictToOwnContracts` e `allowedContracts` no schema
+- **Sistema de Exportação Completo (Agosto 2025):** Implementação de funcionalidade de exportação em PDF, CSV, Excel e JSON em todos os botões de exportar do sistema, incluindo DRE, Provisões, Logs de Auditoria, Fringe Benefits e Contratos, com modal de seleção de formato e geração de PDFs profissionais
 - **Correção de Erros Críticos:** Resolução definitiva do erro yAxisId nos gráficos Recharts e eliminação de todos os erros LSP, garantindo aplicação 100% funcional
 
 ### Próximas Funcionalidades Sugeridas
