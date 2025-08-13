@@ -130,14 +130,17 @@ export default function MOE() {
       const monthlyHours = weeklyHours * 4.33;
       return (salary / monthlyHours).toFixed(2);
     }
-    return "0";
+    return "0.00";
   };
 
-  // Função para calcular custo total (taxa horária * horas trabalhadas)
+  // Função para calcular custo total (taxa horária * horas trabalhadas semanais)
   const calculateTotalCost = (hourlyRate: string, hoursWorked: string) => {
     const rate = parseFloat(hourlyRate || "0");
     const hours = parseFloat(hoursWorked || "0");
-    return (rate * hours).toFixed(2);
+    if (rate > 0 && hours > 0) {
+      return (rate * hours).toFixed(2);
+    }
+    return "0.00";
   };
 
   // Observar mudanças no salário e horas para recalcular taxa horária e custo total
@@ -147,19 +150,29 @@ export default function MOE() {
   
   // Atualizar taxa horária quando salário ou horas mudarem
   useEffect(() => {
-    const newHourlyRate = calculateHourlyRate(watchedSalary || "0", watchedHours || "0");
-    if (newHourlyRate !== form.getValues("hourlyRate")) {
-      form.setValue("hourlyRate", newHourlyRate);
+    if (watchedSalary && watchedHours) {
+      const newHourlyRate = calculateHourlyRate(watchedSalary, watchedHours);
+      const currentHourlyRate = form.getValues("hourlyRate");
+      if (newHourlyRate !== currentHourlyRate) {
+        form.setValue("hourlyRate", newHourlyRate, { shouldValidate: false });
+        
+        // Calcular custo total imediatamente após atualizar a taxa horária
+        const newTotalCost = calculateTotalCost(newHourlyRate, watchedHours);
+        form.setValue("fringeRate", newTotalCost, { shouldValidate: false });
+      }
     }
   }, [watchedSalary, watchedHours, form]);
 
-  // Atualizar custo total quando taxa horária ou horas mudarem
+  // Atualizar custo total quando apenas as horas mudarem (sem mudança de salário)
   useEffect(() => {
-    const newTotalCost = calculateTotalCost(watchedHourlyRate || "0", watchedHours || "0");
-    if (newTotalCost !== form.getValues("fringeRate")) {
-      form.setValue("fringeRate", newTotalCost);
+    if (watchedHourlyRate && watchedHours) {
+      const newTotalCost = calculateTotalCost(watchedHourlyRate, watchedHours);
+      const currentTotalCost = form.getValues("fringeRate");
+      if (newTotalCost !== currentTotalCost) {
+        form.setValue("fringeRate", newTotalCost, { shouldValidate: false });
+      }
     }
-  }, [watchedHourlyRate, watchedHours, form]);
+  }, [watchedHours, watchedHourlyRate, form]);
 
   const editForm = useForm<InsertEmployee>({
     resolver: zodResolver(insertEmployeeSchema),
