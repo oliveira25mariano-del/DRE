@@ -49,6 +49,7 @@ The platform incorporates:
 - **Contract Visualization System:** Implemented fully functional contract viewing modal with comprehensive details including client information, financial data, dates, categories, tags, and action buttons for seamless navigation between view and edit modes.
 - **Data Integrity Enhancement:** Improved server-side validation and logging for contract creation and updates, ensuring all form data is properly saved and retrieved with enhanced debugging capabilities and robust null/undefined field handling.
 - **Form Validation Improvements:** Enhanced contract form with proper default value handling, currency formatting, and comprehensive field validation to prevent data loss during creation and editing operations.
+- **Cache Management Fix:** Implemented robust React Query cache invalidation strategy for contract operations to ensure table updates immediately after create/edit/delete operations, preventing stale data display and ensuring real-time UI updates.
 
 ## External Dependencies
 

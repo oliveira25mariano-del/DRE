@@ -34,13 +34,15 @@ export default function Contracts() {
 
   const { data: contracts = [], isLoading, refetch } = useQuery<Contract[]>({
     queryKey: ["/api/contracts"],
-    refetchOnMount: true,
+    refetchOnMount: "always",
     refetchOnWindowFocus: true,
     staleTime: 0, // Always consider data stale
     gcTime: 0, // Don't cache data
     refetchInterval: false,
     refetchOnReconnect: true, // Refetch when reconnecting
     networkMode: "always", // Always try to fetch
+    retry: 2,
+    retryDelay: 300,
   });
 
   // Force initial refetch and setup refresh mechanism
@@ -65,9 +67,12 @@ export default function Contracts() {
     mutationFn: async (data: InsertContract) => {
       return await apiRequest("POST", "/api/contracts", data);
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      await queryClient.cancelQueries({ queryKey: ["/api/contracts"] });
+      queryClient.removeQueries({ queryKey: ["/api/contracts"] });
       queryClient.invalidateQueries({ queryKey: ["/api/contracts"] });
-      queryClient.refetchQueries({ queryKey: ["/api/contracts"] });
+      await refetch();
+      
       setIsCreateDialogOpen(false);
       toast({
         title: "Sucesso",
@@ -87,17 +92,21 @@ export default function Contracts() {
     mutationFn: async ({ id, data }: { id: string; data: Partial<InsertContract> }) => {
       return await apiRequest("PATCH", `/api/contracts/${id}`, data);
     },
-    onSuccess: (data) => {
+    onSuccess: async (updatedContract) => {
       console.log("✅ Contrato atualizado, forçando atualização da lista");
-      // Multiple cache invalidation strategies
-      queryClient.invalidateQueries({ queryKey: ["/api/contracts"] });
-      queryClient.refetchQueries({ queryKey: ["/api/contracts"] });
-      queryClient.removeQueries({ queryKey: ["/api/contracts"] });
       
-      // Force immediate refetch with delay to ensure backend is updated
-      setTimeout(() => {
-        refetch();
-      }, 100);
+      // Comprehensive cache management strategy
+      await queryClient.cancelQueries({ queryKey: ["/api/contracts"] });
+      queryClient.removeQueries({ queryKey: ["/api/contracts"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/contracts"] });
+      
+      // Force immediate refetch with guaranteed data refresh
+      await refetch();
+      
+      // Additional refetch after a short delay to ensure consistency
+      setTimeout(async () => {
+        await refetch();
+      }, 200);
       
       setIsEditDialogOpen(false);
       setSelectedContract(null);
@@ -119,8 +128,12 @@ export default function Contracts() {
     mutationFn: async (id: string) => {
       return await apiRequest("DELETE", `/api/contracts/${id}`, {});
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      await queryClient.cancelQueries({ queryKey: ["/api/contracts"] });
+      queryClient.removeQueries({ queryKey: ["/api/contracts"] });
       queryClient.invalidateQueries({ queryKey: ["/api/contracts"] });
+      await refetch();
+      
       setIsDeleteDialogOpen(false);
       setContractToDelete(null);
       toast({
