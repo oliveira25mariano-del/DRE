@@ -261,12 +261,23 @@ export default function RealtimeCharts() {
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#1e3a8a',
-                    border: '1px solid #3b82f6',
+                    backgroundColor: '#0f172a',
+                    border: '1px solid #64748b',
                     borderRadius: '8px',
-                    color: 'white'
+                    color: '#f8fafc',
+                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3)',
+                    fontSize: '14px',
+                    fontWeight: '500'
                   }}
-                  formatter={(value: number) => [formatCurrency(value), '']}
+                  labelStyle={{
+                    color: '#e2e8f0',
+                    fontWeight: '600',
+                    marginBottom: '8px'
+                  }}
+                  formatter={(value: number, name: string) => [
+                    formatCurrency(value), 
+                    name
+                  ]}
                 />
                 <Legend />
                 <Area
@@ -330,10 +341,18 @@ export default function RealtimeCharts() {
                 </Pie>
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#1e3a8a',
-                    border: '1px solid #3b82f6',
+                    backgroundColor: '#0f172a',
+                    border: '1px solid #64748b',
                     borderRadius: '8px',
-                    color: 'white'
+                    color: '#f8fafc',
+                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3)',
+                    fontSize: '14px',
+                    fontWeight: '500'
+                  }}
+                  labelStyle={{
+                    color: '#e2e8f0',
+                    fontWeight: '600',
+                    marginBottom: '8px'
                   }}
                   formatter={(value: number, name) => [formatCurrency(value), name]}
                 />
@@ -379,12 +398,20 @@ export default function RealtimeCharts() {
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#1e3a8a',
-                    border: '1px solid #3b82f6',
+                    backgroundColor: '#0f172a',
+                    border: '1px solid #64748b',
                     borderRadius: '8px',
-                    color: 'white'
+                    color: '#f8fafc',
+                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3)',
+                    fontSize: '14px',
+                    fontWeight: '500'
                   }}
-                  formatter={(value: number) => [formatCurrency(value), '']}
+                  labelStyle={{
+                    color: '#e2e8f0',
+                    fontWeight: '600',
+                    marginBottom: '8px'
+                  }}
+                  formatter={(value: number, name: string) => [formatCurrency(value), name]}
                 />
                 <Legend />
                 <Bar 
