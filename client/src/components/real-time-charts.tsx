@@ -133,8 +133,8 @@ export default function RealtimeCharts() {
 
       {/* KPIs em Tempo Real */}
       <div className={getLayoutClasses()}>
-        <Card className={getCardClasses()}>
-          <CardContent className={`${config.compactCards ? "p-4" : "p-6"} relative`}>
+        <Card className="glass-effect border-blue-200/20">
+          <CardContent className="p-6 relative">
             <div className="absolute top-4 right-4">
               <DollarSign className="w-5 h-5 text-blue-400" />
             </div>
@@ -143,18 +143,16 @@ export default function RealtimeCharts() {
               <p className="text-2xl font-bold text-white">
                 {formatCurrency(metrics?.revenue.current || 0)}
               </p>
-              {shouldShowTrends && (
-                <div className="flex items-center mt-2">
-                  {(metrics?.revenue.change || 0) >= 0 ? (
-                    <TrendingUp className="w-4 h-4 text-blue-400 mr-1" />
-                  ) : (
-                    <TrendingDown className="w-4 h-4 text-blue-600 mr-1" />
-                  )}
-                  <span className={`text-sm ${(metrics?.revenue.change || 0) >= 0 ? 'text-blue-400' : 'text-blue-600'}`}>
-                    {formatPercent(Math.abs(metrics?.revenue.change || 0))}
-                  </span>
-                </div>
-              )}
+              <div className="flex items-center mt-2">
+                {(metrics?.revenue.change || 0) >= 0 ? (
+                  <TrendingUp className="w-4 h-4 text-blue-400 mr-1" />
+                ) : (
+                  <TrendingDown className="w-4 h-4 text-blue-600 mr-1" />
+                )}
+                <span className={`text-sm ${(metrics?.revenue.change || 0) >= 0 ? 'text-blue-400' : 'text-blue-600'}`}>
+                  {formatPercent(Math.abs(metrics?.revenue.change || 0))}
+                </span>
+              </div>
             </div>
           </CardContent>
         </Card>
