@@ -10,13 +10,14 @@ import {
   type Report, type InsertReport,
   type Category, type InsertCategory,
   type DirectCost, type InsertDirectCost,
-  type User, type InsertUser
+  type User, type InsertUser,
+  type Payroll, type InsertPayroll
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
-import { users, employees, directCosts } from "@shared/schema";
+import { users, employees, directCosts, payroll } from "@shared/schema";
 
 export interface IStorage {
   // Contracts
@@ -97,6 +98,13 @@ export interface IStorage {
   getDREData(year: number, month: number): Promise<any>;
   getKPIData(): Promise<any>;
 
+  // Payroll
+  getPayroll(filters?: { contractId?: string; year?: number; month?: number; quarter?: number; period?: string }): Promise<Payroll[]>;
+  getPayrollItem(id: string): Promise<Payroll | undefined>;
+  createPayroll(payroll: InsertPayroll): Promise<Payroll>;
+  updatePayroll(id: string, payroll: Partial<InsertPayroll>): Promise<Payroll>;
+  deletePayroll(id: string): Promise<void>;
+
   // Users
   getUsers(): Promise<User[]>;
   getUser(id: string): Promise<User | undefined>;
@@ -119,6 +127,7 @@ export class MemStorage implements IStorage {
   private reports: Map<string, Report> = new Map();
   private categories: Map<string, Category> = new Map();
   private directCosts: Map<string, DirectCost> = new Map();
+  private payrollData: Map<string, Payroll> = new Map();
   private users: Map<string, User> = new Map();
 
   constructor() {
@@ -802,6 +811,59 @@ export class MemStorage implements IStorage {
       this.users.set(id, user);
     }
   }
+
+  // Payroll methods for MemStorage
+  async getPayroll(filters?: { contractId?: string; year?: number; month?: number; quarter?: number; period?: string }): Promise<Payroll[]> {
+    const allPayroll = Array.from(this.payrollData.values());
+    
+    if (!filters) return allPayroll;
+    
+    return allPayroll.filter(item => {
+      if (filters.contractId && item.contractId !== filters.contractId) return false;
+      if (filters.year && item.year !== filters.year) return false;
+      if (filters.month && item.month !== filters.month) return false;
+      if (filters.quarter && item.quarter !== filters.quarter) return false;
+      return true;
+    });
+  }
+
+  async getPayrollItem(id: string): Promise<Payroll | undefined> {
+    return this.payrollData.get(id);
+  }
+
+  async createPayroll(payrollData: InsertPayroll): Promise<Payroll> {
+    const id = randomUUID();
+    const now = new Date();
+    const payroll: Payroll = {
+      id,
+      contractId: payrollData.contractId,
+      year: payrollData.year,
+      month: payrollData.month,
+      quarter: payrollData.quarter,
+      salarios: payrollData.salarios,
+      horasExtras: payrollData.horasExtras,
+      beneficios: payrollData.beneficios,
+      vt: payrollData.vt,
+      imestra: payrollData.imestra,
+      createdAt: now,
+      updatedAt: now,
+    };
+    this.payrollData.set(id, payroll);
+    return payroll;
+  }
+
+  async updatePayroll(id: string, payrollData: Partial<InsertPayroll>): Promise<Payroll> {
+    const existing = this.payrollData.get(id);
+    if (!existing) throw new Error("Payroll not found");
+    
+    const updated: Payroll = { ...existing, ...payrollData, updatedAt: new Date() };
+    this.payrollData.set(id, updated);
+    return updated;
+  }
+
+  async deletePayroll(id: string): Promise<void> {
+    this.payrollData.delete(id);
+  }
 }
 
 // Use database storage for production
@@ -920,6 +982,47 @@ class DatabaseStorage implements IStorage {
   async getDREData(year: number, month: number): Promise<any> { return this.memStorage.getDREData(year, month); }
   async getKPIData(): Promise<any> { return this.memStorage.getKPIData(); }
   
+  // Payroll
+  async getPayroll(filters?: { contractId?: string; year?: number; month?: number; quarter?: number; period?: string }): Promise<Payroll[]> {
+    let query = db.select().from(payroll);
+    
+    if (filters?.contractId) {
+      query = query.where(eq(payroll.contractId, filters.contractId));
+    }
+    
+    const results = await query;
+    
+    return results.filter(item => {
+      if (filters?.year && item.year !== filters.year) return false;
+      if (filters?.month && item.month !== filters.month) return false;
+      if (filters?.quarter && item.quarter !== filters.quarter) return false;
+      return true;
+    });
+  }
+  
+  async getPayrollItem(id: string): Promise<Payroll | undefined> {
+    const [result] = await db.select().from(payroll).where(eq(payroll.id, id));
+    return result;
+  }
+  
+  async createPayroll(payrollData: InsertPayroll): Promise<Payroll> {
+    const [result] = await db.insert(payroll).values(payrollData).returning();
+    return result;
+  }
+  
+  async updatePayroll(id: string, payrollData: Partial<InsertPayroll>): Promise<Payroll> {
+    const [result] = await db.update(payroll)
+      .set({ ...payrollData, updatedAt: new Date() })
+      .where(eq(payroll.id, id))
+      .returning();
+    if (!result) throw new Error("Payroll not found");
+    return result;
+  }
+  
+  async deletePayroll(id: string): Promise<void> {
+    await db.delete(payroll).where(eq(payroll.id, id));
+  }
+
   async getUsers(): Promise<User[]> { return this.memStorage.getUsers(); }
   async getUser(id: string): Promise<User | undefined> { return this.memStorage.getUser(id); }
   async getUserByEmail(email: string): Promise<User | undefined> { return this.memStorage.getUserByEmail(email); }

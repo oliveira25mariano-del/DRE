@@ -13,7 +13,8 @@ import {
   DollarSign,
   HelpCircle,
   Presentation,
-  Plug
+  Plug,
+  Receipt
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import opusLogo from "@assets/Logo-Grupo-Opus_1754948245317.png";
@@ -23,6 +24,7 @@ const menuItems = [
   { path: "/contracts", label: "Contratos", icon: FileText, id: "sidebar-contracts" },
   { path: "/glosas", label: "Glosas", icon: AlertTriangle, id: "sidebar-glosas" },
   { path: "/moe", label: "MOE", icon: Users, id: "sidebar-moe" },
+  { path: "/folha", label: "Folha", icon: Receipt, id: "sidebar-payroll" },
 ];
 
 const analysisItems = [

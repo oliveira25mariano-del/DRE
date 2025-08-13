@@ -81,6 +81,22 @@ export const glosas = pgTable("glosas", {
   createdAt: timestamp("created_at").default(sql`now()`),
 });
 
+// Folha de Pagamento
+export const payroll = pgTable("payroll", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  contractId: varchar("contract_id").references(() => contracts.id).notNull(),
+  year: integer("year").notNull(),
+  month: integer("month").notNull(),
+  quarter: integer("quarter").notNull(),
+  salarios: decimal("salarios", { precision: 12, scale: 2 }).notNull().default("0"),
+  horaExtra: decimal("hora_extra", { precision: 12, scale: 2 }).notNull().default("0"),
+  beneficios: decimal("beneficios", { precision: 12, scale: 2 }).notNull().default("0"),
+  vt: decimal("vt", { precision: 12, scale: 2 }).notNull().default("0"),
+  imestra: decimal("imestra", { precision: 12, scale: 2 }).notNull().default("0"),
+  createdAt: timestamp("created_at").default(sql`now()`),
+  updatedAt: timestamp("updated_at").default(sql`now()`),
+});
+
 // Previsões ML
 export const predictions = pgTable("predictions", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -218,6 +234,12 @@ export const insertGlosaSchema = createInsertSchema(glosas).omit({
   createdAt: true,
 });
 
+export const insertPayrollSchema = createInsertSchema(payroll).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export const insertPredictionSchema = createInsertSchema(predictions).omit({
   id: true,
   createdAt: true,
@@ -293,6 +315,8 @@ export type InsertCategory = z.infer<typeof insertCategorySchema>;
 export type DirectCost = typeof directCosts.$inferSelect;
 export type InsertDirectCost = z.infer<typeof insertDirectCostSchema>;
 export type User = typeof users.$inferSelect;
+export type Payroll = typeof payroll.$inferSelect;
+export type InsertPayroll = z.infer<typeof insertPayrollSchema>;
 
 // Tabela de preferências de notificação
 export const notificationPreferences = pgTable("notification_preferences", {

@@ -9,7 +9,7 @@ import {
   insertContractSchema, insertBudgetSchema, insertActualSchema,
   insertEmployeeSchema, insertGlosaSchema, insertPredictionSchema,
   insertAlertSchema, insertReportSchema, insertCategorySchema,
-  insertDirectCostSchema, insertAuditLogSchema
+  insertDirectCostSchema, insertAuditLogSchema, insertPayrollSchema
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -412,6 +412,96 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } catch (error) {
       res.status(400).json({ message: error instanceof Error ? error.message : 'Error deleting direct cost' });
+    }
+  });
+
+  // Payroll routes
+  app.get('/api/payroll', async (req, res) => {
+    try {
+      const filters: any = {};
+      if (req.query.contractId) filters.contractId = req.query.contractId as string;
+      if (req.query.year) filters.year = parseInt(req.query.year as string);
+      if (req.query.month) filters.month = parseInt(req.query.month as string);
+      if (req.query.quarter) filters.quarter = parseInt(req.query.quarter as string);
+      if (req.query.period) filters.period = req.query.period as string;
+      
+      const payroll = await storage.getPayroll(filters);
+      res.json(payroll);
+    } catch (error) {
+      res.status(500).json({ message: error instanceof Error ? error.message : 'Error fetching payroll' });
+    }
+  });
+
+  app.get('/api/payroll/:id', async (req, res) => {
+    try {
+      const payrollItem = await storage.getPayrollItem(req.params.id);
+      if (!payrollItem) {
+        return res.status(404).json({ message: 'Payroll not found' });
+      }
+      res.json(payrollItem);
+    } catch (error) {
+      res.status(500).json({ message: error instanceof Error ? error.message : 'Error fetching payroll' });
+    }
+  });
+
+  app.post('/api/payroll', async (req, res) => {
+    try {
+      const validatedData = insertPayrollSchema.parse(req.body);
+      const payrollItem = await storage.createPayroll(validatedData);
+      
+      req.auditData = {
+        tableName: 'payroll',
+        recordId: payrollItem.id,
+        newData: payrollItem,
+      };
+      
+      res.json(payrollItem);
+    } catch (error) {
+      res.status(400).json({ message: error instanceof Error ? error.message : 'Error creating payroll' });
+    }
+  });
+
+  app.put('/api/payroll/:id', async (req, res) => {
+    try {
+      const existing = await storage.getPayrollItem(req.params.id);
+      if (!existing) {
+        return res.status(404).json({ message: 'Payroll not found' });
+      }
+      
+      const validatedData = insertPayrollSchema.partial().parse(req.body);
+      const payrollItem = await storage.updatePayroll(req.params.id, validatedData);
+      
+      req.auditData = {
+        tableName: 'payroll',
+        recordId: payrollItem.id,
+        oldData: existing,
+        newData: payrollItem,
+      };
+      
+      res.json(payrollItem);
+    } catch (error) {
+      res.status(400).json({ message: error instanceof Error ? error.message : 'Error updating payroll' });
+    }
+  });
+
+  app.delete('/api/payroll/:id', async (req, res) => {
+    try {
+      const existing = await storage.getPayrollItem(req.params.id);
+      if (!existing) {
+        return res.status(404).json({ message: 'Payroll not found' });
+      }
+      
+      await storage.deletePayroll(req.params.id);
+      
+      req.auditData = {
+        tableName: 'payroll',
+        recordId: req.params.id,
+        oldData: existing,
+      };
+      
+      res.status(204).send();
+    } catch (error) {
+      res.status(400).json({ message: error instanceof Error ? error.message : 'Error deleting payroll' });
     }
   });
 

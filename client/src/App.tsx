@@ -11,6 +11,7 @@ import Dashboard from "./pages/dashboard";
 import Contracts from "./pages/contracts";
 import Glosas from "./pages/glosas";
 import MOE from "./pages/moe";
+import Folha from "./pages/folha";
 import Fringe from "./pages/fringe";
 import Predictions from "./pages/predictions";
 import Integrations from "./pages/integrations";
@@ -86,6 +87,7 @@ function Router() {
         <Route path="/contracts" component={Contracts} />
         <Route path="/glosas" component={Glosas} />
         <Route path="/moe" component={MOE} />
+        <Route path="/folha" component={Folha} />
         <Route path="/fringe" component={Fringe} />
         <Route path="/predictions" component={Predictions} />
         <Route path="/integrations" component={Integrations} />

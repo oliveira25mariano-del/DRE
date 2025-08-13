@@ -92,12 +92,12 @@ export const exportUtils = {
       // Add title and subtitle if provided
       if (options.title) {
         pdf.setFontSize(16);
-        pdf.setFont(undefined, 'bold');
+        pdf.setFont("helvetica", 'bold');
         pdf.text(options.title, 20, 20);
         
         if (options.subtitle) {
           pdf.setFontSize(12);
-          pdf.setFont(undefined, 'normal');
+          pdf.setFont("helvetica", 'normal');
           pdf.text(options.subtitle, 20, 30);
         }
       }
@@ -161,16 +161,16 @@ export const exportUtils = {
   },
 
   // Show export options modal
-  showExportModal: (
-    data: any[], 
-    baseName: string, 
-    elementId?: string,
+  showExportModal: (options: {
+    title: string;
+    data: any[];
+    elementId?: string;
     pdfOptions?: {
       title?: string;
       subtitle?: string;
       orientation?: 'portrait' | 'landscape';
     }
-  ) => {
+  }) => {
     return new Promise<string>((resolve) => {
       const modal = document.createElement('div');
       modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/50';
@@ -205,29 +205,29 @@ export const exportUtils = {
         const format = target.getAttribute('data-format');
         
         if (format && format !== 'cancel') {
-          const filename = exportUtils.generateFilename(baseName);
+          const filename = exportUtils.generateFilename(options.title);
           
           try {
             switch (format) {
               case 'pdf':
-                if (elementId) {
-                  await exportUtils.exportToPDF(elementId, filename, {
-                    ...pdfOptions,
-                    title: pdfOptions?.title || `Relatório - ${baseName}`,
-                    subtitle: pdfOptions?.subtitle || `Gerado em ${new Date().toLocaleDateString('pt-BR')}`
+                if (options.elementId) {
+                  await exportUtils.exportToPDF(options.elementId, filename, {
+                    ...options.pdfOptions,
+                    title: options.pdfOptions?.title || `Relatório - ${options.title}`,
+                    subtitle: options.pdfOptions?.subtitle || `Gerado em ${new Date().toLocaleDateString('pt-BR')}`
                   });
                 } else {
                   throw new Error('PDF export requires elementId');
                 }
                 break;
               case 'csv':
-                exportUtils.exportToCSV(data, filename);
+                exportUtils.exportToCSV(options.data, filename);
                 break;
               case 'excel':
-                exportUtils.exportToExcel(data, filename);
+                exportUtils.exportToExcel(options.data, filename);
                 break;
               case 'json':
-                exportUtils.exportToJSON(data, filename);
+                exportUtils.exportToJSON(options.data, filename);
                 break;
             }
             resolve(format);
