@@ -15,14 +15,14 @@ import ThemeCustomizer from "@/components/theme-customizer";
 import NotificationSystem from "@/components/notification-system";
 import { useTheme, useThemeClasses } from "@/hooks/useTheme";
 
-// Cores do tema
+// Cores do tema - Tonalidades de Azul
 const CHART_COLORS = {
   primary: "#1E40AF",    // Azul escuro
   secondary: "#3B82F6",  // Azul médio
   accent: "#60A5FA",     // Azul claro
-  danger: "#2563EB",     // Azul intenso
-  warning: "#1D4ED8",    // Azul royal
-  info: "#06B6D4"       // Azul ciano (mantido para contraste)
+  danger: "#1E3A8A",     // Azul navy
+  warning: "#2563EB",    // Azul intenso
+  info: "#3B82F6"       // Azul médio
 };
 
 interface RealtimeMetrics {
@@ -119,7 +119,7 @@ export default function RealtimeCharts() {
         </div>
         <div className="flex gap-2">
           <NotificationSystem userRole="admin" />
-          <ThemeCustomizer />
+          {/* ThemeCustomizer integrado no header */}
           <Button
             onClick={handleRefresh}
             disabled={isRefreshing}
@@ -136,7 +136,7 @@ export default function RealtimeCharts() {
         <Card className={getCardClasses()}>
           <CardContent className={`${config.compactCards ? "p-4" : "p-6"} relative`}>
             <div className="absolute top-4 right-4">
-              <DollarSign className="w-5 h-5 text-green-400" />
+              <DollarSign className="w-5 h-5 text-blue-400" />
             </div>
             <div>
               <p className="text-sm font-medium text-blue-300">Receita Total</p>
@@ -146,11 +146,11 @@ export default function RealtimeCharts() {
               {shouldShowTrends && (
                 <div className="flex items-center mt-2">
                   {(metrics?.revenue.change || 0) >= 0 ? (
-                    <TrendingUp className="w-4 h-4 text-green-400 mr-1" />
+                    <TrendingUp className="w-4 h-4 text-blue-400 mr-1" />
                   ) : (
-                    <TrendingDown className="w-4 h-4 text-red-400 mr-1" />
+                    <TrendingDown className="w-4 h-4 text-blue-600 mr-1" />
                   )}
-                  <span className={`text-sm ${(metrics?.revenue.change || 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  <span className={`text-sm ${(metrics?.revenue.change || 0) >= 0 ? 'text-blue-400' : 'text-blue-600'}`}>
                     {formatPercent(Math.abs(metrics?.revenue.change || 0))}
                   </span>
                 </div>
@@ -162,7 +162,7 @@ export default function RealtimeCharts() {
         <Card className="glass-effect border-blue-200/20">
           <CardContent className="p-6 relative">
             <div className="absolute top-4 right-4">
-              <Target className="w-5 h-5 text-orange-400" />
+              <Target className="w-5 h-5 text-blue-500" />
             </div>
             <div>
               <p className="text-sm font-medium text-blue-300">Custos Totais</p>
@@ -171,11 +171,11 @@ export default function RealtimeCharts() {
               </p>
               <div className="flex items-center mt-2">
                 {(metrics?.costs.change || 0) <= 0 ? (
-                  <TrendingDown className="w-4 h-4 text-green-400 mr-1" />
+                  <TrendingDown className="w-4 h-4 text-blue-400 mr-1" />
                 ) : (
-                  <TrendingUp className="w-4 h-4 text-red-400 mr-1" />
+                  <TrendingUp className="w-4 h-4 text-blue-600 mr-1" />
                 )}
-                <span className={`text-sm ${(metrics?.costs.change || 0) <= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                <span className={`text-sm ${(metrics?.costs.change || 0) <= 0 ? 'text-blue-400' : 'text-blue-600'}`}>
                   {formatPercent(Math.abs(metrics?.costs.change || 0))}
                 </span>
               </div>
@@ -195,11 +195,11 @@ export default function RealtimeCharts() {
               </p>
               <div className="flex items-center mt-2">
                 {(metrics?.profit.change || 0) >= 0 ? (
-                  <TrendingUp className="w-4 h-4 text-green-400 mr-1" />
+                  <TrendingUp className="w-4 h-4 text-blue-400 mr-1" />
                 ) : (
-                  <TrendingDown className="w-4 h-4 text-red-400 mr-1" />
+                  <TrendingDown className="w-4 h-4 text-blue-600 mr-1" />
                 )}
-                <span className={`text-sm ${(metrics?.profit.change || 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                <span className={`text-sm ${(metrics?.profit.change || 0) >= 0 ? 'text-blue-400' : 'text-blue-600'}`}>
                   {formatPercent(Math.abs(metrics?.profit.change || 0))}
                 </span>
               </div>
@@ -210,7 +210,7 @@ export default function RealtimeCharts() {
         <Card className="glass-effect border-blue-200/20">
           <CardContent className="p-6 relative">
             <div className="absolute top-4 right-4">
-              <PieChartIcon className="w-5 h-5 text-purple-400" />
+              <PieChartIcon className="w-5 h-5 text-blue-400" />
             </div>
             <div>
               <p className="text-sm font-medium text-blue-300">Margem (%)</p>
@@ -219,11 +219,11 @@ export default function RealtimeCharts() {
               </p>
               <div className="flex items-center mt-2">
                 {(metrics?.margin.change || 0) >= 0 ? (
-                  <TrendingUp className="w-4 h-4 text-green-400 mr-1" />
+                  <TrendingUp className="w-4 h-4 text-blue-400 mr-1" />
                 ) : (
-                  <TrendingDown className="w-4 h-4 text-red-400 mr-1" />
+                  <TrendingDown className="w-4 h-4 text-blue-600 mr-1" />
                 )}
-                <span className={`text-sm ${(metrics?.margin.change || 0) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                <span className={`text-sm ${(metrics?.margin.change || 0) >= 0 ? 'text-blue-400' : 'text-blue-600'}`}>
                   {formatPercent(Math.abs(metrics?.margin.change || 0))}
                 </span>
               </div>

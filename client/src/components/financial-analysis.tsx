@@ -137,11 +137,11 @@ const generateContractData = (): ContractFinancialData[] => {
 };
 
 const CHART_COLORS = {
-  budgeted: '#3B82F6',
-  actual: '#10B981',
-  margin: '#8B5CF6',
-  variance: '#F59E0B',
-  negative: '#EF4444'
+  budgeted: '#1E40AF',     // Azul escuro
+  actual: '#3B82F6',       // Azul médio
+  margin: '#60A5FA',       // Azul claro
+  variance: '#93C5FD',     // Azul muito claro
+  negative: '#1E3A8A'      // Azul navy
 };
 
 export default function FinancialAnalysis() {

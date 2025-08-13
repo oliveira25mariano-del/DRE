@@ -137,7 +137,7 @@ const ExecutiveDashboard: React.FC = () => {
       change: 15.2,
       trend: 'up',
       icon: DollarSign,
-      color: 'text-green-400',
+      color: 'text-blue-400',
       format: 'currency'
     },
     {
@@ -157,7 +157,7 @@ const ExecutiveDashboard: React.FC = () => {
       change: 8.3,
       trend: 'up',
       icon: Building2,
-      color: 'text-purple-400',
+      color: 'text-blue-500',
       format: 'number'
     },
     {
@@ -167,7 +167,7 @@ const ExecutiveDashboard: React.FC = () => {
       change: 1.5,
       trend: 'up',
       icon: Target,
-      color: 'text-orange-400',
+      color: 'text-blue-600',
       format: 'percentage'
     },
     {
@@ -177,7 +177,7 @@ const ExecutiveDashboard: React.FC = () => {
       change: -0.2,
       trend: 'down',
       icon: Star,
-      color: 'text-yellow-400',
+      color: 'text-blue-300',
       format: 'percentage'
     },
     {
