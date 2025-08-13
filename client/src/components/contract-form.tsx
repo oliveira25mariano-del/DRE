@@ -132,9 +132,27 @@ export default function ContractForm({ onSubmit, onCancel, defaultValues, isLoad
   }, [defaultValues]);
 
   const handleFormSubmit = (data: InsertContract) => {
-    // Combinar valores principais com valores adicionais se existirem
-    const processedData = { ...data };
+    console.log("📝 Dados brutos do formulário:", data);
     
+    // Ensure proper data formatting and validation
+    const processedData: InsertContract = {
+      ...data,
+      // Convert numbers to strings for consistency with backend
+      monthlyValue: data.monthlyValue?.toString() || "0",
+      totalValue: data.totalValue?.toString() || "0",
+      // Handle null/undefined values properly
+      description: data.description || null,
+      contact: data.contact || null,
+      margin: data.margin || null,
+      endDate: data.endDate || null,
+      // Ensure arrays exist
+      categories: data.categories || [],
+      tags: data.tags || [],
+      monthlyValues: data.monthlyValues || {},
+      totalValues: data.totalValues || {},
+    };
+    
+    // Handle additional contract data if present
     if (showAdditionalContract) {
       const category2 = form.getValues("category2" as any);
       const monthlyValue2 = form.getValues("monthlyValue2" as any);
@@ -153,6 +171,7 @@ export default function ContractForm({ onSubmit, onCancel, defaultValues, isLoad
       }
     }
     
+    console.log("✅ Dados processados para envio:", processedData);
     onSubmit(processedData);
   };
 

@@ -463,6 +463,8 @@ export default function Contracts() {
           {selectedContract && (
             <ContractForm
               onSubmit={(data) => {
+                console.log("🚀 Iniciando atualização de contrato:", selectedContract.id);
+                console.log("📊 Dados enviados para atualização:", data);
                 updateMutation.mutate({ id: selectedContract.id, data });
               }}
               onCancel={() => setIsEditDialogOpen(false)}

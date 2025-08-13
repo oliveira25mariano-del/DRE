@@ -101,7 +101,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/contracts/:id', async (req, res) => {
+  // Handle both PUT and PATCH for contract updates
+  const handleContractUpdate = async (req: any, res: any) => {
     try {
       console.log('📝 Dados recebidos para atualização:', req.params.id, req.body);
       
@@ -142,7 +143,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error('❌ Erro ao atualizar contrato:', error);
       res.status(400).json({ message: error instanceof Error ? error.message : 'Error updating contract' });
     }
-  });
+  };
+
+  app.put('/api/contracts/:id', handleContractUpdate);
+  app.patch('/api/contracts/:id', handleContractUpdate);
 
   app.delete('/api/contracts/:id', async (req, res) => {
     try {
