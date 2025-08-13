@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Calendar } from "@/components/ui/calendar";
@@ -171,15 +171,17 @@ export default function Glosas() {
   // Prepare analysis chart data
   const analysisData = (contracts as any[]).map((contract: any) => {
     const contractGlosas = (glosas as Glosa[]).filter((glosa: Glosa) => glosa.contractId === contract.id);
-    const totalCost = contractGlosas.reduce((sum, glosa) => {
-      return sum + parseFloat(glosa.amount) + (glosa.attestationCosts ? parseFloat(glosa.attestationCosts) : 0);
+    const custoGlosa = contractGlosas.reduce((sum, glosa) => sum + parseFloat(glosa.amount), 0);
+    const custoAtestado = contractGlosas.reduce((sum, glosa) => {
+      return sum + (glosa.attestationCosts ? parseFloat(glosa.attestationCosts) : 0);
     }, 0);
     
     return {
-      contract: contract.name.length > 15 ? contract.name.substring(0, 15) + "..." : contract.name,
-      custo: totalCost,
+      contract: contract.name.length > 12 ? contract.name.substring(0, 12) + "..." : contract.name,
+      custoGlosa,
+      custoAtestado,
     };
-  }).filter(item => item.custo > 0);
+  }).filter(item => item.custoGlosa > 0 || item.custoAtestado > 0);
 
   const onSubmit = (data: InsertGlosa) => {
     const processedData = {
@@ -447,6 +449,9 @@ export default function Glosas() {
         <DialogContent className="max-w-md bg-blue-bg border-blue-400/30">
           <DialogHeader>
             <DialogTitle className="text-white">Criar Nova Glosa</DialogTitle>
+            <DialogDescription className="text-blue-200">
+              Preencha os dados para criar uma nova glosa no sistema
+            </DialogDescription>
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
@@ -646,6 +651,9 @@ export default function Glosas() {
         <DialogContent className="max-w-lg bg-blue-bg border-blue-400/30">
           <DialogHeader>
             <DialogTitle className="text-white">Detalhes da Glosa</DialogTitle>
+            <DialogDescription className="text-blue-200">
+              Visualização completa dos dados da glosa selecionada
+            </DialogDescription>
           </DialogHeader>
           {selectedGlosa && (
             <div className="space-y-4">
@@ -708,6 +716,9 @@ export default function Glosas() {
         <DialogContent className="max-w-md bg-blue-bg border-blue-400/30">
           <DialogHeader>
             <DialogTitle className="text-white">Editar Glosa</DialogTitle>
+            <DialogDescription className="text-blue-200">
+              Modifique os dados da glosa conforme necessário
+            </DialogDescription>
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
@@ -912,50 +923,77 @@ export default function Glosas() {
 
       {/* Analysis Dialog */}
       <Dialog open={isAnalysisOpen} onOpenChange={setIsAnalysisOpen}>
-        <DialogContent className="max-w-4xl bg-blue-bg border-blue-400/30">
+        <DialogContent className="max-w-3xl bg-blue-bg border-blue-400/30">
           <DialogHeader>
-            <DialogTitle className="text-white">Análise de Custos de Glosas por Contrato</DialogTitle>
+            <DialogTitle className="text-white text-lg">Análise de Custos por Contrato</DialogTitle>
+            <p className="text-sm text-blue-200">Separação entre custos de glosas e custos de atestado</p>
           </DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-3">
             {analysisData.length === 0 ? (
-              <div className="text-center py-8 text-blue-200">
-                Nenhum dado de análise disponível. Crie algumas glosas primeiro.
+              <div className="text-center py-6 text-blue-200">
+                Nenhum dado disponível. Crie algumas glosas primeiro.
               </div>
             ) : (
-              <div className="h-96">
+              <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={analysisData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#3B82F6" opacity={0.3} />
+                  <BarChart 
+                    data={analysisData} 
+                    margin={{ top: 15, right: 25, left: 15, bottom: 40 }}
+                    barGap={4}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#3B82F6" opacity={0.2} />
                     <XAxis 
                       dataKey="contract" 
-                      tick={{ fill: '#93C5FD', fontSize: 12 }}
-                      angle={-45}
+                      tick={{ fill: '#93C5FD', fontSize: 11 }}
+                      angle={-30}
                       textAnchor="end"
-                      height={80}
+                      height={50}
                     />
                     <YAxis 
-                      tick={{ fill: '#93C5FD' }}
-                      tickFormatter={(value) => formatCurrency(value)}
+                      tick={{ fill: '#93C5FD', fontSize: 11 }}
+                      tickFormatter={(value) => `R$ ${(value/1000).toFixed(0)}k`}
                     />
                     <Tooltip 
-                      formatter={(value) => [formatCurrency(value as number), 'Custo Total']}
-                      labelStyle={{ color: '#1E40AF' }}
+                      formatter={(value, name) => [
+                        formatCurrency(value as number), 
+                        name === 'custoGlosa' ? 'Custo Glosa' : 'Custo Atestado'
+                      ]}
+                      labelStyle={{ color: '#1E40AF', fontSize: '12px' }}
                       contentStyle={{ 
                         backgroundColor: '#1E3A8A', 
                         border: '1px solid #3B82F6',
-                        borderRadius: '8px'
+                        borderRadius: '6px',
+                        fontSize: '12px'
                       }}
                     />
                     <Bar 
-                      dataKey="custo" 
-                      fill="#EF4444" 
-                      radius={[4, 4, 0, 0]}
-                      name="Custo Total"
+                      dataKey="custoGlosa" 
+                      fill="#3B82F6" 
+                      radius={[2, 2, 0, 0]}
+                      name="custoGlosa"
+                    />
+                    <Bar 
+                      dataKey="custoAtestado" 
+                      fill="#1D4ED8" 
+                      radius={[2, 2, 0, 0]}
+                      name="custoAtestado"
                     />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             )}
+            
+            {/* Legend */}
+            <div className="flex justify-center gap-6 pt-2">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-blue-500 rounded"></div>
+                <span className="text-sm text-blue-100">Custo Glosa</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-blue-700 rounded"></div>
+                <span className="text-sm text-blue-100">Custo Atestado</span>
+              </div>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
