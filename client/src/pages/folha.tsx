@@ -181,12 +181,11 @@ export default function Folha() {
     } else if (num >= 1000) {
       return `R$ ${(num / 1000).toFixed(1)}K`;
     }
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(num);
+    // Para valores menores que 1000, formatamos sem casas decimais se for um número inteiro
+    if (num % 1 === 0) {
+      return `R$ ${num.toLocaleString('pt-BR')}`;
+    }
+    return `R$ ${num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
   const getContractName = (contractId: string) => {
