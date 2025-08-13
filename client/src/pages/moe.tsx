@@ -351,19 +351,16 @@ export default function MOE() {
 
                         <FormField
                           control={form.control}
-                          name="fringeRate"
+                          name="extraDate"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-white">Custo Total (R$) - Automático</FormLabel>
+                              <FormLabel className="text-white">Data da Extra</FormLabel>
                               <FormControl>
                                 <Input 
-                                  type="number"
-                                  step="0.01"
-                                  placeholder="Calculado automaticamente" 
-                                  className="bg-gray-600/50 border-gray-400/30 text-gray-300 placeholder:text-gray-400"
-                                  {...field}
-                                  value={field.value || ""}
-                                  readOnly
+                                  type="date"
+                                  className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
+                                  value={typeof field.value === 'string' ? field.value : field.value ? field.value.toISOString().split('T')[0] : ""}
+                                  onChange={(e) => field.onChange(e.target.value || "")}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -480,16 +477,19 @@ export default function MOE() {
 
                         <FormField
                           control={form.control}
-                          name="extraDate"
+                          name="fringeRate"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-white">Data da Extra</FormLabel>
+                              <FormLabel className="text-white">Custo Total (R$) - Automático</FormLabel>
                               <FormControl>
                                 <Input 
-                                  type="date"
-                                  className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
-                                  value={typeof field.value === 'string' ? field.value : field.value ? field.value.toISOString().split('T')[0] : ""}
-                                  onChange={(e) => field.onChange(e.target.value || "")}
+                                  type="number"
+                                  step="0.01"
+                                  placeholder="Calculado automaticamente" 
+                                  className="bg-gray-600/50 border-gray-400/30 text-gray-300 placeholder:text-gray-400"
+                                  {...field}
+                                  value={field.value || ""}
+                                  readOnly
                                 />
                               </FormControl>
                               <FormMessage />
