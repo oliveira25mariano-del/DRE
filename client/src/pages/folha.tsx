@@ -61,7 +61,7 @@ export default function Folha() {
   const form = useForm<InsertPayroll>({
     resolver: zodResolver(insertPayrollSchema),
     defaultValues: {
-      contractId: "",
+      contractId: contracts.length > 0 ? contracts[0].id : "",
       year: new Date().getFullYear(),
       month: new Date().getMonth() + 1,
       quarter: Math.ceil((new Date().getMonth() + 1) / 3),
@@ -84,7 +84,17 @@ export default function Folha() {
       queryClient.invalidateQueries({ queryKey: ["/api/payroll"] });
       setIsDialogOpen(false);
       setEditingPayroll(null);
-      form.reset();
+      form.reset({
+        contractId: contracts.length > 0 ? contracts[0].id : "",
+        year: new Date().getFullYear(),
+        month: new Date().getMonth() + 1,
+        quarter: Math.ceil((new Date().getMonth() + 1) / 3),
+        salarios: "0",
+        horaExtra: "0",
+        beneficios: "0",
+        vt: "0",
+        imestra: "0",
+      });
       toast({
         title: editingPayroll ? "Folha atualizada" : "Folha criada",
         description: editingPayroll 

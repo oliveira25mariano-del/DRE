@@ -85,7 +85,7 @@ export const glosas = pgTable("glosas", {
 // Folha de Pagamento
 export const payroll = pgTable("payroll", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  contractId: varchar("contract_id").references(() => contracts.id),
+  contractId: varchar("contract_id"),
   year: integer("year").notNull(),
   month: integer("month").notNull(),
   quarter: integer("quarter").notNull(),
@@ -255,7 +255,7 @@ export const insertPayrollSchema = createInsertSchema(payroll, {
   createdAt: true,
   updatedAt: true,
 }).extend({
-  contractId: z.string().optional(),
+  contractId: z.string().min(1, "Contrato é obrigatório"),
 });
 
 export const insertPredictionSchema = createInsertSchema(predictions).omit({
