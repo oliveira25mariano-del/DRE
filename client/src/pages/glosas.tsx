@@ -168,32 +168,42 @@ export default function Glosas() {
     return ((totalImpact / baseAmount) * 100).toFixed(1);
   };
 
-  // Prepare analysis chart data for monthly bar chart
+  // Prepare analysis chart data by contract and month
   const analysisData = () => {
-    const monthlyData: { [key: string]: { custoGlosa: number; custoAtestado: number } } = {};
+    const contractMonthData: { [key: string]: { custoGlosa: number; custoAtestado: number; contractName: string } } = {};
     
     (glosas as Glosa[]).forEach((glosa: Glosa) => {
+      const contract = (contracts as any[]).find((c: any) => c.id === glosa.contractId);
+      const contractName = contract ? contract.name : 'Contrato não encontrado';
       const month = format(new Date(glosa.date), 'MMM/yyyy', { locale: ptBR });
+      const key = `${contractName} - ${month}`;
       
-      if (!monthlyData[month]) {
-        monthlyData[month] = { custoGlosa: 0, custoAtestado: 0 };
+      if (!contractMonthData[key]) {
+        contractMonthData[key] = { custoGlosa: 0, custoAtestado: 0, contractName };
       }
       
-      monthlyData[month].custoGlosa += parseFloat(glosa.amount);
-      monthlyData[month].custoAtestado += glosa.attestationCosts ? parseFloat(glosa.attestationCosts) : 0;
+      contractMonthData[key].custoGlosa += parseFloat(glosa.amount);
+      contractMonthData[key].custoAtestado += glosa.attestationCosts ? parseFloat(glosa.attestationCosts) : 0;
     });
     
-    return Object.entries(monthlyData)
-      .map(([month, costs]) => ({
-        mes: month,
-        custoGlosa: costs.custoGlosa,
-        custoAtestado: costs.custoAtestado
+    return Object.entries(contractMonthData)
+      .map(([key, data]) => ({
+        contratoMes: key,
+        custoGlosa: data.custoGlosa,
+        custoAtestado: data.custoAtestado,
+        contractName: data.contractName
       }))
       .sort((a, b) => {
-        const [monthA, yearA] = a.mes.split('/');
-        const [monthB, yearB] = b.mes.split('/');
-        const dateA = new Date(`${monthA} 1, ${yearA}`);
-        const dateB = new Date(`${monthB} 1, ${yearB}`);
+        // Sort by contract name first, then by month
+        const contractComparison = a.contractName.localeCompare(b.contractName);
+        if (contractComparison !== 0) return contractComparison;
+        
+        const monthA = a.contratoMes.split(' - ')[1];
+        const monthB = b.contratoMes.split(' - ')[1];
+        const [monthAName, yearA] = monthA.split('/');
+        const [monthBName, yearB] = monthB.split('/');
+        const dateA = new Date(`${monthAName} 1, ${yearA}`);
+        const dateB = new Date(`${monthBName} 1, ${yearB}`);
         return dateA.getTime() - dateB.getTime();
       });
   };
@@ -953,24 +963,32 @@ export default function Glosas() {
                 Nenhum dado disponível. Crie algumas glosas primeiro.
               </div>
             ) : (
-              <div className="h-80">
+              <div className="h-96">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart 
                     data={chartData} 
-                    margin={{ top: 20, right: 30, left: 60, bottom: 60 }}
-                    barGap={8}
+                    margin={{ top: 20, right: 30, left: 80, bottom: 120 }}
+                    barGap={6}
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke="#3B82F6" opacity={0.3} />
                     <XAxis 
-                      dataKey="mes" 
-                      tick={{ fill: '#DBEAFE', fontSize: 12, fontWeight: 600 }}
-                      angle={-20}
+                      dataKey="contratoMes" 
+                      tick={{ 
+                        fill: '#DBEAFE', 
+                        fontSize: 10, 
+                        fontWeight: 600
+                      }}
+                      angle={-35}
                       textAnchor="end"
-                      height={60}
+                      height={120}
                       interval={0}
                     />
                     <YAxis 
-                      tick={{ fill: '#DBEAFE', fontSize: 11, fontWeight: 600 }}
+                      tick={{ 
+                        fill: '#DBEAFE', 
+                        fontSize: 11, 
+                        fontWeight: 600
+                      }}
                       tickFormatter={(value) => {
                         if (value >= 1000000) {
                           return `R$ ${(value/1000000).toFixed(1)}M`;
@@ -980,14 +998,22 @@ export default function Glosas() {
                         }
                         return `R$ ${value.toFixed(0)}`;
                       }}
-                      width={60}
+                      width={80}
                     />
                     <Tooltip 
                       formatter={(value, name) => [
                         formatCurrency(value as number), 
                         name === 'custoGlosa' ? 'Custo Glosa' : 'Custo Atestado'
                       ]}
-                      labelStyle={{ color: '#1E40AF', fontSize: '13px', fontWeight: 'bold' }}
+                      labelFormatter={(label) => `${label}`}
+                      labelStyle={{ 
+                        color: '#DBEAFE', 
+                        fontSize: '13px', 
+                        fontWeight: 'bold',
+                        backgroundColor: '#1E3A8A',
+                        padding: '4px',
+                        borderRadius: '4px'
+                      }}
                       contentStyle={{ 
                         backgroundColor: '#1E3A8A', 
                         border: '1px solid #3B82F6',
@@ -1002,7 +1028,14 @@ export default function Glosas() {
                       height={40}
                       wrapperStyle={{ paddingTop: '20px' }}
                       formatter={(value) => (
-                        <span style={{ color: '#DBEAFE', fontSize: '12px', fontWeight: 500 }}>
+                        <span style={{ 
+                          color: '#DBEAFE', 
+                          fontSize: '12px', 
+                          fontWeight: 500,
+                          backgroundColor: '#1E3A8A',
+                          padding: '2px 6px',
+                          borderRadius: '4px'
+                        }}>
                           {value === 'custoGlosa' ? 'Custo Glosa' : 'Custo Atestado'}
                         </span>
                       )}
@@ -1027,8 +1060,8 @@ export default function Glosas() {
             {/* Summary Info */}
             {chartData.length > 0 && (
               <div className="mt-4 text-center">
-                <div className="text-sm text-blue-200">
-                  Total de Meses: {chartData.length} | 
+                <div className="text-sm text-blue-200 bg-blue-900/50 px-4 py-2 rounded-lg">
+                  Total de Registros: {chartData.length} | 
                   Custo Total: {formatCurrency(chartData.reduce((sum, item) => sum + item.custoGlosa + item.custoAtestado, 0))}
                 </div>
               </div>

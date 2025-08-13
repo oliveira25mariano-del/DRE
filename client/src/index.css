@@ -133,7 +133,7 @@
   opacity: 1 !important;
 }
 
-/* Ensure chart text is readable */
+/* Ensure chart text is readable with dark background */
 .recharts-text {
   font-weight: 600 !important;
   fill: #DBEAFE !important;
@@ -144,6 +144,20 @@
   fill: #DBEAFE !important;
   font-weight: 600 !important;
   pointer-events: none;
+}
+
+/* Add dark background to axis labels */
+.recharts-cartesian-axis-tick-line {
+  stroke: #3B82F6 !important;
+}
+
+.recharts-xAxis .recharts-cartesian-axis-tick text,
+.recharts-yAxis .recharts-cartesian-axis-tick text {
+  paint-order: stroke fill;
+  stroke: #1E3A8A;
+  stroke-width: 3px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .recharts-legend-item-text {
