@@ -143,19 +143,17 @@ export default function Header({ onLogout }: HeaderProps) {
     <header className="bg-slate-800/90 shadow-md">
       <div className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center space-x-6">
-          <div className="flex items-center space-x-4">
-            <div className="text-white">
-              <div className="text-lg font-medium">
-                {currentDateTime.toLocaleDateString('pt-BR', { 
-                  weekday: 'long',
-                  day: 'numeric', 
-                  month: 'long', 
-                  year: 'numeric' 
-                }).replace(/^\w/, c => c.toUpperCase())}
-              </div>
+          <div className="flex flex-col">
+            <div className="text-white text-sm font-medium">
+              {currentDateTime.toLocaleDateString('pt-BR', { 
+                weekday: 'long',
+                day: 'numeric', 
+                month: 'long', 
+                year: 'numeric' 
+              }).replace(/^\w/, c => c.toUpperCase())}
             </div>
-            <div className="flex items-center space-x-3">
-              <span className="text-white font-mono text-lg font-semibold">
+            <div className="flex items-center space-x-3 mt-1">
+              <span className="text-white font-mono text-xl font-bold">
                 {currentDateTime.toLocaleTimeString('pt-BR', { 
                   hour: '2-digit', 
                   minute: '2-digit', 
