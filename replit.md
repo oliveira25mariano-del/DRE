@@ -28,6 +28,7 @@ The system includes a secure, database-backed authentication system. User regist
 
 ### Core Features and Design Patterns
 The platform incorporates:
+- **MOE (Specialized Workforce) Management:** Complete CRUD system for employee management with advanced filtering by contract, position, and status. Includes real-time MOE cost calculations, professional confirmation modals for deletions, and comprehensive form validation with proper currency formatting and data handling.
 - **Authentication System:** Secure login, role-based access, and admin panel for user management.
 - **Onboarding System:** Interactive tours customizable by user role.
 - **Real-time Dashboard:** Interactive charts (Recharts) display live financial KPIs with automated updates.
@@ -59,6 +60,7 @@ The platform incorporates:
 - **Glosas Monthly Bar Chart (August 2025):** Transformed the chart from donut to monthly bar chart displaying costs aggregated by month (MMM/yyyy format), with separate bars for "Custo Glosa" and "Custo Atestado". Implemented proper date sorting, blue color palette (#3B82F6 and #1D4ED8), improved margins to prevent text overlap, and comprehensive tooltip with currency formatting. Chart now shows temporal progression of costs with clear separation between glosa and attestation costs.
 - **Glosas Contract-Month Chart Enhancement (August 2025):** Final optimization of glosas chart to display data by contract and month combination in format "Contract Name - MMM/yyyy". Removed text truncation to show complete contract names, added dark backgrounds with stroke effects for better text readability, increased margins to accommodate longer labels, and fixed all TypeScript errors. Chart now provides comprehensive view of costs separated by both contract and time period with enhanced visual clarity.
 - **MOE System Complete Resolution (August 2025):** Successfully implemented and tested PATCH and DELETE routes for employees. Fixed missing backend routes, TypeScript compatibility issues in forms, and client-side delete confirmation flow. Both employee editing and deletion now fully functional with proper cache invalidation, real-time UI updates, and comprehensive error handling. System includes enhanced confirmation dialogs with employee names for better UX.
+- **MOE Modal Enhancement (August 2025):** Replaced native browser alert with elegant custom modal for deletion confirmation. Implemented centered dialog with clean design, clear action buttons (Cancelar/Excluir), employee name display, loading states, and proper state management. Modal provides professional user experience with consistent visual design matching the application theme.
 
 ## External Dependencies
 
