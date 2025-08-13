@@ -24,8 +24,8 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 
 export default function Glosas() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedContract, setSelectedContract] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState("");
+  const [selectedContract, setSelectedContract] = useState("all");
+  const [selectedStatus, setSelectedStatus] = useState("all");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -125,8 +125,8 @@ export default function Glosas() {
 
   const filteredGlosas = (glosas as Glosa[]).filter((glosa: Glosa) => {
     const matchesSearch = glosa.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesContract = !selectedContract || glosa.contractId === selectedContract;
-    const matchesStatus = !selectedStatus || glosa.status === selectedStatus;
+    const matchesContract = !selectedContract || selectedContract === 'all' || glosa.contractId === selectedContract;
+    const matchesStatus = !selectedStatus || selectedStatus === 'all' || glosa.status === selectedStatus;
     
     return matchesSearch && matchesContract && matchesStatus;
   });
@@ -314,7 +314,7 @@ export default function Glosas() {
                 <SelectValue placeholder="Filtrar por contrato" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos os contratos</SelectItem>
+                <SelectItem value="all">Todos os contratos</SelectItem>
                 {(contracts as any[]).map((contract: any) => (
                   <SelectItem key={contract.id} value={contract.id}>
                     {contract.name}
@@ -327,7 +327,7 @@ export default function Glosas() {
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos</SelectItem>
+                <SelectItem value="all">Todos</SelectItem>
                 <SelectItem value="pending">Pendente</SelectItem>
                 <SelectItem value="approved">Aprovada</SelectItem>
                 <SelectItem value="rejected">Rejeitada</SelectItem>
