@@ -126,7 +126,18 @@ export default function Glosas() {
   };
 
   const onSubmit = (data: InsertGlosa) => {
-    createMutation.mutate(data);
+    console.log("📝 Dados brutos do formulário de glosa:", data);
+    
+    // Process data to ensure proper formatting
+    const processedData = {
+      ...data,
+      amount: data.amount?.toString() || "0",
+      attestationCosts: data.attestationCosts?.toString() || null,
+      reason: data.reason || null,
+    };
+    
+    console.log("✅ Dados processados para envio:", processedData);
+    createMutation.mutate(processedData);
   };
 
   return (
@@ -363,7 +374,10 @@ export default function Glosas() {
                                 placeholder="Motivo da glosa" 
                                 className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
                                 rows={2}
-                                {...field} 
+                                value={field.value || ""}
+                                onChange={field.onChange}
+                                onBlur={field.onBlur}
+                                name={field.name}
                               />
                             </FormControl>
                             <FormMessage />
@@ -417,13 +431,7 @@ export default function Glosas() {
                   try {
                     await exportUtils.showExportModal(
                       exportData,
-                      `glosas`,
-                      'glosas-table-content',
-                      {
-                        title: 'Relatório de Glosas',
-                        subtitle: `Total de ${filteredGlosas.length} glosas - Gerado em ${new Date().toLocaleDateString('pt-BR')}`,
-                        orientation: 'landscape'
-                      }
+                      'glosas'
                     );
 
                     toast({

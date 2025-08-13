@@ -229,7 +229,11 @@ export const insertEmployeeSchema = createInsertSchema(employees).omit({
   createdAt: true,
 });
 
-export const insertGlosaSchema = createInsertSchema(glosas).omit({
+export const insertGlosaSchema = createInsertSchema(glosas, {
+  date: z.coerce.date(),
+  amount: z.coerce.string(),
+  attestationCosts: z.coerce.string().optional().nullable(),
+}).omit({
   id: true,
   createdAt: true,
 });
