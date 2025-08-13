@@ -160,88 +160,106 @@ export const exportUtils = {
     return `${baseName}_${timestamp}${ext}`;
   },
 
-  // Show export options modal
+  // Show export modal with options
   showExportModal: (options: {
     title: string;
     data: any[];
+    pdfElementId?: string;
     elementId?: string;
-    pdfOptions?: {
-      title?: string;
-      subtitle?: string;
-      orientation?: 'portrait' | 'landscape';
-    }
   }) => {
-    return new Promise<string>((resolve) => {
-      const modal = document.createElement('div');
-      modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/50';
-      modal.innerHTML = `
-        <div class="bg-blue-900 border border-blue-400/30 rounded-lg p-6 max-w-md w-full mx-4">
-          <h3 class="text-white text-lg font-semibold mb-4">Exportar Dados</h3>
-          <p class="text-blue-300 text-sm mb-6">Escolha o formato de exportação:</p>
-          <div class="space-y-3">
-            <button data-format="pdf" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-colors">
-              📄 Exportar como PDF
-            </button>
-            <button data-format="csv" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-colors">
-              📊 Exportar como CSV
-            </button>
-            <button data-format="excel" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-colors">
-              📈 Exportar como Excel
-            </button>
-            <button data-format="json" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-colors">
-              🔗 Exportar como JSON
-            </button>
-            <button data-format="cancel" class="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-md transition-colors">
+    return new Promise<void>((resolve, reject) => {
+      try {
+        // Create modal element
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        modal.innerHTML = `
+          <div class="bg-white dark:bg-slate-800 rounded-lg p-6 w-96 max-w-md mx-4">
+            <h3 class="text-lg font-semibold mb-4 text-slate-900 dark:text-white">Exportar Dados</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">${options.title}</p>
+            <div class="space-y-3">
+              <button id="export-csv" class="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+                Exportar CSV
+              </button>
+              <button id="export-excel" class="w-full px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
+                Exportar Excel
+              </button>
+              <button id="export-pdf" class="w-full px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors">
+                Exportar PDF
+              </button>
+              <button id="export-json" class="w-full px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors">
+                Exportar JSON
+              </button>
+            </div>
+            <button id="export-cancel" class="w-full mt-4 px-4 py-2 bg-slate-500 text-white rounded hover:bg-slate-600 transition-colors">
               Cancelar
             </button>
           </div>
-        </div>
-      `;
+        `;
 
-      document.body.appendChild(modal);
+        document.body.appendChild(modal);
 
-      modal.addEventListener('click', async (e) => {
-        const target = e.target as HTMLButtonElement;
-        const format = target.getAttribute('data-format');
-        
-        if (format && format !== 'cancel') {
-          const filename = exportUtils.generateFilename(options.title);
-          
-          try {
-            switch (format) {
-              case 'pdf':
-                if (options.elementId) {
-                  await exportUtils.exportToPDF(options.elementId, filename, {
-                    ...options.pdfOptions,
-                    title: options.pdfOptions?.title || `Relatório - ${options.title}`,
-                    subtitle: options.pdfOptions?.subtitle || `Gerado em ${new Date().toLocaleDateString('pt-BR')}`
-                  });
-                } else {
-                  throw new Error('PDF export requires elementId');
-                }
-                break;
-              case 'csv':
-                exportUtils.exportToCSV(options.data, filename);
-                break;
-              case 'excel':
-                exportUtils.exportToExcel(options.data, filename);
-                break;
-              case 'json':
-                exportUtils.exportToJSON(options.data, filename);
-                break;
+        const closeModal = () => {
+          document.body.removeChild(modal);
+        };
+
+        // CSV Export
+        document.getElementById('export-csv')?.addEventListener('click', () => {
+          exportUtils.exportToCSV(options.data, options.title);
+          closeModal();
+          resolve();
+        });
+
+        // Excel Export
+        document.getElementById('export-excel')?.addEventListener('click', () => {
+          exportUtils.exportToExcel(options.data, options.title);
+          closeModal();
+          resolve();
+        });
+
+        // PDF Export
+        document.getElementById('export-pdf')?.addEventListener('click', async () => {
+          const elementId = options.pdfElementId || options.elementId;
+          if (elementId) {
+            try {
+              await exportUtils.exportToPDF(elementId, options.title, {
+                title: options.title,
+                orientation: 'landscape'
+              });
+            } catch (error) {
+              console.warn('PDF export failed, falling back to CSV:', error);
+              exportUtils.exportToCSV(options.data, options.title);
             }
-            resolve(format);
-          } catch (error) {
-            console.error('Erro na exportação:', error);
-            alert('Erro ao exportar dados. Tente novamente.');
-            resolve('error');
+          } else {
+            exportUtils.exportToCSV(options.data, options.title);
           }
-        } else {
-          resolve('cancel');
-        }
-        
-        document.body.removeChild(modal);
-      });
+          closeModal();
+          resolve();
+        });
+
+        // JSON Export
+        document.getElementById('export-json')?.addEventListener('click', () => {
+          exportUtils.exportToJSON(options.data, options.title);
+          closeModal();
+          resolve();
+        });
+
+        // Cancel
+        document.getElementById('export-cancel')?.addEventListener('click', () => {
+          closeModal();
+          resolve();
+        });
+
+        // Close on backdrop click
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) {
+            closeModal();
+            resolve();
+          }
+        });
+
+      } catch (error) {
+        reject(error);
+      }
     });
   }
 };
