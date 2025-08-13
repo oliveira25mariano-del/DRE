@@ -165,10 +165,28 @@ export default function Folha() {
   };
 
   const formatCurrency = (value: string) => {
+    const num = parseFloat(value) || 0;
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
-      currency: 'BRL'
-    }).format(parseFloat(value) || 0);
+      currency: 'BRL',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(num);
+  };
+
+  const formatCompactCurrency = (value: string) => {
+    const num = parseFloat(value) || 0;
+    if (num >= 1000000) {
+      return `R$ ${(num / 1000000).toFixed(1)}M`;
+    } else if (num >= 1000) {
+      return `R$ ${(num / 1000).toFixed(1)}K`;
+    }
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(num);
   };
 
   const getContractName = (contractId: string) => {
@@ -694,23 +712,23 @@ export default function Folha() {
                             : item.year.toString()
                           }
                         </TableCell>
-                        <TableCell className="text-right text-blue-600 font-medium">
-                          {formatCurrency(item.salarios)}
+                        <TableCell className="text-right text-blue-400 font-medium text-sm">
+                          {formatCompactCurrency(item.salarios)}
                         </TableCell>
-                        <TableCell className="text-right text-blue-500 font-medium">
-                          {formatCurrency(item.horaExtra)}
+                        <TableCell className="text-right text-blue-400 font-medium text-sm">
+                          {formatCompactCurrency(item.horaExtra)}
                         </TableCell>
-                        <TableCell className="text-right text-blue-700 font-medium">
-                          {formatCurrency(item.beneficios)}
+                        <TableCell className="text-right text-blue-400 font-medium text-sm">
+                          {formatCompactCurrency(item.beneficios)}
                         </TableCell>
-                        <TableCell className="text-right text-blue-800 font-medium">
-                          {formatCurrency(item.vt)}
+                        <TableCell className="text-right text-blue-400 font-medium text-sm">
+                          {formatCompactCurrency(item.vt)}
                         </TableCell>
-                        <TableCell className="text-right text-blue-900 font-medium">
-                          {formatCurrency(item.imestra)}
+                        <TableCell className="text-right text-blue-400 font-medium text-sm">
+                          {formatCompactCurrency(item.imestra)}
                         </TableCell>
-                        <TableCell className="text-right font-bold text-gray-900 dark:text-white">
-                          {formatCurrency(total.toString())}
+                        <TableCell className="text-right font-bold text-white dark:text-white text-sm">
+                          {formatCompactCurrency(total.toString())}
                         </TableCell>
                         <TableCell className="text-center">
                           <div className="flex justify-center gap-2">
