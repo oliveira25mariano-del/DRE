@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
+import { exportUtils } from '@/lib/exportUtils';
 import {
   TrendingUp,
   TrendingDown,
@@ -253,7 +254,7 @@ export default function FinancialAnalysis() {
   };
 
   return (
-    <div className="space-y-6">
+    <div id="financial-analysis-content" className="space-y-6">
       {/* Header com Filtros */}
       <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
         <div>
@@ -303,6 +304,114 @@ export default function FinancialAnalysis() {
             variant="outline"
             size="sm"
             className="border-blue-400/30 text-blue-200 hover:bg-blue-600/20"
+            onClick={async () => {
+              // Preparar dados para exportação baseados na visualização atual
+              let exportData: any[] = [];
+              
+              if (viewPeriod === 'monthly') {
+                exportData = monthlyAggregated.map(item => ({
+                  "Período": `${item.month}/${item.year}`,
+                  "Receita Orçada": formatCurrency(item.totalBudgetedRevenue),
+                  "Receita Realizada": formatCurrency(item.totalActualRevenue),
+                  "Custos Orçados": formatCurrency(item.totalBudgetedCosts),
+                  "Custos Realizados": formatCurrency(item.totalActualCosts),
+                  "Margem": formatCurrency(item.overallMargin),
+                  "Margem (%)": formatPercentage(item.marginPercentage || 0),
+                  "Variação": formatCurrency(item.variance || 0),
+                  "Variação (%)": formatPercentage(item.variancePercentage || 0),
+                  "Contratos": item.contractsCount
+                }));
+              } else if (viewPeriod === 'quarterly') {
+                // Agrupar dados por trimestre
+                const quarterlyData = monthlyAggregated.reduce((acc: any, item) => {
+                  const quarter = Math.ceil(parseInt(item.month) / 3);
+                  const key = `Q${quarter}-${item.year}`;
+                  if (!acc[key]) {
+                    acc[key] = {
+                      quarter: key,
+                      totalBudgetedRevenue: 0,
+                      totalActualRevenue: 0,
+                      totalBudgetedCosts: 0,
+                      totalActualCosts: 0,
+                      contractsCount: 0
+                    };
+                  }
+                  acc[key].totalBudgetedRevenue += item.totalBudgetedRevenue;
+                  acc[key].totalActualRevenue += item.totalActualRevenue;
+                  acc[key].totalBudgetedCosts += item.totalBudgetedCosts;
+                  acc[key].totalActualCosts += item.totalActualCosts;
+                  acc[key].contractsCount += item.contractsCount;
+                  return acc;
+                }, {});
+
+                exportData = Object.values(quarterlyData).map((item: any) => ({
+                  "Período": item.quarter,
+                  "Receita Orçada": formatCurrency(item.totalBudgetedRevenue),
+                  "Receita Realizada": formatCurrency(item.totalActualRevenue),
+                  "Custos Orçados": formatCurrency(item.totalBudgetedCosts),
+                  "Custos Realizados": formatCurrency(item.totalActualCosts),
+                  "Margem": formatCurrency(item.totalActualRevenue - item.totalActualCosts),
+                  "Margem (%)": formatPercentage(((item.totalActualRevenue - item.totalActualCosts) / item.totalActualRevenue) * 100),
+                  "Contratos": item.contractsCount
+                }));
+              } else {
+                // Dados anuais
+                const annualData = monthlyAggregated.reduce((acc: any, item) => {
+                  const key = item.year.toString();
+                  if (!acc[key]) {
+                    acc[key] = {
+                      year: item.year,
+                      totalBudgetedRevenue: 0,
+                      totalActualRevenue: 0,
+                      totalBudgetedCosts: 0,
+                      totalActualCosts: 0,
+                      contractsCount: 0
+                    };
+                  }
+                  acc[key].totalBudgetedRevenue += item.totalBudgetedRevenue;
+                  acc[key].totalActualRevenue += item.totalActualRevenue;
+                  acc[key].totalBudgetedCosts += item.totalBudgetedCosts;
+                  acc[key].totalActualCosts += item.totalActualCosts;
+                  acc[key].contractsCount += item.contractsCount;
+                  return acc;
+                }, {});
+
+                exportData = Object.values(annualData).map((item: any) => ({
+                  "Período": item.year,
+                  "Receita Orçada": formatCurrency(item.totalBudgetedRevenue),
+                  "Receita Realizada": formatCurrency(item.totalActualRevenue),
+                  "Custos Orçados": formatCurrency(item.totalBudgetedCosts),
+                  "Custos Realizados": formatCurrency(item.totalActualCosts),
+                  "Margem": formatCurrency(item.totalActualRevenue - item.totalActualCosts),
+                  "Margem (%)": formatPercentage(((item.totalActualRevenue - item.totalActualCosts) / item.totalActualRevenue) * 100),
+                  "Contratos": item.contractsCount
+                }));
+              }
+
+              try {
+                await exportUtils.showExportModal(
+                  exportData,
+                  `analise_financeira_${viewPeriod}_${selectedContract !== 'all' ? selectedContract : 'todos'}`,
+                  'financial-analysis-content',
+                  {
+                    title: 'Análise Financeira por Contrato',
+                    subtitle: `Visão ${viewPeriod === 'monthly' ? 'Mensal' : viewPeriod === 'quarterly' ? 'Trimestral' : 'Anual'} - ${selectedContract === 'all' ? 'Todos os Contratos' : contracts.find(c => c.id === selectedContract)?.name || selectedContract} - Gerado em ${new Date().toLocaleDateString('pt-BR')}`,
+                    orientation: 'landscape'
+                  }
+                );
+
+                toast({
+                  title: "Análise Exportada",
+                  description: `Relatório de análise financeira exportado com ${exportData.length} registros`,
+                });
+              } catch (error) {
+                toast({
+                  title: "Erro na Exportação",
+                  description: "Erro ao exportar análise. Tente novamente.",
+                  variant: "destructive",
+                });
+              }
+            }}
           >
             <Download className="w-4 h-4 mr-2" />
             Exportar
