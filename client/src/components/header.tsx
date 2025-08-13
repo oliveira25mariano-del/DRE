@@ -144,7 +144,7 @@ export default function Header({ onLogout }: HeaderProps) {
       <div className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center space-x-6">
           <div className="flex flex-col">
-            <div className="text-white text-sm font-medium">
+            <div className="text-white text-xs font-medium opacity-80">
               {currentDateTime.toLocaleDateString('pt-BR', { 
                 weekday: 'long',
                 day: 'numeric', 
