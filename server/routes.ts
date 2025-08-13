@@ -536,7 +536,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/vagas', async (req, res) => {
     try {
       const contractId = req.query.contractId as string;
-      const vagas = await storage.getVagas(contractId);
+      // Se contractId for "all" ou vazio, passar undefined para buscar todas as vagas
+      const finalContractId = contractId === "all" || !contractId ? undefined : contractId;
+      const vagas = await storage.getVagas(finalContractId);
       res.json(vagas);
     } catch (error) {
       res.status(500).json({ message: error instanceof Error ? error.message : 'Error fetching vagas' });
@@ -546,7 +548,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/vagas/metrics', async (req, res) => {
     try {
       const contractId = req.query.contractId as string;
-      const metrics = await storage.getVagasMetrics(contractId);
+      // Se contractId for "all" ou vazio, passar undefined para buscar métricas de todos os contratos
+      const finalContractId = contractId === "all" || !contractId ? undefined : contractId;
+      const metrics = await storage.getVagasMetrics(finalContractId);
       res.json(metrics);
     } catch (error) {
       res.status(500).json({ message: error instanceof Error ? error.message : 'Error fetching vagas metrics' });

@@ -42,8 +42,8 @@ const prioridadeOptions = [
 const CHART_COLORS = ['#1e40af', '#3b82f6', '#60a5fa', '#93c5fd', '#dbeafe'];
 
 export default function VagasPage() {
-  const [selectedContract, setSelectedContract] = useState<string>("");
-  const [filterStatus, setFilterStatus] = useState<string>("");
+  const [selectedContract, setSelectedContract] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingVaga, setEditingVaga] = useState<Vaga | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -56,10 +56,18 @@ export default function VagasPage() {
 
   const { data: vagas, isLoading: vagasLoading } = useQuery<Vaga[]>({
     queryKey: ["/api/vagas", selectedContract],
+    queryFn: () => {
+      const contractParam = selectedContract === "all" ? "" : selectedContract;
+      return apiRequest(`/api/vagas${contractParam ? `?contractId=${contractParam}` : ""}`);
+    }
   });
 
   const { data: metrics, isLoading: metricsLoading } = useQuery({
     queryKey: ["/api/vagas/metrics", selectedContract],
+    queryFn: () => {
+      const contractParam = selectedContract === "all" ? "" : selectedContract;
+      return apiRequest(`/api/vagas/metrics${contractParam ? `?contractId=${contractParam}` : ""}`);
+    }
   });
 
   const form = useForm<FormValues>({
@@ -134,7 +142,7 @@ export default function VagasPage() {
   }, [editingVaga, form]);
 
   const filteredVagas = vagas?.filter(vaga => {
-    const matchesStatus = !filterStatus || vaga.status === filterStatus;
+    const matchesStatus = filterStatus === "all" || vaga.status === filterStatus;
     const matchesSearch = !searchQuery || 
       vaga.titulo.toLowerCase().includes(searchQuery.toLowerCase()) ||
       vaga.departamento?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -152,7 +160,7 @@ export default function VagasPage() {
   const handleNewVaga = () => {
     setEditingVaga(null);
     form.reset({
-      contratoId: selectedContract || "",
+      contratoId: selectedContract === "all" ? "" : selectedContract,
       titulo: "",
       descricao: "",
       status: "aberta",
@@ -192,7 +200,7 @@ export default function VagasPage() {
             <SelectValue placeholder="Todos os Contratos" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Todos os Contratos</SelectItem>
+            <SelectItem value="all">Todos os Contratos</SelectItem>
             {contracts?.map((contract) => (
               <SelectItem key={contract.id} value={contract.id}>
                 {contract.name}
@@ -206,7 +214,7 @@ export default function VagasPage() {
             <SelectValue placeholder="Todos Status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Todos Status</SelectItem>
+            <SelectItem value="all">Todos Status</SelectItem>
             {statusOptions.map((option) => (
               <SelectItem key={option.value} value={option.value}>
                 {option.label}
