@@ -188,6 +188,11 @@ export default function MOE() {
     }
   };
 
+  const handleView = (employee: Employee) => {
+    setSelectedEmployee(employee);
+    setIsViewDialogOpen(true);
+  };
+
   const handleEdit = (employee: Employee) => {
     setSelectedEmployee(employee);
     editFormConfig.reset({
@@ -202,6 +207,12 @@ export default function MOE() {
       active: employee.active,
     });
     setIsEditDialogOpen(true);
+  };
+
+  const handleDelete = (id: string) => {
+    if (confirm("Tem certeza que deseja excluir este colaborador?")) {
+      deleteMutation.mutate(id);
+    }
   };
 
   return (
@@ -622,10 +633,7 @@ export default function MOE() {
                                 size="sm" 
                                 variant="ghost" 
                                 className="text-blue-300 hover:text-blue-100"
-                                onClick={() => {
-                                  setSelectedEmployee(employee);
-                                  setIsViewDialogOpen(true);
-                                }}
+                                onClick={() => handleView(employee)}
                               >
                                 <Eye className="w-4 h-4" />
                               </Button>
@@ -641,11 +649,7 @@ export default function MOE() {
                                 size="sm" 
                                 variant="ghost" 
                                 className="text-red-300 hover:text-red-100"
-                                onClick={() => {
-                                  if (confirm("Tem certeza que deseja excluir este colaborador?")) {
-                                    deleteMutation.mutate(employee.id);
-                                  }
-                                }}
+                                onClick={() => handleDelete(employee.id)}
                               >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
