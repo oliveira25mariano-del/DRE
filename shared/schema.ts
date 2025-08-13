@@ -85,7 +85,7 @@ export const glosas = pgTable("glosas", {
 // Folha de Pagamento
 export const payroll = pgTable("payroll", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  contractId: varchar("contract_id").references(() => contracts.id).notNull(),
+  contractId: varchar("contract_id").references(() => contracts.id),
   year: integer("year").notNull(),
   month: integer("month").notNull(),
   quarter: integer("quarter").notNull(),
