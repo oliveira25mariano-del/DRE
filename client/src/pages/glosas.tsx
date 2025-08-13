@@ -20,7 +20,7 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
 
 export default function Glosas() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -168,20 +168,26 @@ export default function Glosas() {
     return ((totalImpact / baseAmount) * 100).toFixed(1);
   };
 
-  // Prepare analysis chart data
+  // Prepare analysis chart data for donut chart
   const analysisData = (contracts as any[]).map((contract: any) => {
     const contractGlosas = (glosas as Glosa[]).filter((glosa: Glosa) => glosa.contractId === contract.id);
     const custoGlosa = contractGlosas.reduce((sum, glosa) => sum + parseFloat(glosa.amount), 0);
     const custoAtestado = contractGlosas.reduce((sum, glosa) => {
       return sum + (glosa.attestationCosts ? parseFloat(glosa.attestationCosts) : 0);
     }, 0);
+    const totalCost = custoGlosa + custoAtestado;
     
     return {
-      contract: contract.name.length > 12 ? contract.name.substring(0, 12) + "..." : contract.name,
+      name: contract.name,
+      value: totalCost,
       custoGlosa,
       custoAtestado,
+      fullName: contract.name
     };
-  }).filter(item => item.custoGlosa > 0 || item.custoAtestado > 0);
+  }).filter(item => item.value > 0);
+
+  // Colors for the donut chart
+  const COLORS = ['#3B82F6', '#1D4ED8', '#2563EB', '#1E40AF', '#1E3A8A'];
 
   const onSubmit = (data: InsertGlosa) => {
     const processedData = {
@@ -936,77 +942,75 @@ export default function Glosas() {
                 Nenhum dado disponível. Crie algumas glosas primeiro.
               </div>
             ) : (
-              <div className="h-80">
+              <div className="h-96">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart 
-                    data={analysisData} 
-                    margin={{ top: 15, right: 30, left: 75, bottom: 70 }}
-                    barGap={4}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" stroke="#3B82F6" opacity={0.2} />
-                    <XAxis 
-                      dataKey="contract" 
-                      tick={{ fill: '#DBEAFE', fontSize: 11, fontWeight: 600 }}
-                      angle={-20}
-                      textAnchor="end"
-                      height={70}
-                      interval={0}
-                    />
-                    <YAxis 
-                      tick={{ fill: '#DBEAFE', fontSize: 12, fontWeight: 600 }}
-                      tickFormatter={(value) => {
-                        if (value >= 1000000) {
-                          return `R$ ${(value/1000000).toFixed(1)}M`;
-                        }
-                        if (value >= 1000) {
-                          return `R$ ${(value/1000).toFixed(0)}k`;
-                        }
-                        return `R$ ${value.toFixed(0)}`;
+                  <PieChart>
+                    <Pie
+                      data={analysisData}
+                      cx="50%"
+                      cy="45%"
+                      labelLine={false}
+                      label={(entry) => {
+                        const name = entry.name.length > 15 ? entry.name.substring(0, 15) + "..." : entry.name;
+                        return `${name}: ${formatCurrency(entry.value)}`;
                       }}
-                      width={75}
-                    />
+                      outerRadius={100}
+                      innerRadius={40}
+                      fill="#8884d8"
+                      dataKey="value"
+                      stroke="none"
+                    >
+                      {analysisData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
                     <Tooltip 
-                      formatter={(value, name) => [
-                        formatCurrency(value as number), 
-                        name === 'custoGlosa' ? 'Custo Glosa' : 'Custo Atestado'
+                      formatter={(value: any, name: any, props: any) => [
+                        <div key="tooltip" className="space-y-1">
+                          <div className="font-semibold">{props.payload.fullName}</div>
+                          <div>Custo Total: {formatCurrency(value)}</div>
+                          <div>Custo Glosa: {formatCurrency(props.payload.custoGlosa)}</div>
+                          <div>Custo Atestado: {formatCurrency(props.payload.custoAtestado)}</div>
+                        </div>
                       ]}
-                      labelStyle={{ color: '#1E40AF', fontSize: '13px', fontWeight: 'bold' }}
+                      labelStyle={{ color: '#1E40AF', fontSize: '14px', fontWeight: 'bold' }}
                       contentStyle={{ 
                         backgroundColor: '#1E3A8A', 
                         border: '1px solid #3B82F6',
                         borderRadius: '8px',
                         fontSize: '13px',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                        color: '#DBEAFE'
                       }}
                     />
-                    <Bar 
-                      dataKey="custoGlosa" 
-                      fill="#3B82F6" 
-                      radius={[2, 2, 0, 0]}
-                      name="custoGlosa"
+                    <Legend 
+                      verticalAlign="bottom" 
+                      height={60}
+                      formatter={(value, entry: any) => {
+                        const name = entry.payload.name.length > 20 ? 
+                          entry.payload.name.substring(0, 20) + "..." : 
+                          entry.payload.name;
+                        return <span style={{ color: '#DBEAFE', fontSize: '12px' }}>{name}</span>;
+                      }}
+                      wrapperStyle={{
+                        paddingTop: '10px',
+                        fontSize: '12px'
+                      }}
                     />
-                    <Bar 
-                      dataKey="custoAtestado" 
-                      fill="#1D4ED8" 
-                      radius={[2, 2, 0, 0]}
-                      name="custoAtestado"
-                    />
-                  </BarChart>
+                  </PieChart>
                 </ResponsiveContainer>
               </div>
             )}
             
-            {/* Legend */}
-            <div className="flex justify-center gap-6 pt-2">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-blue-500 rounded"></div>
-                <span className="text-sm text-blue-100">Custo Glosa</span>
+            {/* Summary Info */}
+            {analysisData.length > 0 && (
+              <div className="mt-4 text-center">
+                <div className="text-sm text-blue-200">
+                  Total de Contratos: {analysisData.length} | 
+                  Custo Total: {formatCurrency(analysisData.reduce((sum, item) => sum + item.value, 0))}
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 bg-blue-700 rounded"></div>
-                <span className="text-sm text-blue-100">Custo Atestado</span>
-              </div>
-            </div>
+            )}
           </div>
         </DialogContent>
       </Dialog>

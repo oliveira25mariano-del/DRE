@@ -121,74 +121,42 @@
   animation: pulse 3s infinite;
 }
 
-/* Remove hover effects from Recharts bars and tooltips */
-.recharts-bar-rectangle:hover,
-.recharts-bar-rectangle:focus {
-  filter: none !important;
-  opacity: 1 !important;
+/* Recharts donut chart styling */
+.recharts-pie-sector {
   stroke: none !important;
   stroke-width: 0 !important;
 }
 
-.recharts-bar:hover .recharts-bar-rectangle,
-.recharts-bar:focus .recharts-bar-rectangle {
-  filter: none !important;
+.recharts-pie-sector:hover {
+  filter: brightness(1.1) !important;
   opacity: 1 !important;
-  stroke: none !important;
-  stroke-width: 0 !important;
 }
 
-.recharts-active-bar {
-  filter: none !important;
-  opacity: 1 !important;
-  stroke: none !important;
-  stroke-width: 0 !important;
-}
-
-/* Remove all hover states */
-.recharts-bar rect:hover,
-.recharts-bar rect:focus {
-  filter: none !important;
-  opacity: 1 !important;
-  fill-opacity: 1 !important;
-}
-
-/* Ensure chart text is always visible and readable */
+/* Ensure chart text is readable */
 .recharts-text {
-  pointer-events: none;
-  font-weight: 600 !important;
-}
-
-.recharts-cartesian-axis-tick text {
-  pointer-events: none;
   font-weight: 600 !important;
   fill: #DBEAFE !important;
+  font-size: 11px !important;
 }
 
-.recharts-cartesian-grid line {
-  stroke: #3B82F6 !important;
-  stroke-opacity: 0.2 !important;
+.recharts-pie-label-text {
+  fill: #DBEAFE !important;
+  font-weight: 600 !important;
+  font-size: 11px !important;
+  pointer-events: none;
 }
 
-/* Force remove all white backgrounds and hover effects */
+.recharts-legend-item-text {
+  color: #DBEAFE !important;
+  font-weight: 500 !important;
+}
+
+/* Remove tooltip cursor */
 .recharts-tooltip-cursor {
   display: none !important;
 }
 
-.recharts-active-bar rect,
-.recharts-bar rect:active,
-.recharts-bar rect[class*="active"] {
-  stroke: none !important;
-  stroke-width: 0 !important;
-  fill-opacity: 1 !important;
-}
-
-/* Remove any white overlay or highlight */
-.recharts-bar-rectangle::before,
-.recharts-bar-rectangle::after {
-  display: none !important;
-}
-
+/* Force remove any white backgrounds */
 .recharts-layer > rect[fill="white"],
 .recharts-layer > rect[fill="#ffffff"],
 .recharts-layer > rect[fill="#fff"] {
