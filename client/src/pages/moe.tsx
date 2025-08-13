@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Plus, Search, Eye, Edit, Trash2, Users, Clock, BarChart3 } from "lucide-react";
@@ -252,6 +252,9 @@ export default function MOE() {
                 <DialogContent className="max-w-4xl bg-blue-bg border-blue-400/30">
                   <DialogHeader>
                     <DialogTitle className="text-white">Adicionar Colaborador</DialogTitle>
+                    <DialogDescription className="text-blue-200">
+                      Adicione um novo colaborador ao sistema MOE
+                    </DialogDescription>
                   </DialogHeader>
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -808,6 +811,9 @@ export default function MOE() {
         <DialogContent className="max-w-2xl bg-blue-bg border-blue-400/30">
           <DialogHeader>
             <DialogTitle className="text-white">Detalhes do Colaborador</DialogTitle>
+            <DialogDescription className="text-blue-200">
+              Visualização completa dos dados do colaborador selecionado
+            </DialogDescription>
           </DialogHeader>
           {selectedEmployee && (
             <div className="space-y-4 p-4">
@@ -863,6 +869,9 @@ export default function MOE() {
         <DialogContent className="max-w-4xl bg-blue-bg border-blue-400/30">
           <DialogHeader>
             <DialogTitle className="text-white">Editar Colaborador</DialogTitle>
+            <DialogDescription className="text-blue-200">
+              Edite os dados do colaborador selecionado
+            </DialogDescription>
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -958,7 +967,10 @@ export default function MOE() {
                           step="0.01"
                           placeholder="0.00" 
                           className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
-                          {...field}
+                          value={field.value || ""}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                          name={field.name}
                         />
                       </FormControl>
                       <FormMessage />
@@ -978,7 +990,10 @@ export default function MOE() {
                           step="0.5"
                           placeholder="0" 
                           className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
-                          {...field}
+                          value={field.value || ""}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                          name={field.name}
                         />
                       </FormControl>
                       <FormMessage />
