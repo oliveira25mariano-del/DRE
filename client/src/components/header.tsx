@@ -24,6 +24,7 @@ export default function Header({ onLogout }: HeaderProps) {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isThemeCustomizerOpen, setIsThemeCustomizerOpen] = useState(false);
+  const [currentDateTime, setCurrentDateTime] = useState(new Date());
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -56,6 +57,15 @@ export default function Header({ onLogout }: HeaderProps) {
 
     window.addEventListener('userProfileUpdate', handleProfileUpdate as EventListener);
     return () => window.removeEventListener('userProfileUpdate', handleProfileUpdate as EventListener);
+  }, []);
+
+  // Atualizar data e hora a cada segundo
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentDateTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
   }, []);
 
   // Salvar dados do perfil no localStorage
@@ -135,9 +145,23 @@ export default function Header({ onLogout }: HeaderProps) {
         <div className="flex items-center space-x-4">
           <h2 className="text-2xl font-semibold text-white">Dashboard Financeiro</h2>
           <div className="flex items-center space-x-2">
-            <Badge variant="secondary" className="bg-slate-700/80 text-white">
-              {new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
-            </Badge>
+            <div className="flex items-center space-x-3">
+              <Badge variant="secondary" className="bg-slate-700/80 text-white">
+                {currentDateTime.toLocaleDateString('pt-BR', { 
+                  weekday: 'long',
+                  day: 'numeric', 
+                  month: 'long', 
+                  year: 'numeric' 
+                })}
+              </Badge>
+              <Badge variant="secondary" className="bg-blue-700/80 text-white font-mono">
+                {currentDateTime.toLocaleTimeString('pt-BR', { 
+                  hour: '2-digit', 
+                  minute: '2-digit', 
+                  second: '2-digit' 
+                })}
+              </Badge>
+            </div>
             <div className="bg-emerald-500 w-2 h-2 rounded-full animate-pulse" title="Sistema Online"></div>
           </div>
         </div>
