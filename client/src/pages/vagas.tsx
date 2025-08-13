@@ -358,8 +358,8 @@ export default function VagasPage() {
                       borderRadius: '8px'
                     }} 
                   />
-                  <Bar dataKey="abertas" fill="#3b82f6" name="Abertas" />
-                  <Bar dataKey="fechadas" fill="#10b981" name="Fechadas" />
+                  <Bar dataKey="abertas" fill="#60a5fa" name="Abertas" />
+                  <Bar dataKey="fechadas" fill="#1d4ed8" name="Fechadas" />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -389,7 +389,7 @@ export default function VagasPage() {
                     }} 
                     formatter={(value: any) => [`${value}%`, 'TFV']}
                   />
-                  <Bar dataKey="tfv" fill="#1e40af" />
+                  <Bar dataKey="tfv" fill="#2563eb" />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
