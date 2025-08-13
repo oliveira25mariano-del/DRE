@@ -328,11 +328,11 @@ export class MemStorage implements IStorage {
       const contract: Contract = {
         ...contractData,
         id,
-        margin: contractData.margin || null,
+        margin: (contractData as any).margin || null,
         description: contractData.description || null,
         contact: contractData.contact || null,
         categories: contractData.categories || null,
-        endDate: contractData.endDate || null,
+        endDate: (contractData as any).endDate || null,
         startDate: new Date(contractData.startDate),
         createdAt: now,
         updatedAt: now
@@ -438,6 +438,7 @@ export class MemStorage implements IStorage {
       tags: insertContract.tags || null,
       monthlyValues: insertContract.monthlyValues || null,
       totalValues: insertContract.totalValues || null,
+      status: insertContract.status || 'active',
       createdAt: new Date(),
       updatedAt: new Date(),
     };
