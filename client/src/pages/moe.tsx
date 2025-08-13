@@ -28,6 +28,7 @@ export default function MOE() {
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [editForm, setEditForm] = useState<InsertEmployee | null>(null);
   const { toast } = useToast();
 
   const { data: employees = [], isLoading, refetch } = useQuery({
@@ -137,6 +138,21 @@ export default function MOE() {
     },
   });
 
+  const editFormConfig = useForm<InsertEmployee>({
+    resolver: zodResolver(insertEmployeeSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      position: "",
+      contractId: "",
+      baseSalary: "0",
+      fringeRate: "0",
+      hoursWorked: "0",
+      hourlyRate: "0",
+      active: true,
+    },
+  });
+
   const filteredEmployees = (employees as Employee[]).filter((employee: Employee) => {
     const matchesSearch = employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          employee.email.toLowerCase().includes(searchTerm.toLowerCase());
@@ -163,11 +179,29 @@ export default function MOE() {
   };
 
   const onSubmit = (data: InsertEmployee) => {
-    if (selectedEmployee && isEditDialogOpen) {
+    createMutation.mutate(data);
+  };
+
+  const onEditSubmit = (data: InsertEmployee) => {
+    if (selectedEmployee) {
       editMutation.mutate({ id: selectedEmployee.id, data });
-    } else {
-      createMutation.mutate(data);
     }
+  };
+
+  const handleEdit = (employee: Employee) => {
+    setSelectedEmployee(employee);
+    editFormConfig.reset({
+      name: employee.name,
+      email: employee.email || "",
+      position: employee.position,
+      contractId: employee.contractId,
+      baseSalary: employee.baseSalary || "0",
+      fringeRate: employee.fringeRate || "0",
+      hoursWorked: employee.hoursWorked || "0",
+      hourlyRate: employee.hourlyRate || "0",
+      active: employee.active,
+    });
+    setIsEditDialogOpen(true);
   };
 
   return (
@@ -599,21 +633,7 @@ export default function MOE() {
                                 size="sm" 
                                 variant="ghost" 
                                 className="text-yellow-300 hover:text-yellow-100"
-                                onClick={() => {
-                                  setSelectedEmployee(employee);
-                                  form.reset({
-                                    name: employee.name,
-                                    email: employee.email || "",
-                                    position: employee.position,
-                                    contractId: employee.contractId,
-                                    baseSalary: employee.baseSalary || "0",
-                                    fringeRate: employee.fringeRate || "0",
-                                    hoursWorked: employee.hoursWorked || "0",
-                                    hourlyRate: employee.hourlyRate || "0",
-                                    active: employee.active,
-                                  });
-                                  setIsEditDialogOpen(true);
-                                }}
+                                onClick={() => handleEdit(employee)}
                               >
                                 <Edit className="w-4 h-4" />
                               </Button>
@@ -873,11 +893,11 @@ export default function MOE() {
               Edite os dados do colaborador selecionado
             </DialogDescription>
           </DialogHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <Form {...editFormConfig}>
+            <form onSubmit={editFormConfig.handleSubmit(onEditSubmit)} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
-                  control={form.control}
+                  control={editFormConfig.control}
                   name="name"
                   render={({ field }) => (
                     <FormItem>
@@ -895,7 +915,7 @@ export default function MOE() {
                 />
 
                 <FormField
-                  control={form.control}
+                  control={editFormConfig.control}
                   name="email"
                   render={({ field }) => (
                     <FormItem>
@@ -913,7 +933,7 @@ export default function MOE() {
                 />
 
                 <FormField
-                  control={form.control}
+                  control={editFormConfig.control}
                   name="position"
                   render={({ field }) => (
                     <FormItem>
@@ -931,7 +951,7 @@ export default function MOE() {
                 />
 
                 <FormField
-                  control={form.control}
+                  control={editFormConfig.control}
                   name="contractId"
                   render={({ field }) => (
                     <FormItem>
@@ -956,7 +976,7 @@ export default function MOE() {
                 />
 
                 <FormField
-                  control={form.control}
+                  control={editFormConfig.control}
                   name="hourlyRate"
                   render={({ field }) => (
                     <FormItem>
@@ -979,7 +999,7 @@ export default function MOE() {
                 />
 
                 <FormField
-                  control={form.control}
+                  control={editFormConfig.control}
                   name="hoursWorked"
                   render={({ field }) => (
                     <FormItem>
@@ -1010,7 +1030,7 @@ export default function MOE() {
                   onClick={() => {
                     setIsEditDialogOpen(false);
                     setSelectedEmployee(null);
-                    form.reset();
+                    editFormConfig.reset();
                   }}
                 >
                   Cancelar
