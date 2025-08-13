@@ -123,7 +123,16 @@ export default function Folha() {
   });
 
   const handleSubmit = (data: InsertPayroll) => {
-    createPayrollMutation.mutate(data);
+    // Converter valores brasileiros para formato numérico
+    const processedData = {
+      ...data,
+      salarios: data.salarios.replace(/\./g, '').replace(',', '.'),
+      horaExtra: data.horaExtra.replace(/\./g, '').replace(',', '.'),
+      beneficios: data.beneficios.replace(/\./g, '').replace(',', '.'),
+      vt: data.vt.replace(/\./g, '').replace(',', '.'),
+      imestra: data.imestra.replace(/\./g, '').replace(',', '.'),
+    };
+    createPayrollMutation.mutate(processedData);
   };
 
   const handleEdit = (payroll: Payroll) => {
