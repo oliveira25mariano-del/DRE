@@ -25,6 +25,9 @@ export default function MOE() {
   const [selectedPosition, setSelectedPosition] = useState("all");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isAnalysisOpen, setIsAnalysisOpen] = useState(false);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const { toast } = useToast();
 
   const { data: employees = [], isLoading, refetch } = useQuery({
@@ -75,6 +78,50 @@ export default function MOE() {
     },
   });
 
+  const editMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string, data: InsertEmployee }) => {
+      return await apiRequest("PATCH", `/api/employees/${id}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/employees"] });
+      refetch();
+      setIsEditDialogOpen(false);
+      setSelectedEmployee(null);
+      toast({
+        title: "Sucesso",
+        description: "Colaborador atualizado com sucesso!",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro",
+        description: "Erro ao atualizar colaborador: " + error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return await apiRequest("DELETE", `/api/employees/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/employees"] });
+      refetch();
+      toast({
+        title: "Sucesso",
+        description: "Colaborador excluído com sucesso!",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro",
+        description: "Erro ao excluir colaborador: " + error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const form = useForm<InsertEmployee>({
     resolver: zodResolver(insertEmployeeSchema),
     defaultValues: {
@@ -116,7 +163,11 @@ export default function MOE() {
   };
 
   const onSubmit = (data: InsertEmployee) => {
-    createMutation.mutate(data);
+    if (selectedEmployee && isEditDialogOpen) {
+      editMutation.mutate({ id: selectedEmployee.id, data });
+    } else {
+      createMutation.mutate(data);
+    }
   };
 
   return (
@@ -395,8 +446,7 @@ export default function MOE() {
                 </DialogContent>
               </Dialog>
               <Button 
-                variant="outline" 
-                className="border-blue-400/30 text-white hover:bg-blue-600/30"
+                className="bg-green-600 hover:bg-green-700 text-white"
                 onClick={() => setIsAnalysisOpen(true)}
               >
                 <BarChart3 className="w-4 h-4 mr-2" />
@@ -531,13 +581,49 @@ export default function MOE() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div className="flex space-x-2">
-                              <Button size="sm" variant="ghost" className="text-blue-300 hover:text-blue-100">
+                              <Button 
+                                size="sm" 
+                                variant="ghost" 
+                                className="text-blue-300 hover:text-blue-100"
+                                onClick={() => {
+                                  setSelectedEmployee(employee);
+                                  setIsViewDialogOpen(true);
+                                }}
+                              >
                                 <Eye className="w-4 h-4" />
                               </Button>
-                              <Button size="sm" variant="ghost" className="text-yellow-300 hover:text-yellow-100">
+                              <Button 
+                                size="sm" 
+                                variant="ghost" 
+                                className="text-yellow-300 hover:text-yellow-100"
+                                onClick={() => {
+                                  setSelectedEmployee(employee);
+                                  form.reset({
+                                    name: employee.name,
+                                    email: employee.email || "",
+                                    position: employee.position,
+                                    contractId: employee.contractId,
+                                    baseSalary: employee.baseSalary || "0",
+                                    fringeRate: employee.fringeRate || "0",
+                                    hoursWorked: employee.hoursWorked || "0",
+                                    hourlyRate: employee.hourlyRate || "0",
+                                    active: employee.active,
+                                  });
+                                  setIsEditDialogOpen(true);
+                                }}
+                              >
                                 <Edit className="w-4 h-4" />
                               </Button>
-                              <Button size="sm" variant="ghost" className="text-red-300 hover:text-red-100">
+                              <Button 
+                                size="sm" 
+                                variant="ghost" 
+                                className="text-red-300 hover:text-red-100"
+                                onClick={() => {
+                                  if (confirm("Tem certeza que deseja excluir este colaborador?")) {
+                                    deleteMutation.mutate(employee.id);
+                                  }
+                                }}
+                              >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
                             </div>
@@ -555,7 +641,7 @@ export default function MOE() {
 
       {/* Gráfico de Análise Modal */}
       <AnalysisDialog open={isAnalysisOpen} onOpenChange={setIsAnalysisOpen}>
-        <AnalysisDialogContent className="max-w-6xl bg-blue-bg border-blue-400/30">
+        <AnalysisDialogContent className="max-w-4xl bg-blue-bg border-blue-400/30">
           <AnalysisDialogHeader>
             <AnalysisDialogTitle className="text-white">Análise MOE - Total Vendido por Contrato e Mês</AnalysisDialogTitle>
             <AnalysisDialogDescription className="text-blue-200">
@@ -604,21 +690,21 @@ export default function MOE() {
 
               return (
                 <>
-                  <div className="mb-6">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="mb-4">
+                    <div className="grid grid-cols-3 gap-3">
                       <Card className="glass-effect border-blue-200/20">
-                        <CardContent className="p-4">
+                        <CardContent className="p-3">
                           <div className="text-center">
-                            <p className="text-sm font-medium text-blue-100">Total de Registros</p>
-                            <p className="text-xl font-bold text-white">{chartData.length}</p>
+                            <p className="text-xs font-medium text-blue-100">Registros</p>
+                            <p className="text-lg font-bold text-white">{chartData.length}</p>
                           </div>
                         </CardContent>
                       </Card>
                       <Card className="glass-effect border-blue-200/20">
-                        <CardContent className="p-4">
+                        <CardContent className="p-3">
                           <div className="text-center">
-                            <p className="text-sm font-medium text-blue-100">Total MOE</p>
-                            <p className="text-xl font-bold text-white">
+                            <p className="text-xs font-medium text-blue-100">Total MOE</p>
+                            <p className="text-lg font-bold text-white">
                               {totalMOESum.toLocaleString('pt-BR', {
                                 style: 'currency',
                                 currency: 'BRL'
@@ -628,10 +714,10 @@ export default function MOE() {
                         </CardContent>
                       </Card>
                       <Card className="glass-effect border-blue-200/20">
-                        <CardContent className="p-4">
+                        <CardContent className="p-3">
                           <div className="text-center">
-                            <p className="text-sm font-medium text-blue-100">Contratos Ativos</p>
-                            <p className="text-xl font-bold text-white">
+                            <p className="text-xs font-medium text-blue-100">Contratos</p>
+                            <p className="text-lg font-bold text-white">
                               {new Set(chartData.map(item => item.contractName)).size}
                             </p>
                           </div>
@@ -641,7 +727,7 @@ export default function MOE() {
                   </div>
                   
                   <div className="bg-blue-400/5 rounded-lg p-4">
-                    <ResponsiveContainer width="100%" height={400}>
+                    <ResponsiveContainer width="100%" height={300}>
                       <BarChart 
                         data={chartData}
                         margin={{ top: 20, right: 30, left: 80, bottom: 120 }}
@@ -716,6 +802,212 @@ export default function MOE() {
           </div>
         </AnalysisDialogContent>
       </AnalysisDialog>
+
+      {/* Modal de Visualização */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="max-w-2xl bg-blue-bg border-blue-400/30">
+          <DialogHeader>
+            <DialogTitle className="text-white">Detalhes do Colaborador</DialogTitle>
+          </DialogHeader>
+          {selectedEmployee && (
+            <div className="space-y-4 p-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-blue-100">Nome</label>
+                  <p className="text-white bg-blue-600/20 rounded p-2">{selectedEmployee.name}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-blue-100">Email/Data</label>
+                  <p className="text-white bg-blue-600/20 rounded p-2">{selectedEmployee.email || "N/A"}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-blue-100">Cargo</label>
+                  <p className="text-white bg-blue-600/20 rounded p-2">{selectedEmployee.position}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-blue-100">Contrato</label>
+                  <p className="text-white bg-blue-600/20 rounded p-2">
+                    {(contracts as any[]).find((c: any) => c.id === selectedEmployee.contractId)?.name || "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-blue-100">Taxa/Hora</label>
+                  <p className="text-white bg-blue-600/20 rounded p-2">{formatCurrency(selectedEmployee.hourlyRate || "0")}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-blue-100">Horas Trabalhadas</label>
+                  <p className="text-white bg-blue-600/20 rounded p-2">{selectedEmployee.hoursWorked}h</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-blue-100">Total MOE</label>
+                  <p className="text-white bg-blue-600/20 rounded p-2 font-bold text-green-300">
+                    {formatCurrency(parseFloat(selectedEmployee.hoursWorked || "0") * parseFloat(selectedEmployee.hourlyRate || "0"))}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-blue-100">Status</label>
+                  <div className="bg-blue-600/20 rounded p-2">
+                    <Badge className={selectedEmployee.active ? "bg-green-500/20 text-green-300" : "bg-red-500/20 text-red-300"}>
+                      {selectedEmployee.active ? 'Ativo' : 'Inativo'}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal de Edição */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-4xl bg-blue-bg border-blue-400/30">
+          <DialogHeader>
+            <DialogTitle className="text-white">Editar Colaborador</DialogTitle>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Nome Completo</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="Nome do colaborador" 
+                          className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Data</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="date"
+                          className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="position"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Cargo</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="Ex: Desenvolvedor Sênior" 
+                          className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="contractId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Contrato</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
+                            <SelectValue placeholder="Selecione um contrato" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {(contracts as any[]).map((contract: any) => (
+                            <SelectItem key={contract.id} value={contract.id}>
+                              {contract.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="hourlyRate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Taxa/Hora (R$)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number"
+                          step="0.01"
+                          placeholder="0.00" 
+                          className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="hoursWorked"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Horas Trabalhadas</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number"
+                          step="0.5"
+                          placeholder="0" 
+                          className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="flex justify-end space-x-4">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="border-blue-400/30 text-white hover:bg-blue-600/30"
+                  onClick={() => {
+                    setIsEditDialogOpen(false);
+                    setSelectedEmployee(null);
+                    form.reset();
+                  }}
+                >
+                  Cancelar
+                </Button>
+                <Button type="submit" disabled={editMutation.isPending} className="bg-blue-600 hover:bg-blue-700">
+                  {editMutation.isPending ? "Salvando..." : "Salvar Alterações"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
