@@ -29,6 +29,7 @@ export default function Contracts() {
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [contractToDelete, setContractToDelete] = useState<Contract | null>(null);
+  const [localContracts, setLocalContracts] = useState<Contract[]>([]);
   const { toast } = useToast();
   const { canEdit, isVisualizationOnly } = usePermissions();
 
@@ -36,14 +37,27 @@ export default function Contracts() {
     queryKey: ["/api/contracts"],
     refetchOnMount: "always",
     refetchOnWindowFocus: true,
-    staleTime: 0, // Always consider data stale
-    gcTime: 0, // Don't cache data
+    staleTime: 0,
+    gcTime: 0,
     refetchInterval: false,
-    refetchOnReconnect: true, // Refetch when reconnecting
-    networkMode: "always", // Always try to fetch
+    refetchOnReconnect: true,
+    networkMode: "always",
     retry: 2,
     retryDelay: 300,
+    onSuccess: (data) => {
+      setLocalContracts(data);
+    }
   });
+
+  // Use local contracts if available, fallback to server data
+  const displayContracts = localContracts.length > 0 ? localContracts : contracts;
+
+  // Update local contracts when server data changes
+  useEffect(() => {
+    if (contracts.length > 0) {
+      setLocalContracts(contracts);
+    }
+  }, [contracts]);
 
   // Force initial refetch and setup refresh mechanism
   useEffect(() => {
@@ -67,11 +81,20 @@ export default function Contracts() {
     mutationFn: async (data: InsertContract) => {
       return await apiRequest("POST", "/api/contracts", data);
     },
-    onSuccess: async () => {
-      await queryClient.cancelQueries({ queryKey: ["/api/contracts"] });
+    onSuccess: async (newContract) => {
+      // Immediate local state update
+      setLocalContracts(prevContracts => [...prevContracts, newContract]);
+      
+      // Background cache refresh
       queryClient.removeQueries({ queryKey: ["/api/contracts"] });
       queryClient.invalidateQueries({ queryKey: ["/api/contracts"] });
-      await refetch();
+      
+      setTimeout(async () => {
+        const freshData = await refetch();
+        if (freshData.data) {
+          setLocalContracts(freshData.data);
+        }
+      }, 100);
       
       setIsCreateDialogOpen(false);
       toast({
@@ -92,21 +115,29 @@ export default function Contracts() {
     mutationFn: async ({ id, data }: { id: string; data: Partial<InsertContract> }) => {
       return await apiRequest("PATCH", `/api/contracts/${id}`, data);
     },
-    onSuccess: async (updatedContract) => {
-      console.log("✅ Contrato atualizado, forçando atualização da lista");
+    onSuccess: async (updatedContract, { id, data }) => {
+      console.log("✅ Contrato atualizado, atualizando estado local imediatamente");
       
-      // Comprehensive cache management strategy
-      await queryClient.cancelQueries({ queryKey: ["/api/contracts"] });
+      // Immediate local state update for instant UI feedback
+      setLocalContracts(prevContracts => 
+        prevContracts.map(contract => 
+          contract.id === id 
+            ? { ...contract, ...data, updatedAt: new Date() }
+            : contract
+        )
+      );
+      
+      // Clean up cache and refetch in background
       queryClient.removeQueries({ queryKey: ["/api/contracts"] });
       queryClient.invalidateQueries({ queryKey: ["/api/contracts"] });
       
-      // Force immediate refetch with guaranteed data refresh
-      await refetch();
-      
-      // Additional refetch after a short delay to ensure consistency
+      // Background refresh to sync with server
       setTimeout(async () => {
-        await refetch();
-      }, 200);
+        const freshData = await refetch();
+        if (freshData.data) {
+          setLocalContracts(freshData.data);
+        }
+      }, 100);
       
       setIsEditDialogOpen(false);
       setSelectedContract(null);
@@ -128,11 +159,22 @@ export default function Contracts() {
     mutationFn: async (id: string) => {
       return await apiRequest("DELETE", `/api/contracts/${id}`, {});
     },
-    onSuccess: async () => {
-      await queryClient.cancelQueries({ queryKey: ["/api/contracts"] });
+    onSuccess: async (_, deletedId) => {
+      // Immediate local state update
+      setLocalContracts(prevContracts => 
+        prevContracts.filter(contract => contract.id !== deletedId)
+      );
+      
+      // Background cache refresh
       queryClient.removeQueries({ queryKey: ["/api/contracts"] });
       queryClient.invalidateQueries({ queryKey: ["/api/contracts"] });
-      await refetch();
+      
+      setTimeout(async () => {
+        const freshData = await refetch();
+        if (freshData.data) {
+          setLocalContracts(freshData.data);
+        }
+      }, 100);
       
       setIsDeleteDialogOpen(false);
       setContractToDelete(null);
@@ -150,7 +192,7 @@ export default function Contracts() {
     },
   });
 
-  const filteredContracts = contracts.filter((contract: Contract) => {
+  const filteredContracts = displayContracts.filter((contract: Contract) => {
     const matchesSearch = searchTerm === "" ||
                          contract.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          contract.client.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -163,13 +205,14 @@ export default function Contracts() {
 
   // Enhanced debug logging
   console.log("🔍 Estado completo:", {
-    contratos: contracts.length,
+    contratos: displayContracts.length,
     filtrados: filteredContracts.length,
     carregando: isLoading,
     busca: searchTerm,
     categoria: selectedCategory,
     status: selectedStatus,
-    primeiroContrato: contracts[0]?.name || "Nenhum"
+    primeiroContrato: displayContracts[0]?.name || "Nenhum",
+    localSync: localContracts.length === contracts.length
   });
 
   const getStatusColor = (status: string) => {
@@ -331,14 +374,14 @@ export default function Contracts() {
               <div className="p-8 text-center text-blue-200">
                 <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
                 <p>Nenhum contrato encontrado</p>
-                <p className="text-xs mt-2">Total de contratos brutos: {contracts.length}</p>
+                <p className="text-xs mt-2">Total de contratos brutos: {displayContracts.length}</p>
                 <p className="text-xs">Filtros aplicados - Busca: "{searchTerm}", Categoria: "{selectedCategory}", Status: "{selectedStatus}"</p>
                 <p className="text-xs">Contratos filtrados: {filteredContracts.length}</p>
-                {contracts.length > 0 && (
+                {displayContracts.length > 0 && (
                   <div className="mt-4">
                     <p className="text-xs">Debug: Primeiros contratos carregados:</p>
                     <ul className="text-xs">
-                      {contracts.slice(0, 3).map((c, i) => (
+                      {displayContracts.slice(0, 3).map((c, i) => (
                         <li key={i}>• {c.name} - {c.category} - {c.status}</li>
                       ))}
                     </ul>
