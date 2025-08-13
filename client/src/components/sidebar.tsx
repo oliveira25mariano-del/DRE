@@ -19,6 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import opusLogo from "@assets/Logo-Grupo-Opus_1754948245317.png";
 import hexagonPattern from "@assets/image_1755048182734.png";
+import { currentWatermarkConfig, generateWatermarkStyles } from "@/config/watermarkConfig";
 
 const menuItems = [
   { path: "/dashboard", label: "Dashboard", icon: BarChart3, id: "sidebar-dashboard" },
@@ -49,15 +50,12 @@ export default function Sidebar({ onStartOnboarding }: SidebarProps) {
 
   return (
     <div className="w-64 sidebar-gradient shadow-xl relative overflow-hidden">
-      {/* Marca d'água com hexágonos */}
+      {/* Marca d'água com hexágonos - Sistema configurável */}
       <div 
-        className="absolute inset-0 opacity-25 pointer-events-none z-0"
+        className={`absolute inset-0 pointer-events-none z-0`}
         style={{
-          backgroundImage: `url(${hexagonPattern})`,
-          backgroundRepeat: 'repeat',
-          backgroundSize: '80px 80px',
-          backgroundPosition: 'center',
-          filter: 'brightness(2) contrast(1.2) hue-rotate(10deg)'
+          opacity: currentWatermarkConfig.opacity,
+          ...generateWatermarkStyles(currentWatermarkConfig, hexagonPattern)
         }}
       ></div>
       

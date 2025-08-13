@@ -60,7 +60,7 @@ The platform incorporates several key features and design patterns:
 - **Correção Sistema de Exportação (Agosto 2025):** Resolução completa do erro "exportUtils.showExportModal is not a function", recriação do arquivo exportUtils.ts com função showExportModal funcional, correção de todas as páginas que usam exportação (DRE, Provisões, Auditoria, Fringe Benefits, Contratos, Glosas, MOE), garantindo sistema de exportação universal 100% operacional em PDF, CSV, Excel e JSON. Botão de exportação removido da página Folha conforme solicitado pelo usuário
 - **Padronização Visual Folha (Agosto 2025):** Todos os valores monetários na página Folha alterados para tonalidades de azul (blue-600, blue-500, blue-700, blue-800, blue-900), exceto o total geral que permanece branco/cinza, seguindo o padrão visual unificado da aplicação
 - **Configurações Estabilizadas (Agosto 2025):** Sistema de exportação completamente funcional em todas as páginas (exceto Folha por solicitação), cores padronizadas, botão de exportar removido da Folha, todas as correções de erro aplicadas e testadas com sucesso
-- **Marca d'Água Sidebar (Agosto 2025):** Adicionado padrão de hexágonos azuis como marca d'água no fundo da barra lateral de navegação, com opacidade alta (25%) e filtros avançados (brightness(2), contrast(1.2), hue-rotate) para máxima visibilidade, repetição em padrão 80x80px
+- **Sistema Avançado de Marca d'Água (Agosto 2025):** Implementado sistema completo de customização para marca d'água dos hexágonos na sidebar com arquivo de configuração dedicado (watermarkConfig.ts), incluindo 15+ parâmetros ajustáveis: opacidade, tamanho, posição, filtros CSS (brightness, contrast, saturate, hue-rotate, blur), transformações (rotation, scale), modos de mistura (blend-mode), animações opcionais e 4 presets predefinidos (subtle, balanced, prominent, artistic)
 
 ## Sistema de Exportação Universal - Configurações Técnicas (Agosto 2025)
 
@@ -96,6 +96,47 @@ The platform incorporates several key features and design patterns:
 - Tratamento de erros com toast notifications
 - Tipagem corrigida com `(contracts as any[])` onde necessário
 - Estrutura consistente em todas as implementações
+
+## Sistema Avançado de Marca d'Água - Configurações Técnicas (Agosto 2025)
+
+### Arquivo: `client/src/config/watermarkConfig.ts`
+Sistema completo de customização com 15+ parâmetros controláveis:
+
+**Parâmetros Básicos:**
+- `opacity`: 0.0 - 1.0 (transparência geral)
+- `size`: string CSS (ex: "90px 90px" - tamanho do padrão)
+- `position`: string CSS (ex: "20px 30px" - posição inicial)
+
+**Filtros CSS Avançados:**
+- `brightness`: 0.0 - 3.0 (brilho da imagem)
+- `contrast`: 0.0 - 3.0 (contraste)
+- `saturate`: 0.0 - 3.0 (saturação de cores)
+- `hueRotate`: -360 - 360 (rotação de matiz em graus)
+- `blur`: 0.0 - 10.0 (desfoque em pixels)
+
+**Transformações 2D:**
+- `rotation`: -360 - 360 (rotação geral em graus)
+- `scale`: 0.1 - 2.0 (escala/tamanho)
+
+**Efeitos Visuais:**
+- `blendMode`: string (modo de mistura CSS: normal, soft-light, multiply, overlay, etc.)
+
+**Sistema de Animação (Opcional):**
+- `animation.enabled`: boolean (ativar/desativar)
+- `animation.duration`: string CSS (duração: "10s", "30s")
+- `animation.direction`: normal/reverse/alternate/alternate-reverse
+
+### Presets Predefinidos:
+1. **Subtle**: Muito sutil, quase imperceptível
+2. **Balanced**: Equilibrado entre visibilidade e discrição
+3. **Prominent**: Bem visível, mas sem comprometer legibilidade
+4. **Artistic**: Com animação e efeitos mais intensos
+
+### Como Usar:
+- Editar `currentWatermarkConfig` no arquivo para mudanças globais
+- Usar presets: `watermarkPresets.balanced`, etc.
+- Função `generateWatermarkStyles()` converte config para CSS
+- Animações requerem CSS adicional em arquivo global
 
 ### Próximas Funcionalidades Sugeridas
 **Análise Financeira Avançada:**
