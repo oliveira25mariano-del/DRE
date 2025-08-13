@@ -601,48 +601,48 @@ export default function Folha() {
       <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
         <Card>
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-blue-600">
-              {formatCurrency(getTotalByField('salarios').toString())}
+            <div className="text-sm font-bold text-blue-400">
+              {formatCompactCurrency(getTotalByField('salarios').toString())}
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">Salários</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-blue-500">
-              {formatCurrency(getTotalByField('horaExtra').toString())}
+            <div className="text-sm font-bold text-blue-400">
+              {formatCompactCurrency(getTotalByField('horaExtra').toString())}
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">Hora Extra</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-blue-700">
-              {formatCurrency(getTotalByField('beneficios').toString())}
+            <div className="text-sm font-bold text-blue-400">
+              {formatCompactCurrency(getTotalByField('beneficios').toString())}
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">Benefícios</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-blue-800">
-              {formatCurrency(getTotalByField('vt').toString())}
+            <div className="text-sm font-bold text-blue-400">
+              {formatCompactCurrency(getTotalByField('vt').toString())}
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">VT</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-blue-900">
-              {formatCurrency(getTotalByField('imestra').toString())}
+            <div className="text-sm font-bold text-blue-400">
+              {formatCompactCurrency(getTotalByField('imestra').toString())}
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">Imestra</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">
-              {formatCurrency((
+            <div className="text-sm font-bold text-white dark:text-white">
+              {formatCompactCurrency((
                 getTotalByField('salarios') +
                 getTotalByField('horaExtra') +
                 getTotalByField('beneficios') +
