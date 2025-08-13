@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Download, Eye, Edit, Trash2, FileText } from "lucide-react";
+import { Plus, Search, Eye, Edit, Trash2, FileText } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { queryClient } from "@/lib/queryClient";
@@ -16,7 +16,7 @@ import ContractForm from "@/components/contract-form";
 import { type Contract, type InsertContract } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { usePermissions } from "@/hooks/usePermissions";
-import { exportUtils } from "@/lib/exportUtils";
+
 
 export default function Contracts() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -264,41 +264,6 @@ export default function Contracts() {
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
-              <Button 
-                variant="outline" 
-                className="border-blue-400/30 text-white hover:bg-blue-600/30"
-                onClick={async () => {
-                  const exportData = filteredContracts.map((contract: Contract) => ({
-                    "Nome": contract.name,
-                    "Categoria": contract.category,
-                    "Cliente": contract.client,
-                    "Valor": `R$ ${parseFloat(contract.monthlyValue || "0").toLocaleString('pt-BR')}`,
-                    "Data Início": new Date(contract.startDate).toLocaleDateString('pt-BR'),
-                    "Data Fim": contract.endDate ? new Date(contract.endDate).toLocaleDateString('pt-BR') : "N/A",
-                    "Status": contract.status === 'active' ? 'Ativo' : contract.status === 'suspended' ? 'Suspenso' : 'Finalizado',
-                    "Descrição": contract.description || "N/A",
-                    "Contato": contract.contact || "N/A"
-                  }));
-
-                  try {
-                    await exportUtils.showExportModal(exportData, `contratos`);
-
-                    toast({
-                      title: "Dados Exportados",
-                      description: `Relatório de contratos exportado com ${filteredContracts.length} registros`,
-                    });
-                  } catch (error) {
-                    toast({
-                      title: "Erro na Exportação",
-                      description: "Erro ao exportar dados. Tente novamente.",
-                      variant: "destructive",
-                    });
-                  }
-                }}
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Exportar
-              </Button>
             </div>
           </div>
         </CardHeader>
