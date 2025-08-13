@@ -51,13 +51,13 @@ export default function Sidebar({ onStartOnboarding }: SidebarProps) {
     <div className="w-64 sidebar-gradient shadow-xl relative overflow-hidden">
       {/* Marca d'água com hexágonos */}
       <div 
-        className="absolute inset-0 opacity-15 pointer-events-none z-0"
+        className="absolute inset-0 opacity-25 pointer-events-none z-0"
         style={{
           backgroundImage: `url(${hexagonPattern})`,
           backgroundRepeat: 'repeat',
-          backgroundSize: '100px 100px',
+          backgroundSize: '80px 80px',
           backgroundPosition: 'center',
-          filter: 'brightness(1.5) contrast(0.8)'
+          filter: 'brightness(2) contrast(1.2) hue-rotate(10deg)'
         }}
       ></div>
       
