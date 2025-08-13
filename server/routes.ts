@@ -526,6 +526,93 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Machine Learning Predictions
+  app.get("/api/predictions", async (req, res) => {
+    res.json([]);
+  });
+
+  // IA Categorização de Despesas
+  app.post("/api/ai/categorizar-despesa", async (req, res) => {
+    try {
+      const { categorizadorIA } = await import('./aiCategorizer');
+      const { descricao, valor, fornecedor } = req.body;
+      
+      if (!descricao) {
+        return res.status(400).json({ 
+          error: "Descrição da despesa é obrigatória" 
+        });
+      }
+      
+      const resultado = await categorizadorIA.categorizarDespesa(
+        descricao, 
+        valor, 
+        fornecedor
+      );
+      
+      res.json({
+        ...resultado,
+        processadoEm: new Date()
+      });
+    } catch (error) {
+      console.error("Erro na categorização IA:", error);
+      res.status(500).json({ 
+        error: "Falha no serviço de categorização automática" 
+      });
+    }
+  });
+
+  // IA Categorização em Lote
+  app.post("/api/ai/categorizar-lote", async (req, res) => {
+    try {
+      const { categorizadorIA } = await import('./aiCategorizer');
+      const { despesas } = req.body;
+      
+      if (!Array.isArray(despesas) || despesas.length === 0) {
+        return res.status(400).json({ 
+          error: "Lista de despesas é obrigatória" 
+        });
+      }
+      
+      const resultados = await categorizadorIA.categorizarLote(despesas);
+      
+      // Converte Map para objeto para JSON
+      const resultadosObj: any = {};
+      resultados.forEach((valor, chave) => {
+        resultadosObj[chave] = {
+          ...valor,
+          processadoEm: new Date()
+        };
+      });
+      
+      res.json({
+        totalProcessadas: despesas.length,
+        resultados: resultadosObj
+      });
+    } catch (error) {
+      console.error("Erro na categorização em lote:", error);
+      res.status(500).json({ 
+        error: "Falha no processamento em lote" 
+      });
+    }
+  });
+
+  // Categorias Disponíveis para IA
+  app.get("/api/ai/categorias", async (req, res) => {
+    try {
+      const { categoriasDisponiveis } = await import('./aiCategorizer');
+      res.json({
+        categorias: categoriasDisponiveis,
+        total: categoriasDisponiveis.length,
+        versao: "1.0"
+      });
+    } catch (error) {
+      console.error("Erro ao buscar categorias:", error);
+      res.status(500).json({ 
+        error: "Falha ao carregar categorias" 
+      });
+    }
+  });
+
   // Register admin routes
   registerAdminRoutes(app);
 

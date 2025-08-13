@@ -32,6 +32,7 @@ const menuItems = [
 const analysisItems = [
   { path: "/executive-dashboard", label: "Dashboard Executivo", icon: BarChart3, id: "sidebar-executive" },
   { path: "/financial-analysis", label: "Análise Financeira", icon: DollarSign, id: "sidebar-financial" },
+  { path: "/ia-categorizacao", label: "IA Categorização", icon: Brain, id: "sidebar-ai-categorization" },
   { path: "/predictions", label: "Previsões ML", icon: Brain, id: "sidebar-predictions" },
   { path: "/integrations", label: "Integrações", icon: Plug, id: "sidebar-integrations" },
   { path: "/audit", label: "Auditoria", icon: Search, id: "sidebar-audit" },
