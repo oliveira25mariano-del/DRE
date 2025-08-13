@@ -15,8 +15,8 @@ export default function Dashboard() {
     queryKey: ["/api/predictions"],
   });
 
-  const criticalAlerts = alerts.filter((alert: any) => alert.severity === "critical");
-  const recentAlerts = alerts.slice(0, 4);
+  const criticalAlerts = (alerts as any[]).filter((alert: any) => alert.severity === "critical");
+  const recentAlerts = (alerts as any[]).slice(0, 4);
 
   return (
     <div className="space-y-8">
@@ -214,7 +214,7 @@ export default function Dashboard() {
                   )}
                 </div>
 
-                {alerts.length > 4 && (
+                {(alerts as any[]).length > 4 && (
                   <button className="w-full mt-4 text-sm text-blue-300 hover:text-blue-100 font-medium">
                     Ver todos os alertas
                   </button>

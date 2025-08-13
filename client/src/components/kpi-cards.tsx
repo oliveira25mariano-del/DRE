@@ -43,11 +43,11 @@ export default function KPICards() {
           <div>
             <p className="text-sm font-medium text-blue-100 mb-2">Receita Total</p>
             <p className="text-2xl font-bold text-white mb-2">
-              {formatCurrency(kpiData?.totalRevenue || 0)}
+              {formatCurrency((kpiData as any)?.totalRevenue || 0)}
             </p>
             <p className="text-sm text-emerald-400 flex items-center">
               <ArrowUp className="w-4 h-4 mr-1" />
-              <span>+{formatPercent(kpiData?.revenueGrowth || 0)}</span>
+              <span>+{formatPercent((kpiData as any)?.revenueGrowth || 0)}</span>
             </p>
           </div>
         </CardContent>
@@ -61,11 +61,11 @@ export default function KPICards() {
           <div>
             <p className="text-sm font-medium text-blue-100 mb-2">Custos Operacionais</p>
             <p className="text-2xl font-bold text-white mb-2">
-              {formatCurrency(kpiData?.totalCosts || 0)}
+              {formatCurrency((kpiData as any)?.totalCosts || 0)}
             </p>
             <p className="text-sm text-red-400 flex items-center">
               <ArrowUp className="w-4 h-4 mr-1" />
-              <span>+{formatPercent(kpiData?.costIncrease || 0)}</span>
+              <span>+{formatPercent((kpiData as any)?.costIncrease || 0)}</span>
             </p>
           </div>
         </CardContent>
@@ -79,11 +79,11 @@ export default function KPICards() {
           <div>
             <p className="text-sm font-medium text-blue-100 mb-2">Margem de Lucro</p>
             <p className="text-2xl font-bold text-white mb-2">
-              {formatPercent(kpiData?.profitMargin || 0)}
+              {formatPercent((kpiData as any)?.profitMargin || 0)}
             </p>
             <p className="text-sm text-emerald-400 flex items-center">
               <ArrowUp className="w-4 h-4 mr-1" />
-              <span>+{formatPercent(kpiData?.marginImprovement || 0)}</span>
+              <span>+{formatPercent((kpiData as any)?.marginImprovement || 0)}</span>
             </p>
           </div>
         </CardContent>
@@ -97,7 +97,7 @@ export default function KPICards() {
           <div>
             <p className="text-sm font-medium text-blue-100 mb-2">Contratos Ativos</p>
             <p className="text-2xl font-bold text-white mb-2">
-              {kpiData?.activeContracts || 0}
+              {(kpiData as any)?.activeContracts || 0}
             </p>
             <p className="text-sm text-amber-400 flex items-center">
               <Minus className="w-4 h-4 mr-1" />

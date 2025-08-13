@@ -393,9 +393,17 @@ export default function FinancialAnalysis() {
                   fontSize={12}
                 />
                 <YAxis 
+                  yAxisId="left"
                   stroke="#94A3B8"
                   fontSize={12}
                   tickFormatter={(value) => `R$ ${(value / 1000).toFixed(0)}K`}
+                />
+                <YAxis 
+                  yAxisId="right"
+                  orientation="right"
+                  stroke="#8B5CF6"
+                  fontSize={12}
+                  tickFormatter={(value) => `${value.toFixed(1)}%`}
                 />
                 <Tooltip 
                   contentStyle={{ 
@@ -404,17 +412,23 @@ export default function FinancialAnalysis() {
                     borderRadius: '8px',
                     color: '#F8FAFC'
                   }}
-                  formatter={(value: number) => [formatCurrency(value), '']}
+                  formatter={(value: number, name: string) => {
+                    if (name === 'Margem (%)') {
+                      return [`${value.toFixed(1)}%`, name];
+                    }
+                    return [formatCurrency(value), name];
+                  }}
                 />
-                <Bar dataKey="totalBudgetedRevenue" fill={CHART_COLORS.budgeted} name="Orçado" opacity={0.7} />
-                <Bar dataKey="totalActualRevenue" fill={CHART_COLORS.actual} name="Realizado" />
+                <Bar yAxisId="left" dataKey="totalBudgetedRevenue" fill={CHART_COLORS.budgeted} name="Orçado" opacity={0.7} />
+                <Bar yAxisId="left" dataKey="totalActualRevenue" fill={CHART_COLORS.actual} name="Realizado" />
                 <Line 
+                  yAxisId="right"
                   type="monotone" 
                   dataKey="marginPercentage" 
                   stroke={CHART_COLORS.margin} 
                   strokeWidth={2}
                   name="Margem (%)"
-                  yAxisId="right"
+                  dot={{ fill: CHART_COLORS.margin, r: 4 }}
                 />
               </ComposedChart>
             </ResponsiveContainer>
@@ -507,7 +521,11 @@ export default function FinancialAnalysis() {
                   </thead>
                   <tbody>
                     {filteredData
-                      .filter(item => item.month === 'ago') // Mês atual exemplo
+                      .filter(item => {
+                        const currentMonth = format(new Date(), 'MMM', { locale: ptBR });
+                        return item.month === currentMonth;
+                      })
+                      .slice(0, 5)
                       .map((item, index) => (
                       <tr key={index} className="border-b border-blue-400/10 hover:bg-blue-600/10">
                         <td className="p-3 text-white font-medium">{item.contractName}</td>
