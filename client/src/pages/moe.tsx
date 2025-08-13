@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -118,6 +118,31 @@ export default function MOE() {
       active: true,
     },
   });
+
+  // Função para calcular taxa horária baseada no salário mensal
+  const calculateHourlyRate = (monthlySalary: string, hoursWorked: string) => {
+    const salary = parseFloat(monthlySalary || "0");
+    const hours = parseFloat(hoursWorked || "0");
+    if (salary > 0 && hours > 0) {
+      // Considerando 4.33 semanas por mês (52 semanas / 12 meses)
+      const weeklyHours = hours;
+      const monthlyHours = weeklyHours * 4.33;
+      return (salary / monthlyHours).toFixed(2);
+    }
+    return "0";
+  };
+
+  // Observar mudanças no salário e horas para recalcular taxa horária
+  const watchedSalary = form.watch("baseSalary");
+  const watchedHours = form.watch("hoursWorked");
+  
+  // Atualizar taxa horária quando salário ou horas mudarem
+  useEffect(() => {
+    const newHourlyRate = calculateHourlyRate(watchedSalary, watchedHours);
+    if (newHourlyRate !== form.getValues("hourlyRate")) {
+      form.setValue("hourlyRate", newHourlyRate);
+    }
+  }, [watchedSalary, watchedHours, form]);
 
   const editForm = useForm<InsertEmployee>({
     resolver: zodResolver(insertEmployeeSchema),
@@ -287,7 +312,7 @@ export default function MOE() {
                   </DialogHeader>
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <FormField
                           control={form.control}
                           name="name"
@@ -297,6 +322,25 @@ export default function MOE() {
                               <FormControl>
                                 <Input 
                                   placeholder="Nome do colaborador" 
+                                  className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
+                                  {...field} 
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="email"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-white">Email</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  type="email"
+                                  placeholder="email@exemplo.com" 
                                   className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
                                   {...field} 
                                 />
@@ -351,15 +395,15 @@ export default function MOE() {
 
                         <FormField
                           control={form.control}
-                          name="hourlyRate"
+                          name="baseSalary"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-white">Taxa Horária (R$)</FormLabel>
+                              <FormLabel className="text-white">Salário Mensal (R$)</FormLabel>
                               <FormControl>
                                 <Input 
                                   type="number" 
                                   step="0.01"
-                                  placeholder="0,00" 
+                                  placeholder="5000,00" 
                                   className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
                                   {...field}
                                   value={field.value || ""}
@@ -375,15 +419,37 @@ export default function MOE() {
                           name="hoursWorked"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-white">Horas Trabalhadas</FormLabel>
+                              <FormLabel className="text-white">Horas Trabalhadas (por semana)</FormLabel>
                               <FormControl>
                                 <Input 
                                   type="number" 
                                   step="0.5"
-                                  placeholder="0" 
+                                  placeholder="40" 
                                   className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
                                   {...field}
                                   value={field.value || ""}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="hourlyRate"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-white">Taxa Horária (R$) - Automática</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  type="number" 
+                                  step="0.01"
+                                  placeholder="Calculado automaticamente" 
+                                  className="bg-gray-600/50 border-gray-400/30 text-gray-300 placeholder:text-gray-400"
+                                  {...field}
+                                  value={field.value || ""}
+                                  readOnly
                                 />
                               </FormControl>
                               <FormMessage />
