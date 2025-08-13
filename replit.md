@@ -58,6 +58,7 @@ The platform incorporates several key features and design patterns:
 - **Refinamento do Header:** Data reduzida no header principal com formato mais compacto (dd/mmm/yyyy) para otimização do espaço visual
 - **Correção de Erros Críticos:** Resolução definitiva do erro yAxisId nos gráficos Recharts, correção de assinaturas de API requests e eliminação de todos os erros LSP, garantindo aplicação 100% funcional
 - **Correção Sistema de Exportação (Agosto 2025):** Resolução completa do erro "exportUtils.showExportModal is not a function", recriação do arquivo exportUtils.ts com função showExportModal funcional, correção de todas as páginas que usam exportação (DRE, Provisões, Auditoria, Fringe Benefits, Contratos, Glosas, MOE), garantindo sistema de exportação universal 100% operacional em PDF, CSV, Excel e JSON. Botão de exportação removido da página Folha conforme solicitado pelo usuário
+- **Padronização Visual Folha (Agosto 2025):** Todos os valores monetários na página Folha alterados para tonalidades de azul (blue-600, blue-500, blue-700, blue-800, blue-900), exceto o total geral que permanece branco/cinza, seguindo o padrão visual unificado da aplicação
 
 ## Sistema de Exportação Universal - Configurações Técnicas (Agosto 2025)
 

@@ -530,7 +530,7 @@ export default function Folha() {
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-green-600">
+            <div className="text-2xl font-bold text-blue-500">
               {formatCurrency(getTotalByField('horaExtra').toString())}
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">Hora Extra</p>
@@ -538,7 +538,7 @@ export default function Folha() {
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-purple-600">
+            <div className="text-2xl font-bold text-blue-700">
               {formatCurrency(getTotalByField('beneficios').toString())}
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">Benefícios</p>
@@ -546,7 +546,7 @@ export default function Folha() {
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-orange-600">
+            <div className="text-2xl font-bold text-blue-800">
               {formatCurrency(getTotalByField('vt').toString())}
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">VT</p>
@@ -554,7 +554,7 @@ export default function Folha() {
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-red-600">
+            <div className="text-2xl font-bold text-blue-900">
               {formatCurrency(getTotalByField('imestra').toString())}
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">Imestra</p>
@@ -633,22 +633,22 @@ export default function Folha() {
                             : item.year.toString()
                           }
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-right text-blue-600 font-medium">
                           {formatCurrency(item.salarios)}
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-right text-blue-500 font-medium">
                           {formatCurrency(item.horaExtra)}
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-right text-blue-700 font-medium">
                           {formatCurrency(item.beneficios)}
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-right text-blue-800 font-medium">
                           {formatCurrency(item.vt)}
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-right text-blue-900 font-medium">
                           {formatCurrency(item.imestra)}
                         </TableCell>
-                        <TableCell className="text-right font-bold">
+                        <TableCell className="text-right font-bold text-gray-900 dark:text-white">
                           {formatCurrency(total.toString())}
                         </TableCell>
                         <TableCell className="text-center">
