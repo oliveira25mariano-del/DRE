@@ -926,7 +926,9 @@ export default function Glosas() {
         <DialogContent className="max-w-3xl bg-blue-bg border-blue-400/30">
           <DialogHeader>
             <DialogTitle className="text-white text-lg">Análise de Custos por Contrato</DialogTitle>
-            <p className="text-sm text-blue-200">Separação entre custos de glosas e custos de atestado</p>
+            <DialogDescription className="text-blue-200">
+              Separação entre custos de glosas e custos de atestado
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
             {analysisData.length === 0 ? (
@@ -938,32 +940,40 @@ export default function Glosas() {
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart 
                     data={analysisData} 
-                    margin={{ top: 15, right: 25, left: 15, bottom: 40 }}
+                    margin={{ top: 15, right: 30, left: 60, bottom: 65 }}
                     barGap={4}
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke="#3B82F6" opacity={0.2} />
                     <XAxis 
                       dataKey="contract" 
-                      tick={{ fill: '#93C5FD', fontSize: 11 }}
-                      angle={-30}
+                      tick={{ fill: '#93C5FD', fontSize: 10, fontWeight: 500 }}
+                      angle={-25}
                       textAnchor="end"
-                      height={50}
+                      height={65}
+                      interval={0}
                     />
                     <YAxis 
-                      tick={{ fill: '#93C5FD', fontSize: 11 }}
-                      tickFormatter={(value) => `R$ ${(value/1000).toFixed(0)}k`}
+                      tick={{ fill: '#93C5FD', fontSize: 11, fontWeight: 500 }}
+                      tickFormatter={(value) => {
+                        if (value >= 1000) {
+                          return `${(value/1000).toFixed(0)}k`;
+                        }
+                        return `${value.toFixed(0)}`;
+                      }}
+                      width={60}
                     />
                     <Tooltip 
                       formatter={(value, name) => [
                         formatCurrency(value as number), 
                         name === 'custoGlosa' ? 'Custo Glosa' : 'Custo Atestado'
                       ]}
-                      labelStyle={{ color: '#1E40AF', fontSize: '12px' }}
+                      labelStyle={{ color: '#1E40AF', fontSize: '13px', fontWeight: 'bold' }}
                       contentStyle={{ 
                         backgroundColor: '#1E3A8A', 
                         border: '1px solid #3B82F6',
-                        borderRadius: '6px',
-                        fontSize: '12px'
+                        borderRadius: '8px',
+                        fontSize: '13px',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
                       }}
                     />
                     <Bar 
