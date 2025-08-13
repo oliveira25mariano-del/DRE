@@ -160,6 +160,17 @@
   stroke-linejoin: round;
 }
 
+/* MOE Chart specific styling */
+.recharts-bar:hover {
+  fill: #1D4ED8 !important;
+}
+
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background-color: rgba(30, 58, 138, 0.95) !important;
+  border: 1px solid #3B82F6 !important;
+  border-radius: 8px !important;
+}
+
 .recharts-legend-item-text {
   color: #DBEAFE !important;
   font-weight: 500 !important;

@@ -7,20 +7,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Plus, Search, Download, Eye, Edit, Trash2, Users, Clock } from "lucide-react";
+import { Plus, Search, Eye, Edit, Trash2, Users, Clock, BarChart3 } from "lucide-react";
 import { queryClient } from "@/lib/queryClient";
 import { apiRequest } from "@/lib/queryClient";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertEmployeeSchema, type Employee, type InsertEmployee } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
-import { exportUtils } from "@/lib/exportUtils";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { Dialog as AnalysisDialog, DialogContent as AnalysisDialogContent, DialogHeader as AnalysisDialogHeader, DialogTitle as AnalysisDialogTitle, DialogDescription as AnalysisDialogDescription } from "@/components/ui/dialog";
 
 export default function MOE() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedContract, setSelectedContract] = useState("");
-  const [selectedPosition, setSelectedPosition] = useState("");
+  const [selectedContract, setSelectedContract] = useState("all");
+  const [selectedPosition, setSelectedPosition] = useState("all");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isAnalysisOpen, setIsAnalysisOpen] = useState(false);
   const { toast } = useToast();
 
   const { data: employees = [], isLoading, refetch } = useQuery({
@@ -89,8 +93,8 @@ export default function MOE() {
   const filteredEmployees = (employees as Employee[]).filter((employee: Employee) => {
     const matchesSearch = employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          employee.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesContract = !selectedContract || employee.contractId === selectedContract;
-    const matchesPosition = !selectedPosition || employee.position === selectedPosition;
+    const matchesContract = selectedContract === "all" || employee.contractId === selectedContract;
+    const matchesPosition = selectedPosition === "all" || employee.position === selectedPosition;
     
     return matchesSearch && matchesContract && matchesPosition;
   });
@@ -352,11 +356,17 @@ export default function MOE() {
                               <FormControl>
                                 <Input 
                                   type="number" 
-                                  step="0.01"
-                                  placeholder="0,00" 
+                                  step="0.5"
+                                  placeholder="0" 
                                   className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
                                   value={field.value || ""}
-                                  onChange={field.onChange}
+                                  onChange={(e) => {
+                                    field.onChange(e);
+                                    // Automatizar cálculo do Total MOE
+                                    const hoursWorked = parseFloat(e.target.value || "0");
+                                    const hourlyRate = parseFloat(form.getValues("hourlyRate") || "0");
+                                    // O Total MOE será calculado automaticamente na tabela (Taxa/Hora × Horas)
+                                  }}
                                   onBlur={field.onBlur}
                                   name={field.name}
                                 />
@@ -387,65 +397,10 @@ export default function MOE() {
               <Button 
                 variant="outline" 
                 className="border-blue-400/30 text-white hover:bg-blue-600/30"
-                onClick={async () => {
-                  const exportData = filteredEmployees.map((employee: Employee) => {
-                    const contract = (contracts as any[]).find((c: any) => c.id === employee.contractId);
-                    const baseSalary = parseFloat(employee.baseSalary || "0");
-                    const hourlyRate = parseFloat(employee.hourlyRate || "0");
-                    const hoursWorked = parseFloat(employee.hoursWorked || "0");
-                    const totalEarnings = hourlyRate * hoursWorked;
-                    
-                    return {
-                      "Nome": employee.name,
-                      "Email": employee.email || "N/A",
-                      "Cargo": employee.position,
-                      "Contrato": contract?.name || employee.contractId,
-                      "Salário Base (R$)": baseSalary.toLocaleString('pt-BR', {
-                        style: 'currency',
-                        currency: 'BRL'
-                      }),
-                      "Taxa Horária (R$)": hourlyRate.toLocaleString('pt-BR', {
-                        style: 'currency',
-                        currency: 'BRL'
-                      }),
-                      "Horas Trabalhadas": hoursWorked.toString(),
-                      "Total Ganhos (R$)": totalEarnings.toLocaleString('pt-BR', {
-                        style: 'currency',
-                        currency: 'BRL'
-                      }),
-                      "Status": employee.active ? "Ativo" : "Inativo",
-                      "Data Admissão": (employee as any).hireDate ? new Date((employee as any).hireDate).toLocaleDateString('pt-BR') : "N/A",
-                      "CPF": (employee as any).cpf || "N/A"
-                    };
-                  });
-
-                  try {
-                    await exportUtils.showExportModal(
-                      exportData,
-                      `moe_colaboradores`,
-                      'moe-table-content',
-                      {
-                        title: 'Relatório de MOE - Mão de Obra Externa',
-                        subtitle: `Total de ${filteredEmployees.length} colaboradores - Gerado em ${new Date().toLocaleDateString('pt-BR')}`,
-                        orientation: 'landscape'
-                      }
-                    );
-
-                    toast({
-                      title: "Dados Exportados",
-                      description: `Relatório de MOE exportado com ${filteredEmployees.length} colaboradores`,
-                    });
-                  } catch (error) {
-                    toast({
-                      title: "Erro na Exportação",
-                      description: "Erro ao exportar dados. Tente novamente.",
-                      variant: "destructive",
-                    });
-                  }
-                }}
+                onClick={() => setIsAnalysisOpen(true)}
               >
-                <Download className="w-4 h-4 mr-2" />
-                Exportar
+                <BarChart3 className="w-4 h-4 mr-2" />
+                Análise
               </Button>
             </div>
           </div>
@@ -597,6 +552,170 @@ export default function MOE() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Gráfico de Análise Modal */}
+      <AnalysisDialog open={isAnalysisOpen} onOpenChange={setIsAnalysisOpen}>
+        <AnalysisDialogContent className="max-w-6xl bg-blue-bg border-blue-400/30">
+          <AnalysisDialogHeader>
+            <AnalysisDialogTitle className="text-white">Análise MOE - Total Vendido por Contrato e Mês</AnalysisDialogTitle>
+            <AnalysisDialogDescription className="text-blue-200">
+              Visualização dinâmica do Total MOE vendido por contrato e período
+            </AnalysisDialogDescription>
+          </AnalysisDialogHeader>
+          <div className="p-6">
+            {(() => {
+              // Preparar dados do gráfico
+              const chartData = (employees as Employee[]).reduce((acc: any[], employee: Employee) => {
+                if (!employee.active) return acc;
+                
+                const contract = (contracts as any[]).find((c: any) => c.id === employee.contractId);
+                const contractName = contract?.name || "Contrato Indefinido";
+                
+                // Usar a data de hoje para simular dados mensais (em uma implementação real, você teria datas específicas)
+                const currentDate = new Date();
+                const monthKey = format(currentDate, "MMM/yyyy", { locale: ptBR });
+                const contractMonth = `${contractName} - ${monthKey}`;
+                
+                const totalMOE = parseFloat(employee.hoursWorked || "0") * parseFloat(employee.hourlyRate || "0");
+                
+                const existingEntry = acc.find(item => item.contratoMes === contractMonth);
+                if (existingEntry) {
+                  existingEntry.totalMOE += totalMOE;
+                } else {
+                  acc.push({
+                    contratoMes: contractMonth,
+                    contractName,
+                    totalMOE,
+                    month: monthKey
+                  });
+                }
+                
+                return acc;
+              }, []);
+
+              // Ordenar por nome do contrato e depois por data
+              chartData.sort((a, b) => {
+                const contractCompare = a.contractName.localeCompare(b.contractName);
+                if (contractCompare !== 0) return contractCompare;
+                return a.month.localeCompare(b.month);
+              });
+
+              const totalMOESum = chartData.reduce((sum, item) => sum + item.totalMOE, 0);
+
+              return (
+                <>
+                  <div className="mb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <Card className="glass-effect border-blue-200/20">
+                        <CardContent className="p-4">
+                          <div className="text-center">
+                            <p className="text-sm font-medium text-blue-100">Total de Registros</p>
+                            <p className="text-xl font-bold text-white">{chartData.length}</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      <Card className="glass-effect border-blue-200/20">
+                        <CardContent className="p-4">
+                          <div className="text-center">
+                            <p className="text-sm font-medium text-blue-100">Total MOE</p>
+                            <p className="text-xl font-bold text-white">
+                              {totalMOESum.toLocaleString('pt-BR', {
+                                style: 'currency',
+                                currency: 'BRL'
+                              })}
+                            </p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      <Card className="glass-effect border-blue-200/20">
+                        <CardContent className="p-4">
+                          <div className="text-center">
+                            <p className="text-sm font-medium text-blue-100">Contratos Ativos</p>
+                            <p className="text-xl font-bold text-white">
+                              {new Set(chartData.map(item => item.contractName)).size}
+                            </p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-blue-400/5 rounded-lg p-4">
+                    <ResponsiveContainer width="100%" height={400}>
+                      <BarChart 
+                        data={chartData}
+                        margin={{ top: 20, right: 30, left: 80, bottom: 120 }}
+                        barGap={6}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="#3B82F6" opacity={0.3} />
+                        <XAxis 
+                          dataKey="contratoMes" 
+                          tick={{ 
+                            fill: '#DBEAFE', 
+                            fontSize: 10, 
+                            fontWeight: 600
+                          }}
+                          angle={-35}
+                          textAnchor="end"
+                          height={120}
+                          interval={0}
+                        />
+                        <YAxis 
+                          tick={{ 
+                            fill: '#DBEAFE', 
+                            fontSize: 11, 
+                            fontWeight: 600
+                          }}
+                          tickFormatter={(value) => {
+                            if (value >= 1000000) {
+                              return `R$ ${(value/1000000).toFixed(1)}M`;
+                            }
+                            if (value >= 1000) {
+                              return `R$ ${(value/1000).toFixed(0)}k`;
+                            }
+                            return `R$ ${value.toFixed(0)}`;
+                          }}
+                          width={80}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: 'rgba(30, 58, 138, 0.95)',
+                            border: '1px solid #3B82F6',
+                            borderRadius: '8px',
+                            color: '#DBEAFE',
+                            fontSize: '12px'
+                          }}
+                          formatter={(value: any) => [
+                            `${parseFloat(value).toLocaleString('pt-BR', {
+                              style: 'currency',
+                              currency: 'BRL'
+                            })}`,
+                            'Total MOE'
+                          ]}
+                          labelStyle={{ color: '#DBEAFE', fontWeight: 'bold' }}
+                        />
+                        <Legend 
+                          wrapperStyle={{ 
+                            color: '#DBEAFE', 
+                            fontSize: '12px',
+                            fontWeight: '600'
+                          }}
+                        />
+                        <Bar 
+                          dataKey="totalMOE" 
+                          fill="#3B82F6" 
+                          name="Total MOE"
+                          radius={[2, 2, 0, 0]}
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+        </AnalysisDialogContent>
+      </AnalysisDialog>
     </div>
   );
 }
