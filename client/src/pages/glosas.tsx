@@ -48,6 +48,7 @@ export default function Glosas() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/glosas"] });
       setIsCreateDialogOpen(false);
+      form.reset(); // Limpar o formulário após sucesso
       toast({
         title: "Sucesso",
         description: "Glosa criada com sucesso!",
@@ -206,22 +207,22 @@ export default function Glosas() {
                     Nova Glosa
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl bg-blue-bg border-blue-400/30">
+                <DialogContent className="max-w-lg bg-blue-bg border-blue-400/30">
                   <DialogHeader>
                     <DialogTitle className="text-white">Criar Nova Glosa</DialogTitle>
                   </DialogHeader>
                   <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <FormField
                           control={form.control}
                           name="contractId"
                           render={({ field }) => (
-                            <FormItem>
+                            <FormItem className="md:col-span-2">
                               <FormLabel className="text-white">Contrato</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <Select onValueChange={field.onChange} value={field.value || ""}>
                                 <FormControl>
-                                  <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
+                                  <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white h-9">
                                     <SelectValue placeholder="Selecione um contrato" />
                                   </SelectTrigger>
                                 </FormControl>
@@ -249,7 +250,7 @@ export default function Glosas() {
                                   type="number" 
                                   step="0.01"
                                   placeholder="0,00" 
-                                  className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
+                                  className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200 h-9"
                                   {...field} 
                                 />
                               </FormControl>
@@ -269,7 +270,7 @@ export default function Glosas() {
                                   type="number" 
                                   step="0.01"
                                   placeholder="0,00" 
-                                  className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
+                                  className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200 h-9"
                                   value={field.value || ""}
                                   onChange={field.onChange}
                                   onBlur={field.onBlur}
@@ -293,12 +294,12 @@ export default function Glosas() {
                                     <Button
                                       variant={"outline"}
                                       className={cn(
-                                        "w-full pl-3 text-left font-normal bg-blue-600/30 border-blue-400/30 text-white",
+                                        "w-full pl-3 text-left font-normal bg-blue-600/30 border-blue-400/30 text-white h-9",
                                         !field.value && "text-blue-200"
                                       )}
                                     >
                                       {field.value ? (
-                                        format(field.value, "PPP", { locale: ptBR })
+                                        format(field.value, "dd/MM/yyyy")
                                       ) : (
                                         <span>Selecione uma data</span>
                                       )}
@@ -326,9 +327,9 @@ export default function Glosas() {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel className="text-white">Status</FormLabel>
-                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <Select onValueChange={field.onChange} value={field.value || "pending"}>
                                 <FormControl>
-                                  <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white">
+                                  <SelectTrigger className="bg-blue-600/30 border-blue-400/30 text-white h-9">
                                     <SelectValue placeholder="Selecione o status" />
                                   </SelectTrigger>
                                 </FormControl>
@@ -348,13 +349,13 @@ export default function Glosas() {
                         control={form.control}
                         name="description"
                         render={({ field }) => (
-                          <FormItem>
+                          <FormItem className="col-span-full">
                             <FormLabel className="text-white">Descrição</FormLabel>
                             <FormControl>
                               <Textarea 
                                 placeholder="Descrição da glosa" 
                                 className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
-                                rows={3}
+                                rows={2}
                                 {...field} 
                               />
                             </FormControl>
@@ -367,7 +368,7 @@ export default function Glosas() {
                         control={form.control}
                         name="reason"
                         render={({ field }) => (
-                          <FormItem>
+                          <FormItem className="col-span-full">
                             <FormLabel className="text-white">Motivo</FormLabel>
                             <FormControl>
                               <Textarea 
@@ -385,7 +386,7 @@ export default function Glosas() {
                         )}
                       />
 
-                      <div className="flex justify-end space-x-4">
+                      <div className="flex justify-end space-x-3 pt-2 col-span-full">
                         <Button 
                           type="button" 
                           variant="outline" 
