@@ -8,14 +8,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Search, Calendar, Download, Filter } from "lucide-react";
+import { Plus, Search, Calendar, Filter } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { insertPayrollSchema, type Payroll, type InsertPayroll, type Contract } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
-import * as exportUtils from "@/lib/exportUtils";
+
 
 interface PayrollFilters {
   contractId: string;
@@ -170,28 +170,7 @@ export default function Folha() {
     }, 0);
   };
 
-  const handleExport = () => {
-    exportUtils.showExportModal({
-      title: `Folha de Pagamento - ${getPeriodLabel()}`,
-      data: payrollData.map(item => ({
-        'Contrato': getContractName(item.contractId),
-        'Período': getPeriodLabel(),
-        'Salários': formatCurrency(item.salarios),
-        'Hora Extra': formatCurrency(item.horaExtra),
-        'Benefícios': formatCurrency(item.beneficios),
-        'Vale Transporte': formatCurrency(item.vt),
-        'Imestra': formatCurrency(item.imestra),
-        'Total': formatCurrency((
-          parseFloat(item.salarios) +
-          parseFloat(item.horaExtra) +
-          parseFloat(item.beneficios) +
-          parseFloat(item.vt) +
-          parseFloat(item.imestra)
-        ).toString())
-      })),
-      pdfElementId: 'folha-table-content'
-    });
-  };
+
 
   // Atualizar quarter quando mudar mês
   useEffect(() => {
@@ -211,10 +190,6 @@ export default function Folha() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={handleExport} variant="outline">
-            <Download className="w-4 h-4 mr-2" />
-            Exportar
-          </Button>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button onClick={() => {
