@@ -8,8 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Search, Calendar, Filter } from "lucide-react";
+import { Plus, Search, Calendar, Filter, Edit, Trash2, AlertTriangle } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -28,6 +29,7 @@ interface PayrollFilters {
 export default function Folha() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingPayroll, setEditingPayroll] = useState<Payroll | null>(null);
+  const [deletePayrollId, setDeletePayrollId] = useState<string | null>(null);
   const [filters, setFilters] = useState<PayrollFilters>({
     contractId: "all",
     year: new Date().getFullYear().toString(),
@@ -152,8 +154,13 @@ export default function Folha() {
   };
 
   const handleDelete = (id: string) => {
-    if (confirm("Tem certeza que deseja excluir esta folha de pagamento?")) {
-      deletePayrollMutation.mutate(id);
+    setDeletePayrollId(id);
+  };
+
+  const confirmDelete = () => {
+    if (deletePayrollId) {
+      deletePayrollMutation.mutate(deletePayrollId);
+      setDeletePayrollId(null);
     }
   };
 
@@ -706,21 +713,57 @@ export default function Folha() {
                           {formatCurrency(total.toString())}
                         </TableCell>
                         <TableCell className="text-center">
-                          <div className="flex justify-center gap-1">
+                          <div className="flex justify-center gap-2">
                             <Button
                               size="sm"
-                              variant="outline"
+                              variant="ghost"
+                              className="text-blue-600 hover:text-blue-800 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/30"
                               onClick={() => handleEdit(item)}
+                              data-testid="button-edit"
                             >
-                              Editar
+                              <Edit className="w-4 h-4" />
                             </Button>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => handleDelete(item.id)}
-                            >
-                              Excluir
-                            </Button>
+                            <AlertDialog open={deletePayrollId === item.id} onOpenChange={(open) => !open && setDeletePayrollId(null)}>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="text-red-600 hover:text-red-800 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/30"
+                                  onClick={() => handleDelete(item.id)}
+                                  data-testid="button-delete"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent className="bg-white dark:bg-gray-900 border border-red-200 dark:border-red-800 shadow-2xl">
+                                <AlertDialogHeader className="text-center space-y-4">
+                                  <div className="mx-auto w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+                                    <AlertTriangle className="w-8 h-8 text-red-600 dark:text-red-400" />
+                                  </div>
+                                  <AlertDialogTitle className="text-xl font-bold text-gray-900 dark:text-white">
+                                    Confirmar Exclusão
+                                  </AlertDialogTitle>
+                                  <AlertDialogDescription className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+                                    Tem certeza que deseja excluir esta folha de pagamento?{" "}
+                                    <span className="font-semibold text-red-600 dark:text-red-400">
+                                      Esta ação não pode ser desfeita.
+                                    </span>
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter className="gap-3 sm:gap-3">
+                                  <AlertDialogCancel className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800">
+                                    Cancelar
+                                  </AlertDialogCancel>
+                                  <AlertDialogAction 
+                                    onClick={confirmDelete}
+                                    disabled={deletePayrollMutation.isPending}
+                                    className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium"
+                                  >
+                                    {deletePayrollMutation.isPending ? "Excluindo..." : "Excluir"}
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
                           </div>
                         </TableCell>
                       </TableRow>
