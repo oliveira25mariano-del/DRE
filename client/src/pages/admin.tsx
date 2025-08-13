@@ -24,6 +24,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -41,6 +43,8 @@ const userSchema = z.object({
   role: z.enum(["edit", "visualization"], {
     required_error: "Selecione um tipo de acesso",
   }),
+  restrictToOwnContracts: z.boolean().optional().default(false),
+  allowedContracts: z.array(z.string()).optional().default([]),
 });
 
 type UserFormData = z.infer<typeof userSchema>;
@@ -54,6 +58,8 @@ type User = {
   role: "edit" | "visualization";
   createdAt?: Date | null;
   updatedAt?: Date | null;
+  restrictToOwnContracts?: boolean;
+  allowedContracts?: string[] | null;
 };
 
 export default function AdminPanel() {
@@ -73,6 +79,8 @@ export default function AdminPanel() {
       firstName: "",
       lastName: "",
       role: "visualization",
+      restrictToOwnContracts: false,
+      allowedContracts: [],
     },
   });
 
@@ -83,11 +91,19 @@ export default function AdminPanel() {
       firstName: "",
       lastName: "",
       role: "visualization",
+      restrictToOwnContracts: false,
+      allowedContracts: [],
     },
   });
 
   const { data: users = [], isLoading, refetch } = useQuery<User[]>({
     queryKey: ["/api/admin/users"],
+    retry: false,
+  });
+
+  // Query para buscar contratos disponíveis
+  const { data: contracts = [] } = useQuery({
+    queryKey: ["/api/contracts"],
     retry: false,
   });
 
@@ -180,6 +196,8 @@ export default function AdminPanel() {
       firstName: user.firstName || "",
       lastName: user.lastName || "",
       role: user.role,
+      restrictToOwnContracts: user.restrictToOwnContracts || false,
+      allowedContracts: user.allowedContracts || [],
     });
     setIsEditDialogOpen(true);
   };
@@ -329,6 +347,73 @@ export default function AdminPanel() {
                           </FormItem>
                         )}
                       />
+                      
+                      {/* Campo de Restrição de Contratos */}
+                      <FormField
+                        control={form.control}
+                        name="restrictToOwnContracts"
+                        render={({ field }) => (
+                          <FormItem>
+                            <div className="flex items-center space-x-2">
+                              <FormControl>
+                                <Checkbox 
+                                  checked={field.value} 
+                                  onCheckedChange={field.onChange}
+                                  className="border-blue-600 data-[state=checked]:bg-blue-600"
+                                />
+                              </FormControl>
+                              <FormLabel className="text-white cursor-pointer">
+                                Restringir a contratos específicos
+                              </FormLabel>
+                            </div>
+                            <div className="text-xs text-blue-300 mt-1">
+                              Se marcado, o usuário verá apenas os contratos selecionados abaixo
+                            </div>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      {/* Seleção de Contratos Permitidos */}
+                      {form.watch("restrictToOwnContracts") && (
+                        <FormField
+                          control={form.control}
+                          name="allowedContracts"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-white">Contratos Permitidos</FormLabel>
+                              <div className="space-y-2 max-h-32 overflow-y-auto border border-blue-600 rounded-md p-2 bg-blue-800/30">
+                                {contracts.map((contract: any) => (
+                                  <div key={contract.id} className="flex items-center space-x-2">
+                                    <Checkbox
+                                      checked={field.value?.includes(contract.id) || false}
+                                      onCheckedChange={(checked) => {
+                                        const current = field.value || [];
+                                        if (checked) {
+                                          field.onChange([...current, contract.id]);
+                                        } else {
+                                          field.onChange(current.filter((id: string) => id !== contract.id));
+                                        }
+                                      }}
+                                      className="border-blue-600 data-[state=checked]:bg-blue-600"
+                                    />
+                                    <Label className="text-blue-100 text-sm cursor-pointer">
+                                      {contract.name}
+                                    </Label>
+                                  </div>
+                                ))}
+                              </div>
+                              {(!contracts || contracts.length === 0) && (
+                                <p className="text-blue-300 text-sm italic">
+                                  Nenhum contrato disponível
+                                </p>
+                              )}
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )}
+
                       <div className="flex gap-2 pt-4">
                         <Button 
                           type="submit" 
@@ -561,6 +646,73 @@ export default function AdminPanel() {
                   </FormItem>
                 )}
               />
+              
+              {/* Campo de Restrição de Contratos no Formulário de Edição */}
+              <FormField
+                control={editForm.control}
+                name="restrictToOwnContracts"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex items-center space-x-2">
+                      <FormControl>
+                        <Checkbox 
+                          checked={field.value} 
+                          onCheckedChange={field.onChange}
+                          className="border-blue-600 data-[state=checked]:bg-blue-600"
+                        />
+                      </FormControl>
+                      <FormLabel className="text-white cursor-pointer">
+                        Restringir a contratos específicos
+                      </FormLabel>
+                    </div>
+                    <div className="text-xs text-blue-300 mt-1">
+                      Se marcado, o usuário verá apenas os contratos selecionados abaixo
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Seleção de Contratos Permitidos no Formulário de Edição */}
+              {editForm.watch("restrictToOwnContracts") && (
+                <FormField
+                  control={editForm.control}
+                  name="allowedContracts"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-white">Contratos Permitidos</FormLabel>
+                      <div className="space-y-2 max-h-32 overflow-y-auto border border-blue-600 rounded-md p-2 bg-blue-800/30">
+                        {contracts.map((contract: any) => (
+                          <div key={contract.id} className="flex items-center space-x-2">
+                            <Checkbox
+                              checked={field.value?.includes(contract.id) || false}
+                              onCheckedChange={(checked) => {
+                                const current = field.value || [];
+                                if (checked) {
+                                  field.onChange([...current, contract.id]);
+                                } else {
+                                  field.onChange(current.filter((id: string) => id !== contract.id));
+                                }
+                              }}
+                              className="border-blue-600 data-[state=checked]:bg-blue-600"
+                            />
+                            <Label className="text-blue-100 text-sm cursor-pointer">
+                              {contract.name}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                      {(!contracts || contracts.length === 0) && (
+                        <p className="text-blue-300 text-sm italic">
+                          Nenhum contrato disponível
+                        </p>
+                      )}
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
               <div className="flex gap-2 pt-4">
                 <Button 
                   type="submit" 

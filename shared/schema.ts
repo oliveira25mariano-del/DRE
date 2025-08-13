@@ -175,6 +175,8 @@ export const users = pgTable("users", {
   active: boolean("active").default(true),
   emailVerified: boolean("email_verified").default(false),
   lastLogin: timestamp("last_login"),
+  allowedContracts: text("allowed_contracts").array(), // IDs dos contratos que o usuário pode visualizar
+  restrictToOwnContracts: boolean("restrict_to_own_contracts").default(false), // Se deve restringir apenas aos contratos específicos
   createdAt: timestamp("created_at").default(sql`now()`),
   updatedAt: timestamp("updated_at").default(sql`now()`),
 });
@@ -258,6 +260,8 @@ export const insertUserSchema = createInsertSchema(users, {
   role: z.enum(["visualization", "edit"], {
     required_error: "Selecione um nível de acesso",
   }),
+  allowedContracts: z.array(z.string()).optional(),
+  restrictToOwnContracts: z.boolean().optional().default(false),
 }).omit({
   id: true,
   createdAt: true,

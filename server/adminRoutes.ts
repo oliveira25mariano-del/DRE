@@ -11,6 +11,8 @@ let users = [
     lastName: "Silva",
     role: "edit" as const,
     passwordHash: "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi", // password
+    restrictToOwnContracts: false,
+    allowedContracts: [] as string[],
     createdAt: new Date(),
     updatedAt: new Date(),
   },
@@ -21,6 +23,8 @@ let users = [
     lastName: "Santos",
     role: "visualization" as const,
     passwordHash: "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi", // password
+    restrictToOwnContracts: true,
+    allowedContracts: ["c1", "c2"] as string[],
     createdAt: new Date(),
     updatedAt: new Date(),
   },
@@ -31,6 +35,8 @@ let users = [
     lastName: "Sistema",
     role: "edit" as const,
     passwordHash: "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi", // password
+    restrictToOwnContracts: false,
+    allowedContracts: [] as string[],
     createdAt: new Date(),
     updatedAt: new Date(),
   },
@@ -42,6 +48,8 @@ const createUserSchema = z.object({
   firstName: z.string().min(2),
   lastName: z.string().min(2),
   role: z.enum(["edit", "visualization"]),
+  restrictToOwnContracts: z.boolean().optional().default(false),
+  allowedContracts: z.array(z.string()).optional().default([]),
 });
 
 const updateUserSchema = z.object({
@@ -49,6 +57,8 @@ const updateUserSchema = z.object({
   firstName: z.string().min(2),
   lastName: z.string().min(2),
   role: z.enum(["edit", "visualization"]),
+  restrictToOwnContracts: z.boolean().optional().default(false),
+  allowedContracts: z.array(z.string()).optional().default([]),
 });
 
 export function registerAdminRoutes(app: Express) {
@@ -60,6 +70,8 @@ export function registerAdminRoutes(app: Express) {
       firstName: user.firstName,
       lastName: user.lastName,
       role: user.role,
+      restrictToOwnContracts: user.restrictToOwnContracts,
+      allowedContracts: user.allowedContracts,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     }));
@@ -89,6 +101,8 @@ export function registerAdminRoutes(app: Express) {
         firstName: validatedData.firstName,
         lastName: validatedData.lastName,
         role: validatedData.role,
+        restrictToOwnContracts: validatedData.restrictToOwnContracts,
+        allowedContracts: validatedData.allowedContracts,
         passwordHash,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -137,6 +151,8 @@ export function registerAdminRoutes(app: Express) {
         firstName: validatedData.firstName,
         lastName: validatedData.lastName,
         role: validatedData.role,
+        restrictToOwnContracts: validatedData.restrictToOwnContracts,
+        allowedContracts: validatedData.allowedContracts,
         updatedAt: new Date(),
       };
 
