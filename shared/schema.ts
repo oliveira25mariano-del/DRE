@@ -64,6 +64,7 @@ export const employees = pgTable("employees", {
   fringeRate: decimal("fringe_rate", { precision: 5, scale: 2 }).notNull(),
   hoursWorked: decimal("hours_worked", { precision: 6, scale: 2 }),
   hourlyRate: decimal("hourly_rate", { precision: 8, scale: 2 }),
+  extraDate: timestamp("extra_date"),
   active: boolean("active").default(true),
   createdAt: timestamp("created_at").default(sql`now()`),
 });

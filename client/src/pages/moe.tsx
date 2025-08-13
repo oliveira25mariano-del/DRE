@@ -115,6 +115,7 @@ export default function MOE() {
       fringeRate: "0",
       hoursWorked: "0",
       hourlyRate: "0",
+      extraDate: null,
       active: true,
     },
   });
@@ -132,17 +133,33 @@ export default function MOE() {
     return "0";
   };
 
-  // Observar mudanças no salário e horas para recalcular taxa horária
+  // Função para calcular custo total (taxa horária * horas trabalhadas)
+  const calculateTotalCost = (hourlyRate: string, hoursWorked: string) => {
+    const rate = parseFloat(hourlyRate || "0");
+    const hours = parseFloat(hoursWorked || "0");
+    return (rate * hours).toFixed(2);
+  };
+
+  // Observar mudanças no salário e horas para recalcular taxa horária e custo total
   const watchedSalary = form.watch("baseSalary");
   const watchedHours = form.watch("hoursWorked");
+  const watchedHourlyRate = form.watch("hourlyRate");
   
   // Atualizar taxa horária quando salário ou horas mudarem
   useEffect(() => {
-    const newHourlyRate = calculateHourlyRate(watchedSalary, watchedHours);
+    const newHourlyRate = calculateHourlyRate(watchedSalary || "0", watchedHours || "0");
     if (newHourlyRate !== form.getValues("hourlyRate")) {
       form.setValue("hourlyRate", newHourlyRate);
     }
   }, [watchedSalary, watchedHours, form]);
+
+  // Atualizar custo total quando taxa horária ou horas mudarem
+  useEffect(() => {
+    const newTotalCost = calculateTotalCost(watchedHourlyRate || "0", watchedHours || "0");
+    if (newTotalCost !== form.getValues("fringeRate")) {
+      form.setValue("fringeRate", newTotalCost);
+    }
+  }, [watchedHourlyRate, watchedHours, form]);
 
   const editForm = useForm<InsertEmployee>({
     resolver: zodResolver(insertEmployeeSchema),
@@ -333,16 +350,19 @@ export default function MOE() {
 
                         <FormField
                           control={form.control}
-                          name="email"
+                          name="fringeRate"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-white">Email</FormLabel>
+                              <FormLabel className="text-white">Custo Total (R$) - Automático</FormLabel>
                               <FormControl>
                                 <Input 
-                                  type="email"
-                                  placeholder="email@exemplo.com" 
-                                  className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
-                                  {...field} 
+                                  type="number"
+                                  step="0.01"
+                                  placeholder="Calculado automaticamente" 
+                                  className="bg-gray-600/50 border-gray-400/30 text-gray-300 placeholder:text-gray-400"
+                                  {...field}
+                                  value={field.value || ""}
+                                  readOnly
                                 />
                               </FormControl>
                               <FormMessage />
@@ -419,7 +439,7 @@ export default function MOE() {
                           name="hoursWorked"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-white">Horas Trabalhadas (por semana)</FormLabel>
+                              <FormLabel className="text-white">Horas Trabalhadas</FormLabel>
                               <FormControl>
                                 <Input 
                                   type="number" 
@@ -450,6 +470,26 @@ export default function MOE() {
                                   {...field}
                                   value={field.value || ""}
                                   readOnly
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="extraDate"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-white">Data da Extra</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  type="date"
+                                  className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
+                                  {...field}
+                                  value={field.value ? new Date(field.value).toISOString().split('T')[0] : ""}
+                                  onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : null)}
                                 />
                               </FormControl>
                               <FormMessage />
