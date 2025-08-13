@@ -3,13 +3,14 @@
 ## Overview
 Sistema DRE is a comprehensive financial management platform designed to provide robust financial oversight. Its core purpose is to provide complete financial transparency, optimize resource allocation, and enable data-driven decision-making for businesses. Key capabilities include contract management, budget and actual expense tracking, employee management, and advanced analytics, all presented through a modern dashboard with real-time KPI monitoring, automated alerting, comprehensive audit logging, and reporting.
 
-## User Preferences
-Preferred communication style: Simple, everyday language.
-Interface language: Portuguese (Brazil) - All system interfaces and documentation should be in Portuguese.
-User requires: Complete understanding of Replit configuration and navigation in Portuguese.
-Admin Panel Access: Ctrl + Alt + A shortcut for hidden administrative panel at /admin-panel-secreto
-Visual Standards: KPI cards must maintain consistent height, glass-effect styling, and blue color scheme throughout the application.
-Error Prevention: All TypeScript errors must be resolved to prevent application instability and ensure smooth operation.
+## Preferências do Usuário
+Estilo de comunicação preferido: Linguagem simples e cotidiana.
+Idioma da interface: Português (Brasil) - Todas as interfaces do sistema e documentação devem estar em português.
+Idioma de comunicação: Todo o chat e comunicação deve ser em português brasileiro.
+Requisito do usuário: Compreensão completa da configuração e navegação do Replit em português.
+Acesso ao Painel Admin: Atalho Ctrl + Alt + A para painel administrativo oculto em /admin-panel-secreto
+Padrões Visuais: Cards de KPI devem manter altura consistente, estilo de efeito vidro, e esquema de cores azul em toda aplicação.
+Prevenção de Erros: Todos os erros TypeScript devem ser resolvidos para prevenir instabilidade da aplicação e garantir operação suave.
 
 ## System Architecture
 
