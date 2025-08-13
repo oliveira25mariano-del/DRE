@@ -10,14 +10,15 @@ User requires: Complete understanding of Replit configuration and navigation in 
 Admin Panel Access: Ctrl + Alt + A shortcut for hidden administrative panel at /admin-panel-secreto
 Visual Standards: KPI cards must maintain consistent height, glass-effect styling, and blue color scheme throughout the application.
 Error Prevention: All TypeScript errors must be resolved to prevent application instability and ensure smooth operation.
+Critical Bug Fixes: User expressed high frustration with contract editing failures and demanded definitive resolution - implemented comprehensive fix with HTTP method compatibility and proper data handling.
 
 ## System Architecture
 
 ### Frontend Architecture
-The frontend is a single-page application (SPA) developed with React and TypeScript, utilizing Vite for build processes. UI components are built with shadcn/ui, based on Radix UI primitives, and styled with Tailwind CSS for responsive design. Routing is managed by Wouter, and server state management uses TanStack Query for caching and synchronization. The component architecture is modular, promoting reusability and feature-specific organization. Visual consistency is achieved through standardized icon usage and consistent layout patterns, with all monetary values and visual components primarily using blue color tones.
+The frontend is a single-page application (SPA) developed with React and TypeScript, utilizing Vite for build processes. UI components are built with shadcn/ui, based on Radix UI primitives, and styled with Tailwind CSS for responsive design. Routing is managed by Wouter, and server state management uses TanStack Query for caching and synchronization. The component architecture is modular, promoting reusability and feature-specific organization. Visual consistency is achieved through standardized icon usage and consistent layout patterns, with all monetary values and visual components primarily using blue color tones. Contract forms implement comprehensive data validation with proper currency formatting, null field handling, and array initialization to prevent data loss during CRUD operations.
 
 ### Backend Architecture
-The backend is an Express.js application written in TypeScript, adhering to a RESTful API design. It employs a layered architecture separating routes, data storage interfaces, and middleware for concerns such as audit logging and error handling. API endpoints follow RESTful conventions, providing JSON responses and appropriate HTTP status codes.
+The backend is an Express.js application written in TypeScript, adhering to a RESTful API design. It employs a layered architecture separating routes, data storage interfaces, and middleware for concerns such as audit logging and error handling. API endpoints follow RESTful conventions, providing JSON responses and appropriate HTTP status codes. Contract update operations support both PUT and PATCH methods for maximum frontend compatibility, with shared handler function ensuring consistent behavior.
 
 ### Data Storage Solutions
 PostgreSQL serves as the primary database, managed with Drizzle ORM for type-safe operations and Drizzle Kit for schema migrations. The database is hosted on Neon Database for scalable serverless cloud storage. The schema encompasses financial entities like contracts, budget/actual data, employee records, audit logs, alerts, and reporting configurations.
@@ -50,6 +51,7 @@ The platform incorporates:
 - **Data Integrity Enhancement:** Improved server-side validation and logging for contract creation and updates, ensuring all form data is properly saved and retrieved with enhanced debugging capabilities and robust null/undefined field handling.
 - **Form Validation Improvements:** Enhanced contract form with proper default value handling, currency formatting, and comprehensive field validation to prevent data loss during creation and editing operations.
 - **Cache Management Fix:** Implemented robust React Query cache invalidation strategy for contract operations to ensure table updates immediately after create/edit/delete operations, preventing stale data display and ensuring real-time UI updates.
+- **Critical Contract Edit Bug Resolution (August 2025):** Identified and fixed the root cause of contract editing failures - HTTP method mismatch between frontend (PATCH) and backend (PUT only). Added PATCH route handler alongside existing PUT handler to ensure compatibility. Implemented comprehensive data validation and processing in contract forms with proper null/undefined handling, currency formatting, and array initialization. Removed complex local state management that caused sync issues, replacing with direct server data usage and forced refresh after mutations.
 
 ## External Dependencies
 
