@@ -351,7 +351,8 @@ export default function MOE() {
                                   step="0.01"
                                   placeholder="0,00" 
                                   className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
-                                  {...field} 
+                                  {...field}
+                                  value={field.value || ""}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -371,7 +372,8 @@ export default function MOE() {
                                   step="0.5"
                                   placeholder="0" 
                                   className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
-                                  {...field} 
+                                  {...field}
+                                  value={field.value || ""}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -715,7 +717,8 @@ export default function MOE() {
                           step="0.01"
                           placeholder="0,00" 
                           className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
-                          {...field} 
+                          {...field}
+                          value={field.value || ""}
                         />
                       </FormControl>
                       <FormMessage />
@@ -735,7 +738,8 @@ export default function MOE() {
                           step="0.5"
                           placeholder="0" 
                           className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
-                          {...field} 
+                          {...field}
+                          value={field.value || ""}
                         />
                       </FormControl>
                       <FormMessage />
