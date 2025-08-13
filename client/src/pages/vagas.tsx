@@ -297,13 +297,13 @@ export default function VagasPage() {
           <Card className="border-blue-200 dark:border-blue-800">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                Índice de Rotatividade
+                Taxa de Turnover
               </CardTitle>
               <TrendingUp className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">
-                {metrics.kpis?.indiceRotatividade || 0}%
+                {metrics.kpis?.taxaTurnover?.toFixed(1) || metrics.kpis?.indiceRotatividade?.toFixed(1) || 0}%
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 Últimos 12 meses
@@ -334,51 +334,82 @@ export default function VagasPage() {
 
       {/* Charts */}
       {metrics && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Monthly Trend Chart */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-blue-800 dark:text-blue-200">
-                <BarChart3 className="h-5 w-5" />
-                Tendência Mensal de Vagas
-              </CardTitle>
-              <CardDescription>Abertas vs Fechadas nos últimos 12 meses</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={metrics.monthlyTrend || []}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                  <XAxis dataKey="month" stroke="#64748b" fontSize={12} />
-                  <YAxis stroke="#64748b" fontSize={12} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: '#0f172a', 
-                      color: '#f8fafc',
-                      border: 'none',
-                      borderRadius: '8px'
-                    }} 
-                  />
-                  <Bar dataKey="abertas" fill="#60a5fa" name="Abertas" />
-                  <Bar dataKey="fechadas" fill="#1d4ed8" name="Fechadas" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Monthly Trend Chart */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-blue-800 dark:text-blue-200">
+                  <BarChart3 className="h-5 w-5" />
+                  Tendência Mensal de Vagas
+                </CardTitle>
+                <CardDescription>Abertas vs Fechadas nos últimos 12 meses</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={metrics.monthlyTrend || []}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                    <XAxis dataKey="month" stroke="#64748b" fontSize={12} />
+                    <YAxis stroke="#64748b" fontSize={12} />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: '#0f172a', 
+                        color: '#f8fafc',
+                        border: 'none',
+                        borderRadius: '8px'
+                      }} 
+                    />
+                    <Bar dataKey="abertas" fill="#60a5fa" name="Abertas" />
+                    <Bar dataKey="fechadas" fill="#1d4ed8" name="Fechadas" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
 
-          {/* Contract Performance Chart */}
+            {/* Contract Performance Chart */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-blue-800 dark:text-blue-200">
+                  <PieChart className="h-5 w-5" />
+                  Taxa de Fechamento por Contrato
+                </CardTitle>
+                <CardDescription>Performance de fechamento de vagas</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={metrics.metricsByContract || []} layout="horizontal">
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                    <XAxis type="number" domain={[0, 100]} stroke="#64748b" fontSize={12} />
+                    <YAxis type="category" dataKey="contractName" stroke="#64748b" fontSize={10} width={120} />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: '#0f172a', 
+                        color: '#f8fafc',
+                        border: 'none',
+                        borderRadius: '8px'
+                      }} 
+                      formatter={(value: any) => [`${value}%`, 'TFV']}
+                    />
+                    <Bar dataKey="tfv" fill="#2563eb" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-blue-800 dark:text-blue-200">
-                <PieChart className="h-5 w-5" />
-                Performance por Contrato
+                <TrendingUp className="h-5 w-5" />
+                Taxa de Turnover por Contrato
               </CardTitle>
-              <CardDescription>Taxa de fechamento por contrato</CardDescription>
+              <CardDescription>Taxa de rotatividade nos últimos 12 meses</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={metrics.metricsByContract || []} layout="horizontal">
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                  <XAxis type="number" domain={[0, 100]} stroke="#64748b" fontSize={12} />
+                  <XAxis type="number" domain={[0, 50]} stroke="#64748b" fontSize={12} />
                   <YAxis type="category" dataKey="contractName" stroke="#64748b" fontSize={10} width={120} />
                   <Tooltip 
                     contentStyle={{ 
@@ -387,14 +418,14 @@ export default function VagasPage() {
                       border: 'none',
                       borderRadius: '8px'
                     }} 
-                    formatter={(value: any) => [`${value}%`, 'TFV']}
+                    formatter={(value: any) => [`${value}%`, 'Turnover']}
                   />
-                  <Bar dataKey="tfv" fill="#2563eb" />
+                  <Bar dataKey="taxaTurnover" fill="#3b82f6" />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
-        </div>
+        </>
       )}
 
       {/* Vagas Table */}

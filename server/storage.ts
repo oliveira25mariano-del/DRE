@@ -1036,8 +1036,16 @@ export class MemStorage implements IStorage {
       ? vagasComTempo.reduce((sum, vaga) => sum + (vaga.tempoFechamentoDias || 0), 0) / vagasComTempo.length
       : 0;
 
-    // Índice de Rotatividade (simulated)
-    const indiceRotatividade = Math.random() * 15 + 5; // 5-20% simulated
+    // Taxa de Turnover - baseada em vagas fechadas nos últimos 12 meses
+    const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 12, now.getDate());
+    const vagasFechadasUltimos12Meses = vagas.filter(vaga => {
+      if (!vaga.dataFechamento) return false;
+      const fechamento = new Date(vaga.dataFechamento);
+      return fechamento >= twelveMonthsAgo && fechamento <= now;
+    }).length;
+    
+    const taxaTurnover = totalVagas > 0 ? (vagasFechadasUltimos12Meses / totalVagas) * 100 : 0;
+    const indiceRotatividade = taxaTurnover; // Mantendo compatibilidade
 
     // Metrics by contract
     const metricsByContract = contracts.map(contract => {
@@ -1046,13 +1054,23 @@ export class MemStorage implements IStorage {
       const contractFechadas = contractVagas.filter(vaga => vaga.status === 'fechada').length;
       const contractTotal = contractAbertas + contractFechadas;
 
+      // Taxa de turnover por contrato
+      const contractVagasFechadasUltimos12Meses = contractVagas.filter(vaga => {
+        if (!vaga.dataFechamento) return false;
+        const fechamento = new Date(vaga.dataFechamento);
+        return fechamento >= twelveMonthsAgo && fechamento <= now;
+      }).length;
+      
+      const taxaTurnoverContrato = contractTotal > 0 ? (contractVagasFechadasUltimos12Meses / contractTotal) * 100 : 0;
+
       return {
         contractId: contract.id,
         contractName: contract.name,
         abertas: contractAbertas,
         fechadas: contractFechadas,
         total: contractTotal,
-        tfv: contractTotal > 0 ? (contractFechadas / contractTotal) * 100 : 0
+        tfv: contractTotal > 0 ? (contractFechadas / contractTotal) * 100 : 0,
+        taxaTurnover: taxaTurnoverContrato
       };
     });
 
@@ -1085,7 +1103,8 @@ export class MemStorage implements IStorage {
         tfv: Math.round(tfv * 10) / 10,
         tmf: Math.round(tmf * 10) / 10,
         vagasAbertasAtivas: vagasAbertas,
-        indiceRotatividade: Math.round(indiceRotatividade * 10) / 10
+        indiceRotatividade: Math.round(indiceRotatividade * 10) / 10,
+        taxaTurnover: Math.round(taxaTurnover * 10) / 10
       },
       metricsByContract,
       monthlyTrend,
@@ -1099,6 +1118,11 @@ export class MemStorage implements IStorage {
           type: 'warning', 
           message: `Taxa de Fechamento de Vagas (${tfv.toFixed(1)}%) está abaixo da meta de 70%`,
           severity: 'media'
+        }] : []),
+        ...(taxaTurnover > 20 ? [{
+          type: 'error',
+          message: `Taxa de Turnover (${taxaTurnover.toFixed(1)}%) está acima do limite recomendado de 20%`,
+          severity: 'alta'
         }] : [])
       ]
     };
