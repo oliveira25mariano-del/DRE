@@ -333,6 +333,7 @@ export class MemStorage implements IStorage {
         contact: contractData.contact || null,
         categories: contractData.categories || null,
         endDate: contractData.endDate || null,
+        startDate: new Date(contractData.startDate),
         createdAt: now,
         updatedAt: now
       };
@@ -429,6 +430,14 @@ export class MemStorage implements IStorage {
     const contract: Contract = {
       ...insertContract,
       id,
+      description: insertContract.description || null,
+      contact: insertContract.contact || null,
+      margin: insertContract.margin || null,
+      endDate: insertContract.endDate || null,
+      categories: insertContract.categories || null,
+      tags: insertContract.tags || null,
+      monthlyValues: insertContract.monthlyValues || null,
+      totalValues: insertContract.totalValues || null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -748,6 +757,8 @@ export class MemStorage implements IStorage {
     const category: Category = {
       ...insertCategory,
       id,
+      description: insertCategory.description || null,
+      color: insertCategory.color || null,
       createdAt: new Date(),
     };
     this.categories.set(id, category);
@@ -965,7 +976,7 @@ export class MemStorage implements IStorage {
       month: payrollData.month,
       quarter: payrollData.quarter,
       salarios: payrollData.salarios || '0',
-      horasExtras: payrollData.horaExtra || '0',
+      horaExtra: payrollData.horaExtra || '0',
       beneficios: payrollData.beneficios || '0',
       vt: payrollData.vt || '0',
       imestra: payrollData.imestra || '0',
@@ -1291,20 +1302,7 @@ class DatabaseStorage implements IStorage {
   
   // Payroll
   async getPayroll(filters?: { contractId?: string; year?: number; month?: number; quarter?: number; period?: string }): Promise<Payroll[]> {
-    let query = db.select().from(payroll);
-    
-    if (filters?.contractId) {
-      query = query.where(eq(payroll.contractId, filters.contractId));
-    }
-    
-    const results = await query;
-    
-    return results.filter(item => {
-      if (filters?.year && item.year !== filters.year) return false;
-      if (filters?.month && item.month !== filters.month) return false;
-      if (filters?.quarter && item.quarter !== filters.quarter) return false;
-      return true;
-    });
+    return this.memStorage.getPayroll(filters);
   }
   
   async getPayrollItem(id: string): Promise<Payroll | undefined> {

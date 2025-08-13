@@ -66,8 +66,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/contracts', async (req, res) => {
     try {
-      const validatedData = insertContractSchema.parse(req.body);
+      console.log('📝 Dados recebidos para criação:', req.body);
+      
+      // Parse and validate data, ensuring all required fields are present
+      const validatedData = insertContractSchema.parse({
+        ...req.body,
+        // Ensure nullable fields have proper handling
+        contact: req.body.contact || null,
+        description: req.body.description || null,
+        margin: req.body.margin || null,
+        endDate: req.body.endDate || null,
+        categories: req.body.categories || [],
+        tags: req.body.tags || [],
+        monthlyValues: req.body.monthlyValues || {},
+        totalValues: req.body.totalValues || {},
+      });
+
+      console.log('✅ Dados validados:', validatedData);
+      
       const contract = await storage.createContract(validatedData);
+      
+      console.log('💾 Contrato salvo:', contract);
       
       req.auditData = {
         tableName: 'contracts',
@@ -77,15 +96,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.status(201).json(contract);
     } catch (error) {
+      console.error('❌ Erro ao criar contrato:', error);
       res.status(400).json({ message: error instanceof Error ? error.message : 'Error creating contract' });
     }
   });
 
   app.put('/api/contracts/:id', async (req, res) => {
     try {
+      console.log('📝 Dados recebidos para atualização:', req.params.id, req.body);
+      
       const oldContract = await storage.getContract(req.params.id);
-      const validatedData = insertContractSchema.partial().parse(req.body);
+      if (!oldContract) {
+        return res.status(404).json({ message: 'Contract not found' });
+      }
+      
+      // Parse and validate partial data for update
+      const validatedData = insertContractSchema.partial().parse({
+        ...req.body,
+        // Ensure proper handling of nullable fields during update
+        ...(req.body.contact !== undefined && { contact: req.body.contact || null }),
+        ...(req.body.description !== undefined && { description: req.body.description || null }),
+        ...(req.body.margin !== undefined && { margin: req.body.margin || null }),
+        ...(req.body.endDate !== undefined && { endDate: req.body.endDate || null }),
+        ...(req.body.categories !== undefined && { categories: req.body.categories || [] }),
+        ...(req.body.tags !== undefined && { tags: req.body.tags || [] }),
+        ...(req.body.monthlyValues !== undefined && { monthlyValues: req.body.monthlyValues || {} }),
+        ...(req.body.totalValues !== undefined && { totalValues: req.body.totalValues || {} }),
+      });
+      
+      console.log('✅ Dados validados para atualização:', validatedData);
+      
       const contract = await storage.updateContract(req.params.id, validatedData);
+      
+      console.log('💾 Contrato atualizado:', contract);
       
       req.auditData = {
         tableName: 'contracts',
@@ -96,6 +139,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json(contract);
     } catch (error) {
+      console.error('❌ Erro ao atualizar contrato:', error);
       res.status(400).json({ message: error instanceof Error ? error.message : 'Error updating contract' });
     }
   });

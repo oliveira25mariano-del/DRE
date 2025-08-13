@@ -8,6 +8,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Search, Download, Eye, Edit, Trash2, FileText } from "lucide-react";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { queryClient } from "@/lib/queryClient";
 import { apiRequest } from "@/lib/queryClient";
 import ContractForm from "@/components/contract-form";
@@ -24,6 +26,7 @@ export default function Contracts() {
   const [showCancelAlert, setShowCancelAlert] = useState(false);
   const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [contractToDelete, setContractToDelete] = useState<Contract | null>(null);
   const { toast } = useToast();
@@ -268,26 +271,17 @@ export default function Contracts() {
                   const exportData = filteredContracts.map((contract: Contract) => ({
                     "Nome": contract.name,
                     "Categoria": contract.category,
-                    "Cliente": contract.clientName,
-                    "Valor": `R$ ${parseFloat(contract.contractValue).toLocaleString('pt-BR')}`,
+                    "Cliente": contract.client,
+                    "Valor": `R$ ${parseFloat(contract.monthlyValue || "0").toLocaleString('pt-BR')}`,
                     "Data Início": new Date(contract.startDate).toLocaleDateString('pt-BR'),
-                    "Data Fim": new Date(contract.endDate).toLocaleDateString('pt-BR'),
+                    "Data Fim": contract.endDate ? new Date(contract.endDate).toLocaleDateString('pt-BR') : "N/A",
                     "Status": contract.status === 'active' ? 'Ativo' : contract.status === 'suspended' ? 'Suspenso' : 'Finalizado',
                     "Descrição": contract.description || "N/A",
-                    "Observações": contract.notes || "N/A"
+                    "Contato": contract.contact || "N/A"
                   }));
 
                   try {
-                    await exportUtils.showExportModal(
-                      exportData,
-                      `contratos`,
-                      'contracts-table-content',
-                      {
-                        title: 'Relatório de Contratos',
-                        subtitle: `Total de ${filteredContracts.length} contratos - Gerado em ${new Date().toLocaleDateString('pt-BR')}`,
-                        orientation: 'landscape'
-                      }
-                    );
+                    await exportUtils.showExportModal(exportData, `contratos`);
 
                     toast({
                       title: "Dados Exportados",
@@ -441,11 +435,7 @@ export default function Contracts() {
                               className="text-blue-400 hover:text-blue-200 hover:bg-blue-500/20"
                               onClick={() => {
                                 setSelectedContract(contract);
-                                // View functionality - could open a detailed view modal
-                                toast({
-                                  title: "Visualização",
-                                  description: `Visualizando contrato: ${contract.name}`,
-                                });
+                                setIsViewDialogOpen(true);
                               }}
                             >
                               <Eye className="w-4 h-4" />
@@ -507,9 +497,169 @@ export default function Contracts() {
                 tags: selectedContract.tags || [],
                 monthlyValues: (selectedContract.monthlyValues || {}) as Record<string, string>,
                 totalValues: (selectedContract.totalValues || {}) as Record<string, string>,
+                margin: selectedContract.margin || undefined,
               }}
               isLoading={updateMutation.isPending}
             />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* View Contract Dialog */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-slate-900 border-blue-400/30">
+          <DialogHeader>
+            <DialogTitle className="text-white flex items-center gap-2">
+              <Eye className="w-5 h-5 text-blue-400" />
+              Visualizar Contrato
+            </DialogTitle>
+          </DialogHeader>
+          {selectedContract && (
+            <div className="space-y-6 p-4">
+              {/* Header with Contract Name */}
+              <div className="bg-blue-900/30 p-4 rounded-lg border border-blue-400/20">
+                <h2 className="text-xl font-bold text-white">{selectedContract.name}</h2>
+                <p className="text-blue-200 mt-1">{selectedContract.description || 'Sem descrição'}</p>
+              </div>
+
+              {/* Main Information Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Client Information */}
+                <div className="bg-slate-800/50 p-4 rounded-lg border border-blue-400/20">
+                  <h3 className="text-lg font-semibold text-blue-400 mb-3">Informações do Cliente</h3>
+                  <div className="space-y-2">
+                    <div>
+                      <label className="text-sm font-medium text-blue-300">Cliente:</label>
+                      <p className="text-white">{selectedContract.client}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-blue-300">Contato:</label>
+                      <p className="text-white">{selectedContract.contact || 'Não informado'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Contract Details */}
+                <div className="bg-slate-800/50 p-4 rounded-lg border border-blue-400/20">
+                  <h3 className="text-lg font-semibold text-blue-400 mb-3">Detalhes do Contrato</h3>
+                  <div className="space-y-2">
+                    <div>
+                      <label className="text-sm font-medium text-blue-300">Categoria:</label>
+                      <Badge className={getCategoryColor(selectedContract.category)}>
+                        {selectedContract.category}
+                      </Badge>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-blue-300">Status:</label>
+                      <Badge className={getStatusColor(selectedContract.status)}>
+                        {selectedContract.status === 'active' ? 'Ativo' : 
+                         selectedContract.status === 'suspended' ? 'Suspenso' : 'Finalizado'}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Financial Information */}
+                <div className="bg-slate-800/50 p-4 rounded-lg border border-blue-400/20">
+                  <h3 className="text-lg font-semibold text-blue-400 mb-3">Valores Financeiros</h3>
+                  <div className="space-y-2">
+                    <div>
+                      <label className="text-sm font-medium text-blue-300">Valor Mensal:</label>
+                      <p className="text-green-300 font-semibold">{formatCurrency(selectedContract.monthlyValue)}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-blue-300">Valor Total:</label>
+                      <p className="text-green-300 font-semibold">{formatCurrency(selectedContract.totalValue)}</p>
+                    </div>
+                    {selectedContract.margin && (
+                      <div>
+                        <label className="text-sm font-medium text-blue-300">Margem (%):</label>
+                        <p className="text-blue-200">{selectedContract.margin}%</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Dates */}
+                <div className="bg-slate-800/50 p-4 rounded-lg border border-blue-400/20">
+                  <h3 className="text-lg font-semibold text-blue-400 mb-3">Datas</h3>
+                  <div className="space-y-2">
+                    <div>
+                      <label className="text-sm font-medium text-blue-300">Data de Início:</label>
+                      <p className="text-white">{format(new Date(selectedContract.startDate), "dd/MM/yyyy", { locale: ptBR })}</p>
+                    </div>
+                    {selectedContract.endDate && (
+                      <div>
+                        <label className="text-sm font-medium text-blue-300">Data de Término:</label>
+                        <p className="text-white">{format(new Date(selectedContract.endDate), "dd/MM/yyyy", { locale: ptBR })}</p>
+                      </div>
+                    )}
+                    <div>
+                      <label className="text-sm font-medium text-blue-300">Criado em:</label>
+                      <p className="text-blue-200 text-sm">
+                        {selectedContract.createdAt ? format(new Date(selectedContract.createdAt), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR }) : 'N/A'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Categories and Tags */}
+              {(selectedContract.categories?.length || selectedContract.tags?.length) && (
+                <div className="bg-slate-800/50 p-4 rounded-lg border border-blue-400/20">
+                  <h3 className="text-lg font-semibold text-blue-400 mb-3">Categorias e Tags</h3>
+                  <div className="space-y-3">
+                    {selectedContract.categories?.length && (
+                      <div>
+                        <label className="text-sm font-medium text-blue-300 block mb-2">Categorias:</label>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedContract.categories.map((category, index) => (
+                            <Badge key={index} className="bg-blue-600/30 text-blue-200 border-blue-400/30">
+                              {category}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {selectedContract.tags?.length && (
+                      <div>
+                        <label className="text-sm font-medium text-blue-300 block mb-2">Tags:</label>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedContract.tags.map((tag, index) => (
+                            <Badge key={index} className="bg-indigo-600/30 text-indigo-200 border-indigo-400/30">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="flex justify-end gap-3 pt-4 border-t border-blue-400/20">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsViewDialogOpen(false)}
+                  className="border-blue-400/30 text-white hover:bg-blue-600/30"
+                >
+                  Fechar
+                </Button>
+                {canEdit && (
+                  <Button 
+                    onClick={() => {
+                      setIsViewDialogOpen(false);
+                      setIsEditDialogOpen(true);
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    <Edit className="w-4 h-4 mr-2" />
+                    Editar
+                  </Button>
+                )}
+              </div>
+            </div>
           )}
         </DialogContent>
       </Dialog>
