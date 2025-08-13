@@ -26,7 +26,9 @@ export default function MOE() {
   const [isAnalysisOpen, setIsAnalysisOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [employeeToDelete, setEmployeeToDelete] = useState<Employee | null>(null);
   const { toast } = useToast();
 
   const { data: employees = [], isLoading } = useQuery({
@@ -188,10 +190,15 @@ export default function MOE() {
 
   const handleDelete = (id: string) => {
     const employee = filteredEmployees.find(emp => emp.id === id);
-    const employeeName = employee?.name || "este colaborador";
-    
-    if (window.confirm(`Tem certeza que deseja excluir ${employeeName}?\n\nEsta ação não pode ser desfeita.`)) {
-      deleteMutation.mutate(id);
+    setEmployeeToDelete(employee || null);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (employeeToDelete) {
+      deleteMutation.mutate(employeeToDelete.id);
+      setIsDeleteDialogOpen(false);
+      setEmployeeToDelete(null);
     }
   };
 
@@ -872,6 +879,40 @@ export default function MOE() {
                 </ResponsiveContainer>
               );
             })()}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal de Confirmação de Exclusão */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="max-w-md mx-auto">
+          <DialogHeader className="text-center">
+            <DialogTitle className="text-lg font-semibold text-red-600">
+              Confirmar Exclusão
+            </DialogTitle>
+            <DialogDescription className="text-gray-600 mt-2">
+              Tem certeza que deseja excluir <strong>{employeeToDelete?.name}</strong>?
+              <br />
+              <span className="text-sm text-red-500 mt-2 block">Esta ação não pode ser desfeita.</span>
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex gap-3 justify-center mt-6">
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+              className="px-6"
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={deleteMutation.isPending}
+              className="px-6"
+            >
+              {deleteMutation.isPending ? "Excluindo..." : "Excluir"}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
