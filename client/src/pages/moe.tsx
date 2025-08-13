@@ -115,7 +115,7 @@ export default function MOE() {
       fringeRate: "0",
       hoursWorked: "0",
       hourlyRate: "0",
-      extraDate: null,
+      extraDate: "",
       active: true,
     },
   });
@@ -172,6 +172,7 @@ export default function MOE() {
       fringeRate: "0",
       hoursWorked: "0",
       hourlyRate: "0",
+      extraDate: "",
       active: true,
     },
   });
@@ -487,9 +488,8 @@ export default function MOE() {
                                 <Input 
                                   type="date"
                                   className="bg-blue-600/30 border-blue-400/30 text-white placeholder:text-blue-200"
-                                  {...field}
-                                  value={field.value ? new Date(field.value).toISOString().split('T')[0] : ""}
-                                  onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : null)}
+                                  value={typeof field.value === 'string' ? field.value : field.value ? field.value.toISOString().split('T')[0] : ""}
+                                  onChange={(e) => field.onChange(e.target.value || "")}
                                 />
                               </FormControl>
                               <FormMessage />

@@ -228,6 +228,8 @@ export const insertActualSchema = createInsertSchema(actuals).omit({
 export const insertEmployeeSchema = createInsertSchema(employees).omit({
   id: true,
   createdAt: true,
+}).extend({
+  extraDate: z.union([z.string(), z.date(), z.null()]).optional(),
 });
 
 export const insertGlosaSchema = createInsertSchema(glosas, {
