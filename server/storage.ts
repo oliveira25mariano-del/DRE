@@ -607,8 +607,8 @@ export class MemStorage implements IStorage {
     const updatedGlosa: Glosa = {
       ...existingGlosa,
       ...updateData,
-      id: existingGlosa.id,
-      createdAt: existingGlosa.createdAt,
+      attestationCosts: updateData.attestationCosts ?? existingGlosa.attestationCosts,
+      reason: updateData.reason ?? existingGlosa.reason,
     };
 
     this.glosas.set(id, updatedGlosa);
@@ -616,26 +616,10 @@ export class MemStorage implements IStorage {
   }
 
   async deleteGlosa(id: string): Promise<void> {
-    const existingGlosa = this.glosas.get(id);
-    if (!existingGlosa) {
-      throw new Error('Glosa not found');
-    }
-    
     this.glosas.delete(id);
   }
 
-  async updateGlosa(id: string, insertGlosa: Partial<InsertGlosa>): Promise<Glosa> {
-    const existing = this.glosas.get(id);
-    if (!existing) throw new Error("Glosa not found");
-    
-    const updated: Glosa = { ...existing, ...insertGlosa };
-    this.glosas.set(id, updated);
-    return updated;
-  }
 
-  async deleteGlosa(id: string): Promise<void> {
-    this.glosas.delete(id);
-  }
 
   // Predictions
   async getPredictions(contractId?: string): Promise<Prediction[]> {
@@ -1230,13 +1214,7 @@ class DatabaseStorage implements IStorage {
   async createEmployee(insertEmployee: InsertEmployee): Promise<Employee> {
     const [employee] = await db
       .insert(employees)
-      .values({
-        ...insertEmployee,
-        baseSalary: insertEmployee.baseSalary.toString(),
-        fringeRate: insertEmployee.fringeRate.toString(),
-        hoursWorked: insertEmployee.hoursWorked?.toString(),
-        hourlyRate: insertEmployee.hourlyRate?.toString(),
-      })
+      .values(insertEmployee)
       .returning();
     return employee;
   }
@@ -1244,13 +1222,7 @@ class DatabaseStorage implements IStorage {
   async updateEmployee(id: string, insertEmployee: Partial<InsertEmployee>): Promise<Employee> {
     const [employee] = await db
       .update(employees)
-      .set({
-        ...insertEmployee,
-        ...(insertEmployee.baseSalary && { baseSalary: insertEmployee.baseSalary.toString() }),
-        ...(insertEmployee.fringeRate && { fringeRate: insertEmployee.fringeRate.toString() }),
-        ...(insertEmployee.hoursWorked && { hoursWorked: insertEmployee.hoursWorked.toString() }),
-        ...(insertEmployee.hourlyRate && { hourlyRate: insertEmployee.hourlyRate.toString() }),
-      })
+      .set(insertEmployee)
       .where(eq(employees.id, id))
       .returning();
     return employee;
