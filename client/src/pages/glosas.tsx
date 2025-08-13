@@ -10,14 +10,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Plus, Search, Download, Eye, Edit, Trash2, AlertTriangle, CalendarIcon } from "lucide-react";
+import { Plus, Search, Eye, Edit, Trash2, AlertTriangle, CalendarIcon } from "lucide-react";
 import { queryClient } from "@/lib/queryClient";
 import { apiRequest } from "@/lib/queryClient";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertGlosaSchema, type Glosa, type InsertGlosa } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
-import { exportUtils } from "@/lib/exportUtils";
+
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -402,54 +402,7 @@ export default function Glosas() {
                   </Form>
                 </DialogContent>
               </Dialog>
-              <Button 
-                variant="outline" 
-                className="border-blue-400/30 text-white hover:bg-blue-600/30"
-                onClick={async () => {
-                  const exportData = filteredGlosas.map((glosa: Glosa) => {
-                    const contract = (contracts as any[]).find((c: any) => c.id === glosa.contractId);
-                    return {
-                      "Contrato": contract?.name || glosa.contractId,
-                      "Descrição": glosa.description,
-                      "Valor (R$)": parseFloat(glosa.amount).toLocaleString('pt-BR', {
-                        style: 'currency',
-                        currency: 'BRL'
-                      }),
-                      "Custos Atestação (R$)": parseFloat(glosa.attestationCosts || "0").toLocaleString('pt-BR', {
-                        style: 'currency',
-                        currency: 'BRL'
-                      }),
-                      "Data": format(new Date(glosa.date), 'dd/MM/yyyy', { locale: ptBR }),
-                      "Motivo": glosa.reason || "N/A",
-                      "Status": glosa.status === 'pending' ? 'Pendente' : 
-                               glosa.status === 'approved' ? 'Aprovado' : 
-                               glosa.status === 'rejected' ? 'Rejeitado' : 
-                               'Desconhecido'
-                    };
-                  });
 
-                  try {
-                    await exportUtils.showExportModal(
-                      exportData,
-                      'glosas'
-                    );
-
-                    toast({
-                      title: "Dados Exportados",
-                      description: `Relatório de glosas exportado com ${filteredGlosas.length} registros`,
-                    });
-                  } catch (error) {
-                    toast({
-                      title: "Erro na Exportação",
-                      description: "Erro ao exportar dados. Tente novamente.",
-                      variant: "destructive",
-                    });
-                  }
-                }}
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Exportar
-              </Button>
             </div>
           </div>
         </CardHeader>
