@@ -191,10 +191,18 @@ export default function MOE() {
     setIsEditDialogOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    if (window.confirm("Tem certeza que deseja excluir este colaborador?")) {
-      console.log("Executando delete para ID:", id);
-      deleteMutation.mutate(id);
+  const handleDelete = async (id: string) => {
+    console.log("handleDelete chamado com ID:", id);
+    try {
+      const confirmed = window.confirm("Tem certeza que deseja excluir este colaborador?");
+      console.log("Confirmação do usuário:", confirmed);
+      
+      if (confirmed) {
+        console.log("Executando delete para ID:", id);
+        await deleteMutation.mutateAsync(id);
+      }
+    } catch (error) {
+      console.error("Erro no handleDelete:", error);
     }
   };
 
@@ -549,7 +557,13 @@ export default function MOE() {
                                 size="sm" 
                                 variant="ghost" 
                                 className="text-red-300 hover:text-red-100"
-                                onClick={() => handleDelete(employee.id)}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  console.log("Clique no botão delete detectado para:", employee.id);
+                                  handleDelete(employee.id);
+                                }}
+                                disabled={deleteMutation.isPending}
                               >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
