@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import opusLogo from "@assets/Logo-Grupo-Opus_1754948245317.png";
+import hexagonPattern from "@assets/image_1755048182734.png";
 
 const menuItems = [
   { path: "/dashboard", label: "Dashboard", icon: BarChart3, id: "sidebar-dashboard" },
@@ -47,8 +48,19 @@ export default function Sidebar({ onStartOnboarding }: SidebarProps) {
   const [location] = useLocation();
 
   return (
-    <div className="w-64 sidebar-gradient shadow-xl">
-      <div className="p-6">
+    <div className="w-64 sidebar-gradient shadow-xl relative overflow-hidden">
+      {/* Marca d'água com hexágonos */}
+      <div 
+        className="absolute inset-0 opacity-5 pointer-events-none z-0"
+        style={{
+          backgroundImage: `url(${hexagonPattern})`,
+          backgroundRepeat: 'repeat',
+          backgroundSize: '120px 120px',
+          backgroundPosition: 'center'
+        }}
+      ></div>
+      
+      <div className="relative z-10 p-6">
         <div className="flex flex-col items-center space-y-4 w-full">
           <div className="flex items-center justify-center w-full">
             <img 
@@ -64,7 +76,7 @@ export default function Sidebar({ onStartOnboarding }: SidebarProps) {
         </div>
       </div>
       
-      <nav className="mt-6">
+      <nav className="relative z-10 mt-6">
         <div className="px-6 py-2">
           <h3 className="text-blue-200 text-xs font-semibold uppercase tracking-wide">
             Menu Principal
