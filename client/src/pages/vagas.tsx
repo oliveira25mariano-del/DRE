@@ -56,17 +56,23 @@ export default function VagasPage() {
 
   const { data: vagas, isLoading: vagasLoading } = useQuery<Vaga[]>({
     queryKey: ["/api/vagas", selectedContract],
-    queryFn: () => {
+    queryFn: async () => {
       const contractParam = selectedContract === "all" ? "" : selectedContract;
-      return apiRequest(`/api/vagas${contractParam ? `?contractId=${contractParam}` : ""}`);
+      const url = `/api/vagas${contractParam ? `?contractId=${contractParam}` : ""}`;
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
     }
   });
 
   const { data: metrics, isLoading: metricsLoading } = useQuery({
     queryKey: ["/api/vagas/metrics", selectedContract],
-    queryFn: () => {
+    queryFn: async () => {
       const contractParam = selectedContract === "all" ? "" : selectedContract;
-      return apiRequest(`/api/vagas/metrics${contractParam ? `?contractId=${contractParam}` : ""}`);
+      const url = `/api/vagas/metrics${contractParam ? `?contractId=${contractParam}` : ""}`;
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`${response.status}: ${response.statusText}`);
+      return response.json();
     }
   });
 
@@ -84,13 +90,13 @@ export default function VagasPage() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (data: FormValues) => {
+    mutationFn: async (data: FormValues) => {
       const payload = {
         ...data,
         dataAbertura: data.dataAbertura.toISOString(),
         dataFechamento: data.dataFechamento?.toISOString(),
       };
-      return apiRequest("/api/vagas", "POST", payload);
+      return apiRequest("POST", "/api/vagas", payload);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/vagas"] });
@@ -101,13 +107,13 @@ export default function VagasPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data: { id: string; updates: Partial<FormValues> }) => {
+    mutationFn: async (data: { id: string; updates: Partial<FormValues> }) => {
       const payload = {
         ...data.updates,
         ...(data.updates.dataAbertura && { dataAbertura: data.updates.dataAbertura.toISOString() }),
         ...(data.updates.dataFechamento && { dataFechamento: data.updates.dataFechamento.toISOString() }),
       };
-      return apiRequest(`/api/vagas/${data.id}`, "PUT", payload);
+      return apiRequest("PUT", `/api/vagas/${data.id}`, payload);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/vagas"] });
@@ -119,7 +125,7 @@ export default function VagasPage() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => apiRequest(`/api/vagas/${id}`, "DELETE"),
+    mutationFn: (id: string) => apiRequest("DELETE", `/api/vagas/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/vagas"] });
       queryClient.invalidateQueries({ queryKey: ["/api/vagas/metrics"] });
