@@ -14,6 +14,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertEmployeeSchema, type Employee, type InsertEmployee } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
+import { exportUtils } from "@/lib/exportUtils";
 
 export default function MOE() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -383,7 +384,66 @@ export default function MOE() {
                   </Form>
                 </DialogContent>
               </Dialog>
-              <Button variant="outline" className="border-blue-400/30 text-white hover:bg-blue-600/30">
+              <Button 
+                variant="outline" 
+                className="border-blue-400/30 text-white hover:bg-blue-600/30"
+                onClick={async () => {
+                  const exportData = filteredEmployees.map((employee: Employee) => {
+                    const contract = contracts.find((c: any) => c.id === employee.contractId);
+                    const baseSalary = parseFloat(employee.baseSalary || "0");
+                    const hourlyRate = parseFloat(employee.hourlyRate || "0");
+                    const hoursWorked = parseFloat(employee.hoursWorked || "0");
+                    const totalEarnings = hourlyRate * hoursWorked;
+                    
+                    return {
+                      "Nome": employee.name,
+                      "Email": employee.email || "N/A",
+                      "Cargo": employee.position,
+                      "Contrato": contract?.name || employee.contractId,
+                      "Salário Base (R$)": baseSalary.toLocaleString('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL'
+                      }),
+                      "Taxa Horária (R$)": hourlyRate.toLocaleString('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL'
+                      }),
+                      "Horas Trabalhadas": hoursWorked.toString(),
+                      "Total Ganhos (R$)": totalEarnings.toLocaleString('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL'
+                      }),
+                      "Status": employee.active ? "Ativo" : "Inativo",
+                      "Data Admissão": employee.hireDate ? new Date(employee.hireDate).toLocaleDateString('pt-BR') : "N/A",
+                      "CPF": employee.cpf || "N/A"
+                    };
+                  });
+
+                  try {
+                    await exportUtils.showExportModal(
+                      exportData,
+                      `moe_colaboradores`,
+                      'moe-table-content',
+                      {
+                        title: 'Relatório de MOE - Mão de Obra Externa',
+                        subtitle: `Total de ${filteredEmployees.length} colaboradores - Gerado em ${new Date().toLocaleDateString('pt-BR')}`,
+                        orientation: 'landscape'
+                      }
+                    );
+
+                    toast({
+                      title: "Dados Exportados",
+                      description: `Relatório de MOE exportado com ${filteredEmployees.length} colaboradores`,
+                    });
+                  } catch (error) {
+                    toast({
+                      title: "Erro na Exportação",
+                      description: "Erro ao exportar dados. Tente novamente.",
+                      variant: "destructive",
+                    });
+                  }
+                }}
+              >
                 <Download className="w-4 h-4 mr-2" />
                 Exportar
               </Button>
@@ -444,7 +504,7 @@ export default function MOE() {
                 <p>Nenhum colaborador encontrado</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
+              <div id="moe-table-content" className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-blue-400/20">
                   <thead className="bg-blue-500/20">
                     <tr>
