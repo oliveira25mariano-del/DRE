@@ -142,27 +142,28 @@ export default function Header({ onLogout }: HeaderProps) {
   return (
     <header className="bg-slate-800/90 shadow-md">
       <div className="flex items-center justify-between px-6 py-4">
-        <div className="flex items-center space-x-4">
-          <h2 className="text-2xl font-semibold text-white">Dashboard Financeiro</h2>
-          <div className="flex items-center space-x-2">
-            <div className="flex items-center space-x-3">
-              <Badge variant="secondary" className="bg-slate-700/80 text-white">
+        <div className="flex items-center space-x-6">
+          <div className="flex items-center space-x-4">
+            <div className="text-white">
+              <div className="text-lg font-medium">
                 {currentDateTime.toLocaleDateString('pt-BR', { 
                   weekday: 'long',
                   day: 'numeric', 
                   month: 'long', 
                   year: 'numeric' 
-                })}
-              </Badge>
-              <Badge variant="secondary" className="bg-blue-700/80 text-white font-mono">
+                }).replace(/^\w/, c => c.toUpperCase())}
+              </div>
+            </div>
+            <div className="flex items-center space-x-3">
+              <span className="text-white font-mono text-lg font-semibold">
                 {currentDateTime.toLocaleTimeString('pt-BR', { 
                   hour: '2-digit', 
                   minute: '2-digit', 
                   second: '2-digit' 
                 })}
-              </Badge>
+              </span>
+              <div className="bg-emerald-500 w-2 h-2 rounded-full animate-pulse" title="Sistema Online"></div>
             </div>
-            <div className="bg-emerald-500 w-2 h-2 rounded-full animate-pulse" title="Sistema Online"></div>
           </div>
         </div>
         <div className="flex items-center space-x-4">
