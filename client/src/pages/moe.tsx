@@ -84,13 +84,9 @@ export default function MOE() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      console.log("Iniciando delete via API para ID:", id);
-      const result = await apiRequest("DELETE", `/api/employees/${id}`);
-      console.log("Delete concluído:", result);
-      return result;
+      return await apiRequest("DELETE", `/api/employees/${id}`);
     },
-    onSuccess: (data, id) => {
-      console.log("Delete bem-sucedido, invalidando cache...");
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/employees"] });
       toast({
         title: "Sucesso",
@@ -98,7 +94,6 @@ export default function MOE() {
       });
     },
     onError: (error) => {
-      console.error("Erro no delete:", error);
       toast({
         title: "Erro",
         description: "Erro ao excluir colaborador: " + error.message,
@@ -191,18 +186,12 @@ export default function MOE() {
     setIsEditDialogOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
-    console.log("handleDelete chamado com ID:", id);
-    try {
-      const confirmed = window.confirm("Tem certeza que deseja excluir este colaborador?");
-      console.log("Confirmação do usuário:", confirmed);
-      
-      if (confirmed) {
-        console.log("Executando delete para ID:", id);
-        await deleteMutation.mutateAsync(id);
-      }
-    } catch (error) {
-      console.error("Erro no handleDelete:", error);
+  const handleDelete = (id: string) => {
+    const employee = filteredEmployees.find(emp => emp.id === id);
+    const employeeName = employee?.name || "este colaborador";
+    
+    if (window.confirm(`Tem certeza que deseja excluir ${employeeName}?\n\nEsta ação não pode ser desfeita.`)) {
+      deleteMutation.mutate(id);
     }
   };
 
@@ -557,12 +546,7 @@ export default function MOE() {
                                 size="sm" 
                                 variant="ghost" 
                                 className="text-red-300 hover:text-red-100"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  console.log("Clique no botão delete detectado para:", employee.id);
-                                  handleDelete(employee.id);
-                                }}
+                                onClick={() => handleDelete(employee.id)}
                                 disabled={deleteMutation.isPending}
                               >
                                 <Trash2 className="w-4 h-4" />
