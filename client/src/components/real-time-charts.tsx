@@ -303,25 +303,25 @@ export default function RealtimeCharts() {
 
         {/* Gráfico de Distribuição de Contratos */}
         <Card className="glass-effect border-blue-200/20">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-white flex items-center text-lg">
               <PieChartIcon className="w-5 h-5 mr-2" />
               Distribuição de Contratos
             </CardTitle>
-            <CardDescription className="text-blue-300">
+            <CardDescription className="text-blue-300 text-sm">
               Participação por valor de receita
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+          <CardContent className="p-4">
+            <ResponsiveContainer width="100%" height={280}>
               <PieChart>
                 <Pie
                   data={pieData}
                   cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={120}
-                  paddingAngle={5}
+                  cy="45%"
+                  innerRadius={55}
+                  outerRadius={95}
+                  paddingAngle={3}
                   dataKey="value"
                 >
                   {pieData.map((entry, index) => (
@@ -337,7 +337,14 @@ export default function RealtimeCharts() {
                   }}
                   formatter={(value: number, name) => [formatCurrency(value), name]}
                 />
-                <Legend />
+                <Legend 
+                  verticalAlign="bottom" 
+                  height={50}
+                  wrapperStyle={{ 
+                    paddingTop: '20px',
+                    fontSize: '12px'
+                  }}
+                />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
