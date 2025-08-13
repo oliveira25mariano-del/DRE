@@ -12,6 +12,14 @@ Acesso ao Painel Admin: Atalho Ctrl + Alt + A para painel administrativo oculto 
 Padrões Visuais: Cards de KPI devem manter altura consistente, estilo de efeito vidro, e esquema de cores azul em toda aplicação.
 Prevenção de Erros: Todos os erros TypeScript devem ser resolvidos para prevenir instabilidade da aplicação e garantir operação suave.
 
+### Padrões de Interface Estabelecidos (Agosto 2025)
+- **Formatação Monetária**: Todos os valores devem usar função `formatCompactCurrency` com R$ sempre na frente
+- **Tamanhos de Fonte para Valores**: Cards de resumo (`text-sm`), tabelas (`text-sm`), sempre compactos
+- **Cores Monetárias**: Valores individuais em azul claro (`text-blue-400`), totais em branco (`text-white`)
+- **Botões de Ação**: Substituir textos por ícones (Edit/Trash2), usar variante ghost com cores temáticas
+- **AlertDialogs**: Design moderno com ícone AlertTriangle, estilização profissional, cores apropriadas
+- **Formato Compacto**: K para milhares, M para milhões, sempre 2 casas decimais para valores < 1000
+
 ## System Architecture
 
 ### Frontend

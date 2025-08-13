@@ -181,10 +181,7 @@ export default function Folha() {
     } else if (num >= 1000) {
       return `R$ ${(num / 1000).toFixed(1)}K`;
     }
-    // Para valores menores que 1000, formatamos sem casas decimais se for um número inteiro
-    if (num % 1 === 0) {
-      return `R$ ${num.toLocaleString('pt-BR')}`;
-    }
+    // Para valores menores que 1000, sempre mostrar com 2 casas decimais para consistência
     return `R$ ${num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
