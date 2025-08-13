@@ -64,7 +64,7 @@ export const employees = pgTable("employees", {
   fringeRate: decimal("fringe_rate", { precision: 5, scale: 2 }).notNull(),
   hoursWorked: decimal("hours_worked", { precision: 6, scale: 2 }),
   hourlyRate: decimal("hourly_rate", { precision: 8, scale: 2 }),
-  extraDate: timestamp("extra_date"),
+  extraDate: text("extra_date"),
   active: boolean("active").default(true),
   createdAt: timestamp("created_at").default(sql`now()`),
 });
@@ -229,7 +229,10 @@ export const insertEmployeeSchema = createInsertSchema(employees).omit({
   id: true,
   createdAt: true,
 }).extend({
-  extraDate: z.union([z.string(), z.date(), z.null()]).optional(),
+  extraDate: z.string().nullable().optional().transform((val) => {
+    if (!val || val === "") return null;
+    return val;
+  }),
 });
 
 export const insertGlosaSchema = createInsertSchema(glosas, {

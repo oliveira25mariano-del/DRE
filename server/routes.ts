@@ -293,7 +293,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       req.auditData = {
         tableName: 'employees',
         recordId: id,
-        action: 'delete',
       };
       
       res.json({ message: 'Employee deleted successfully' });
@@ -356,7 +355,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       req.auditData = {
         tableName: 'glosas',
         recordId: id,
-        action: 'delete',
       };
       
       res.json({ message: 'Glosa deleted successfully' });
