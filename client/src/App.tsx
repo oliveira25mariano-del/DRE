@@ -23,7 +23,7 @@ import Reports from "./pages/reports";
 import Billing from "./pages/billing";
 import PresentationPage from "./pages/presentation";
 import AdminPanel from "./pages/admin";
-import IACategorizacao from "./pages/ia-categorizacao";
+
 import NotFound from "./pages/not-found";
 import { useAdminShortcut } from "./components/secret-admin-access";
 
@@ -100,7 +100,7 @@ function Router() {
         <Route path="/billing" component={Billing} />
         <Route path="/faturamento" component={Billing} />
         <Route path="/presentation" component={PresentationPage} />
-        <Route path="/ia-categorizacao" component={IACategorizacao} />
+
         <Route path="/admin-panel-secreto" component={AdminPanel} />
         <Route component={NotFound} />
       </Switch>
