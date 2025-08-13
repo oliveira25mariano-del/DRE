@@ -84,9 +84,13 @@ export default function MOE() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      return await apiRequest("DELETE", `/api/employees/${id}`);
+      console.log("Iniciando delete via API para ID:", id);
+      const result = await apiRequest("DELETE", `/api/employees/${id}`);
+      console.log("Delete concluído:", result);
+      return result;
     },
-    onSuccess: () => {
+    onSuccess: (data, id) => {
+      console.log("Delete bem-sucedido, invalidando cache...");
       queryClient.invalidateQueries({ queryKey: ["/api/employees"] });
       toast({
         title: "Sucesso",
@@ -94,6 +98,7 @@ export default function MOE() {
       });
     },
     onError: (error) => {
+      console.error("Erro no delete:", error);
       toast({
         title: "Erro",
         description: "Erro ao excluir colaborador: " + error.message,
@@ -188,6 +193,7 @@ export default function MOE() {
 
   const handleDelete = (id: string) => {
     if (window.confirm("Tem certeza que deseja excluir este colaborador?")) {
+      console.log("Executando delete para ID:", id);
       deleteMutation.mutate(id);
     }
   };
