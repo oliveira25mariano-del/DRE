@@ -335,32 +335,32 @@ export default function Contracts() {
             ) : (
               <div id="contracts-table-content" className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-blue-400/20">
-                  <thead className="bg-blue-800/70">
+                  <thead className="bg-blue-700/60">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-white bg-blue-800/70 uppercase tracking-wider">
+                      <th className="px-4 py-2 text-left text-xs font-medium text-white bg-blue-700/60 uppercase tracking-wider">
                         Contrato
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-white bg-blue-800/70 uppercase tracking-wider">
+                      <th className="px-4 py-2 text-left text-xs font-medium text-white bg-blue-700/60 uppercase tracking-wider">
                         Cliente
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-white bg-blue-800/70 uppercase tracking-wider">
+                      <th className="px-4 py-2 text-left text-xs font-medium text-white bg-blue-700/60 uppercase tracking-wider">
                         Categoria
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-white bg-blue-800/70 uppercase tracking-wider">
+                      <th className="px-4 py-2 text-left text-xs font-medium text-white bg-blue-700/60 uppercase tracking-wider">
                         Valor Mensal
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-white bg-blue-800/70 uppercase tracking-wider">
+                      <th className="px-4 py-2 text-left text-xs font-medium text-white bg-blue-700/60 uppercase tracking-wider">
                         Status
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-white bg-blue-800/70 uppercase tracking-wider">
+                      <th className="px-4 py-2 text-left text-xs font-medium text-white bg-blue-700/60 uppercase tracking-wider">
                         Ações
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-blue-600/30 divide-y divide-blue-400/20">
+                  <tbody className="bg-blue-500/20 divide-y divide-blue-400/20">
                     {filteredContracts.map((contract: Contract) => (
-                      <tr key={contract.id} className="hover:bg-blue-600/50 transition-colors duration-200 bg-blue-700/30">
-                        <td className="px-6 py-4 whitespace-nowrap">
+                      <tr key={contract.id} className="hover:bg-blue-500/30 transition-colors duration-200 bg-blue-500/15">
+                        <td className="px-4 py-2 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="flex-shrink-0 h-10 w-10">
                               <div className="h-10 w-10 rounded-full bg-blue-500/20 flex items-center justify-center">
@@ -368,31 +368,31 @@ export default function Contracts() {
                               </div>
                             </div>
                             <div className="ml-4">
-                              <div className="text-sm font-medium text-white bg-blue-950/80 px-3 py-1 rounded border border-blue-700/30">{contract.name}</div>
-                              <div className="text-sm text-blue-100 bg-blue-900/70 px-3 py-1 rounded mt-1 border border-blue-700/20">{contract.description}</div>
+                              <div className="text-sm font-medium text-white bg-blue-950/80 px-2 py-1 rounded border border-blue-700/30">{contract.name}</div>
+                              <div className="text-sm text-blue-100 bg-blue-900/70 px-2 py-1 rounded mt-1 border border-blue-700/20">{contract.description}</div>
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-white bg-blue-950/80 px-3 py-1 rounded border border-blue-700/30">{contract.client}</div>
-                          <div className="text-sm text-blue-100 bg-blue-900/70 px-3 py-1 rounded mt-1 border border-blue-700/20">{contract.contact}</div>
+                        <td className="px-4 py-2 whitespace-nowrap">
+                          <div className="text-sm font-medium text-white bg-blue-950/80 px-2 py-1 rounded border border-blue-700/30">{contract.client}</div>
+                          <div className="text-sm text-blue-100 bg-blue-900/70 px-2 py-1 rounded mt-1 border border-blue-700/20">{contract.contact}</div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-4 py-2 whitespace-nowrap">
                           <Badge className={getCategoryColor(contract.category)}>
                             {contract.category}
                           </Badge>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <div className="font-medium text-green-300 bg-blue-950/80 px-3 py-1 rounded border border-blue-700/30">{formatCurrency(contract.monthlyValue)}</div>
-                          <div className="text-blue-100 bg-blue-900/70 px-3 py-1 rounded mt-1 border border-blue-700/20">Total: {formatCurrency(contract.totalValue)}</div>
+                        <td className="px-4 py-2 whitespace-nowrap text-sm">
+                          <div className="font-medium text-green-300 bg-blue-950/80 px-2 py-1 rounded border border-blue-700/30">{formatCurrency(contract.monthlyValue)}</div>
+                          <div className="text-blue-100 bg-blue-900/70 px-2 py-1 rounded mt-1 border border-blue-700/20">Total: {formatCurrency(contract.totalValue)}</div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-4 py-2 whitespace-nowrap">
                           <Badge className={getStatusColor(contract.status)}>
                             {contract.status === 'active' ? 'Ativo' : 
                              contract.status === 'suspended' ? 'Suspenso' : 'Finalizado'}
                           </Badge>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <td className="px-4 py-2 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex space-x-2">
                             <Button 
                               size="sm" 
