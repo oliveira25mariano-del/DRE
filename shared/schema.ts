@@ -350,8 +350,35 @@ export const notificationHistory = pgTable("notification_history", {
   readAt: timestamp("read_at"),
 });
 
+// Tabela de vagas
+export const vagas = pgTable("vagas", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  contratoId: varchar("contrato_id").references(() => contracts.id),
+  titulo: varchar("titulo", { length: 255 }).notNull(),
+  descricao: text("descricao"),
+  status: varchar("status", { length: 50 }).notNull().default("aberta"), // 'aberta', 'fechada', 'cancelada'
+  dataAbertura: timestamp("data_abertura").defaultNow().notNull(),
+  dataFechamento: timestamp("data_fechamento"),
+  tempoFechamentoDias: integer("tempo_fechamento_dias"),
+  prioridade: varchar("prioridade", { length: 20 }).default("media"), // 'baixa', 'media', 'alta', 'urgente'
+  departamento: varchar("departamento", { length: 100 }),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertVagaSchema = createInsertSchema(vagas, {
+  dataAbertura: z.coerce.date(),
+  dataFechamento: z.coerce.date().optional().nullable(),
+}).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export type NotificationPreference = typeof notificationPreferences.$inferSelect;
 export type InsertNotificationPreference = typeof notificationPreferences.$inferInsert;
 export type NotificationHistory = typeof notificationHistory.$inferSelect;
 export type InsertNotificationHistory = typeof notificationHistory.$inferInsert;
 export type InsertUser = z.infer<typeof insertUserSchema>;
+export type Vaga = typeof vagas.$inferSelect;
+export type InsertVaga = z.infer<typeof insertVagaSchema>;

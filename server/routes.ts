@@ -9,7 +9,8 @@ import {
   insertContractSchema, insertBudgetSchema, insertActualSchema,
   insertEmployeeSchema, insertGlosaSchema, insertPredictionSchema,
   insertAlertSchema, insertReportSchema, insertCategorySchema,
-  insertDirectCostSchema, insertAuditLogSchema, insertPayrollSchema
+  insertDirectCostSchema, insertAuditLogSchema, insertPayrollSchema,
+  insertVagaSchema
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -531,7 +532,99 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json([]);
   });
 
+  // Vagas (Job Openings) Routes
+  app.get('/api/vagas', async (req, res) => {
+    try {
+      const contractId = req.query.contractId as string;
+      const vagas = await storage.getVagas(contractId);
+      res.json(vagas);
+    } catch (error) {
+      res.status(500).json({ message: error instanceof Error ? error.message : 'Error fetching vagas' });
+    }
+  });
 
+  app.get('/api/vagas/metrics', async (req, res) => {
+    try {
+      const contractId = req.query.contractId as string;
+      const metrics = await storage.getVagasMetrics(contractId);
+      res.json(metrics);
+    } catch (error) {
+      res.status(500).json({ message: error instanceof Error ? error.message : 'Error fetching vagas metrics' });
+    }
+  });
+
+  app.get('/api/vagas/:id', async (req, res) => {
+    try {
+      const vaga = await storage.getVaga(req.params.id);
+      if (!vaga) {
+        return res.status(404).json({ message: 'Vaga not found' });
+      }
+      res.json(vaga);
+    } catch (error) {
+      res.status(500).json({ message: error instanceof Error ? error.message : 'Error fetching vaga' });
+    }
+  });
+
+  app.post('/api/vagas', async (req, res) => {
+    try {
+      const validatedData = insertVagaSchema.parse(req.body);
+      const vaga = await storage.createVaga(validatedData);
+      
+      req.auditData = {
+        tableName: 'vagas',
+        recordId: vaga.id,
+        newData: vaga,
+      };
+      
+      res.status(201).json(vaga);
+    } catch (error) {
+      res.status(400).json({ message: error instanceof Error ? error.message : 'Error creating vaga' });
+    }
+  });
+
+  app.put('/api/vagas/:id', async (req, res) => {
+    try {
+      const existing = await storage.getVaga(req.params.id);
+      if (!existing) {
+        return res.status(404).json({ message: 'Vaga not found' });
+      }
+      
+      const validatedData = insertVagaSchema.partial().parse(req.body);
+      const vaga = await storage.updateVaga(req.params.id, validatedData);
+      
+      req.auditData = {
+        tableName: 'vagas',
+        recordId: vaga.id,
+        oldData: existing,
+        newData: vaga,
+      };
+      
+      res.json(vaga);
+    } catch (error) {
+      res.status(400).json({ message: error instanceof Error ? error.message : 'Error updating vaga' });
+    }
+  });
+
+  app.delete('/api/vagas/:id', async (req, res) => {
+    try {
+      const existing = await storage.getVaga(req.params.id);
+      if (!existing) {
+        return res.status(404).json({ message: 'Vaga not found' });
+      }
+      
+      await storage.deleteVaga(req.params.id);
+      
+      req.auditData = {
+        tableName: 'vagas',
+        recordId: req.params.id,
+        oldData: existing,
+      };
+      
+      res.status(204).send();
+    } catch (error) {
+      res.status(400).json({ message: error instanceof Error ? error.message : 'Error deleting vaga' });
+    }
+  });
 
   // Register admin routes
   registerAdminRoutes(app);

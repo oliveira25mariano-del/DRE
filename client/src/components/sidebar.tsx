@@ -14,7 +14,8 @@ import {
   HelpCircle,
   Presentation,
   Plug,
-  Receipt
+  Receipt,
+  Briefcase
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import opusLogo from "@assets/Logo-Grupo-Opus_1754948245317.png";
@@ -27,6 +28,7 @@ const menuItems = [
   { path: "/glosas", label: "Glosas", icon: AlertTriangle, id: "sidebar-glosas" },
   { path: "/moe", label: "MOE", icon: Users, id: "sidebar-moe" },
   { path: "/folha", label: "Folha", icon: Receipt, id: "sidebar-payroll" },
+  { path: "/vagas", label: "Vagas", icon: Briefcase, id: "sidebar-vagas" },
 ];
 
 const analysisItems = [

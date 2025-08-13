@@ -11,7 +11,8 @@ import {
   type Category, type InsertCategory,
   type DirectCost, type InsertDirectCost,
   type User, type InsertUser,
-  type Payroll, type InsertPayroll
+  type Payroll, type InsertPayroll,
+  type Vaga, type InsertVaga
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "./db";
@@ -113,6 +114,14 @@ export interface IStorage {
   updateUser(id: string, user: Partial<InsertUser>): Promise<User>;
   authenticateUser(email: string, password: string): Promise<User | null>;
   updateLastLogin(id: string): Promise<void>;
+
+  // Vagas
+  getVagas(contractId?: string): Promise<Vaga[]>;
+  getVaga(id: string): Promise<Vaga | undefined>;
+  createVaga(vaga: InsertVaga): Promise<Vaga>;
+  updateVaga(id: string, vaga: Partial<InsertVaga>): Promise<Vaga>;
+  deleteVaga(id: string): Promise<void>;
+  getVagasMetrics(contractId?: string): Promise<any>;
 }
 
 export class MemStorage implements IStorage {
@@ -129,6 +138,7 @@ export class MemStorage implements IStorage {
   private directCosts: Map<string, DirectCost> = new Map();
   private payrollData: Map<string, Payroll> = new Map();
   private users: Map<string, User> = new Map();
+  private vagas: Map<string, Vaga> = new Map();
 
   constructor() {
     this.initializeDefaultData();
@@ -311,14 +321,91 @@ export class MemStorage implements IStorage {
     ];
 
     // Add sample contracts to storage
+    const contractIds: string[] = [];
     sampleContracts.forEach(contractData => {
       const id = randomUUID();
+      contractIds.push(id);
       this.contracts.set(id, {
         ...contractData,
         id,
         createdAt: now,
         updatedAt: now
       } as Contract);
+    });
+
+    // Initialize sample vagas (job openings)
+    const sampleVagas = [
+      {
+        contratoId: contractIds[0], // Shopping Curitiba
+        titulo: "Técnico em Refrigeração",
+        descricao: "Técnico especializado em sistemas de refrigeração e ar condicionado",
+        status: "fechada",
+        dataAbertura: new Date(2025, 0, 10),
+        dataFechamento: new Date(2025, 0, 25),
+        tempoFechamentoDias: 15,
+        prioridade: "alta",
+        departamento: "Manutenção"
+      },
+      {
+        contratoId: contractIds[1], // PMOC - Hospital
+        titulo: "Engenheiro PMOC",
+        descricao: "Engenheiro para coordenação de PMOC hospitalar",
+        status: "aberta",
+        dataAbertura: new Date(2025, 0, 20),
+        prioridade: "urgente",
+        departamento: "Engenharia"
+      },
+      {
+        contratoId: contractIds[2], // Projeto ABC
+        titulo: "Desenvolvedor Full Stack",
+        descricao: "Desenvolvedor para sistema de gestão empresarial",
+        status: "fechada",
+        dataAbertura: new Date(2024, 11, 15),
+        dataFechamento: new Date(2025, 0, 5),
+        tempoFechamentoDias: 21,
+        prioridade: "alta",
+        departamento: "TI"
+      },
+      {
+        contratoId: contractIds[0], // Shopping Curitiba
+        titulo: "Supervisor de Manutenção",
+        descricao: "Supervisor para coordenar equipe de manutenção predial",
+        status: "aberta",
+        dataAbertura: new Date(2025, 0, 15),
+        prioridade: "media",
+        departamento: "Supervisão"
+      },
+      {
+        contratoId: contractIds[3], // Shopping Santa Maria
+        titulo: "Técnico Eletricista",
+        descricao: "Técnico eletricista para manutenção predial",
+        status: "fechada",
+        dataAbertura: new Date(2024, 11, 1),
+        dataFechamento: new Date(2024, 11, 28),
+        tempoFechamentoDias: 27,
+        prioridade: "media",
+        departamento: "Elétrica"
+      },
+      {
+        contratoId: contractIds[4], // Shopping Cerrado
+        titulo: "Auxiliar de Manutenção",
+        descricao: "Auxiliar para serviços gerais de manutenção",
+        status: "aberta",
+        dataAbertura: new Date(2025, 0, 25),
+        prioridade: "baixa",
+        departamento: "Manutenção"
+      }
+    ];
+
+    // Add sample vagas to storage
+    sampleVagas.forEach(vagaData => {
+      const id = randomUUID();
+      this.vagas.set(id, {
+        ...vagaData,
+        id,
+        createdAt: now,
+        updatedAt: now
+      } as Vaga);
     });
   }
 
@@ -864,6 +951,154 @@ export class MemStorage implements IStorage {
   async deletePayroll(id: string): Promise<void> {
     this.payrollData.delete(id);
   }
+
+  // Vagas methods
+  async getVagas(contractId?: string): Promise<Vaga[]> {
+    const allVagas = Array.from(this.vagas.values());
+    if (contractId) {
+      return allVagas.filter(vaga => vaga.contratoId === contractId);
+    }
+    return allVagas;
+  }
+
+  async getVaga(id: string): Promise<Vaga | undefined> {
+    return this.vagas.get(id);
+  }
+
+  async createVaga(vaga: InsertVaga): Promise<Vaga> {
+    const id = randomUUID();
+    const now = new Date();
+    const newVaga: Vaga = {
+      id,
+      ...vaga,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    // Calculate tempo_fechamento_dias if status is 'fechada'
+    if (vaga.status === 'fechada' && vaga.dataFechamento && vaga.dataAbertura) {
+      const diffTime = new Date(vaga.dataFechamento).getTime() - new Date(vaga.dataAbertura).getTime();
+      newVaga.tempoFechamentoDias = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    }
+
+    this.vagas.set(id, newVaga);
+    return newVaga;
+  }
+
+  async updateVaga(id: string, vaga: Partial<InsertVaga>): Promise<Vaga> {
+    const existing = this.vagas.get(id);
+    if (!existing) {
+      throw new Error(`Vaga with id ${id} not found`);
+    }
+
+    const updated: Vaga = {
+      ...existing,
+      ...vaga,
+      updatedAt: new Date(),
+    };
+
+    // Recalculate tempo_fechamento_dias if status changed to 'fechada'
+    if (vaga.status === 'fechada' && updated.dataFechamento && updated.dataAbertura) {
+      const diffTime = new Date(updated.dataFechamento).getTime() - new Date(updated.dataAbertura).getTime();
+      updated.tempoFechamentoDias = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    }
+
+    this.vagas.set(id, updated);
+    return updated;
+  }
+
+  async deleteVaga(id: string): Promise<void> {
+    this.vagas.delete(id);
+  }
+
+  async getVagasMetrics(contractId?: string): Promise<any> {
+    const vagas = await this.getVagas(contractId);
+    const contracts = await this.getContracts();
+    
+    const now = new Date();
+    const currentMonth = now.getMonth() + 1;
+    const currentYear = now.getFullYear();
+
+    const vagasAbertas = vagas.filter(vaga => vaga.status === 'aberta').length;
+    const vagasFechadas = vagas.filter(vaga => vaga.status === 'fechada').length;
+    const totalVagas = vagasAbertas + vagasFechadas;
+
+    // Taxa de Fechamento de Vagas (TFV)
+    const tfv = totalVagas > 0 ? (vagasFechadas / totalVagas) * 100 : 0;
+
+    // Tempo Médio de Fechamento (TMF)
+    const vagasComTempo = vagas.filter(vaga => vaga.tempoFechamentoDias !== null && vaga.tempoFechamentoDias !== undefined);
+    const tmf = vagasComTempo.length > 0 
+      ? vagasComTempo.reduce((sum, vaga) => sum + (vaga.tempoFechamentoDias || 0), 0) / vagasComTempo.length
+      : 0;
+
+    // Índice de Rotatividade (simulated)
+    const indiceRotatividade = Math.random() * 15 + 5; // 5-20% simulated
+
+    // Metrics by contract
+    const metricsByContract = contracts.map(contract => {
+      const contractVagas = vagas.filter(vaga => vaga.contratoId === contract.id);
+      const contractAbertas = contractVagas.filter(vaga => vaga.status === 'aberta').length;
+      const contractFechadas = contractVagas.filter(vaga => vaga.status === 'fechada').length;
+      const contractTotal = contractAbertas + contractFechadas;
+
+      return {
+        contractId: contract.id,
+        contractName: contract.name,
+        abertas: contractAbertas,
+        fechadas: contractFechadas,
+        total: contractTotal,
+        tfv: contractTotal > 0 ? (contractFechadas / contractTotal) * 100 : 0
+      };
+    });
+
+    // Monthly trend (last 12 months)
+    const monthlyTrend = [];
+    for (let i = 11; i >= 0; i--) {
+      const date = new Date(currentYear, currentMonth - 1 - i, 1);
+      const month = date.toLocaleDateString('pt-BR', { month: 'short' });
+      const year = date.getFullYear();
+      const monthNum = date.getMonth() + 1;
+
+      const monthVagas = vagas.filter(vaga => {
+        const vagaDate = new Date(vaga.dataAbertura);
+        return vagaDate.getFullYear() === year && vagaDate.getMonth() + 1 === monthNum;
+      });
+
+      const monthAbertas = monthVagas.filter(vaga => vaga.status === 'aberta').length;
+      const monthFechadas = monthVagas.filter(vaga => vaga.status === 'fechada').length;
+
+      monthlyTrend.push({
+        month,
+        abertas: monthAbertas,
+        fechadas: monthFechadas,
+        tfv: monthAbertas + monthFechadas > 0 ? (monthFechadas / (monthAbertas + monthFechadas)) * 100 : 0
+      });
+    }
+
+    return {
+      kpis: {
+        tfv: Math.round(tfv * 10) / 10,
+        tmf: Math.round(tmf * 10) / 10,
+        vagasAbertasAtivas: vagasAbertas,
+        indiceRotatividade: Math.round(indiceRotatividade * 10) / 10
+      },
+      metricsByContract,
+      monthlyTrend,
+      alerts: [
+        ...(tmf > 30 ? [{
+          type: 'warning',
+          message: `Tempo Médio de Fechamento (${tmf.toFixed(1)} dias) está acima da meta de 30 dias`,
+          severity: 'alta'
+        }] : []),
+        ...(tfv < 70 ? [{
+          type: 'warning', 
+          message: `Taxa de Fechamento de Vagas (${tfv.toFixed(1)}%) está abaixo da meta de 70%`,
+          severity: 'media'
+        }] : [])
+      ]
+    };
+  }
 }
 
 // Use database storage for production
@@ -1030,6 +1265,14 @@ class DatabaseStorage implements IStorage {
   async updateUser(id: string, user: Partial<InsertUser>): Promise<User> { return this.memStorage.updateUser(id, user); }
   async authenticateUser(email: string, password: string): Promise<User | null> { return this.memStorage.authenticateUser(email, password); }
   async updateLastLogin(id: string): Promise<void> { return this.memStorage.updateLastLogin(id); }
+  
+  // Vagas methods
+  async getVagas(contractId?: string): Promise<Vaga[]> { return this.memStorage.getVagas(contractId); }
+  async getVaga(id: string): Promise<Vaga | undefined> { return this.memStorage.getVaga(id); }
+  async createVaga(vaga: InsertVaga): Promise<Vaga> { return this.memStorage.createVaga(vaga); }
+  async updateVaga(id: string, vaga: Partial<InsertVaga>): Promise<Vaga> { return this.memStorage.updateVaga(id, vaga); }
+  async deleteVaga(id: string): Promise<void> { return this.memStorage.deleteVaga(id); }
+  async getVagasMetrics(contractId?: string): Promise<any> { return this.memStorage.getVagasMetrics(contractId); }
 }
 
 export const storage = new DatabaseStorage();
