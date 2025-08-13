@@ -380,7 +380,7 @@ export default function VagasPage() {
                   <BarChart data={metrics.metricsByContract || []} layout="horizontal">
                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                     <XAxis type="number" domain={[0, 100]} stroke="#64748b" fontSize={12} />
-                    <YAxis type="category" dataKey="contractName" stroke="#64748b" fontSize={10} width={120} />
+                    <YAxis type="category" dataKey="contractName" stroke="#64748b" fontSize={10} width={150} />
                     <Tooltip 
                       contentStyle={{ 
                         backgroundColor: '#0f172a', 
@@ -406,11 +406,11 @@ export default function VagasPage() {
               <CardDescription>Taxa de rotatividade nos últimos 12 meses</CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={metrics.metricsByContract || []} layout="horizontal">
+              <ResponsiveContainer width="100%" height={350}>
+                <BarChart data={metrics.metricsByContract || []} layout="horizontal" margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis type="number" domain={[0, 50]} stroke="#64748b" fontSize={12} />
-                  <YAxis type="category" dataKey="contractName" stroke="#64748b" fontSize={10} width={120} />
+                  <YAxis type="category" dataKey="contractName" stroke="#64748b" fontSize={10} width={150} />
                   <Tooltip 
                     contentStyle={{ 
                       backgroundColor: '#0f172a', 
@@ -546,7 +546,7 @@ export default function VagasPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Contrato</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value || undefined}>
                         <FormControl>
                           <SelectTrigger data-testid="select-contract-form">
                             <SelectValue placeholder="Selecione um contrato" />
@@ -626,7 +626,7 @@ export default function VagasPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Prioridade</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value || undefined}>
                         <FormControl>
                           <SelectTrigger data-testid="select-prioridade-form">
                             <SelectValue />

@@ -42,6 +42,7 @@ The platform incorporates:
 - **Universal Export System:** Functionality for exporting data in PDF, CSV, Excel, and JSON across all relevant pages (DRE, Provisions, Audit Logs, Fringe Benefits, Contracts, Financial Analysis, Glosas, MOE), featuring an interactive modal for format selection and professional PDF generation with titles, subtitles, and watermarks.
 - **Payroll System:** Dedicated "Folha" tab with specific fields (Salaries, Overtime, Benefits, Transport, Impairment), mandatory filters (contract, year, period), and full PostgreSQL integration.
 - **Advanced Watermark System:** Customizable hexagon watermarks in the sidebar with a dedicated configuration file (`watermarkConfig.ts`), offering over 15 adjustable parameters (opacity, size, position, CSS filters, transformations, blend modes, optional animations) and four predefined presets.
+- **Job Management System (Vagas):** Complete job vacancy tracking system with CRUD operations, advanced filtering, and key performance metrics including TFV (Taxa de Fechamento de Vagas), TMF (Tempo Médio de Fechamento), Active Open Positions, and Turnover Rate calculated over the last 12 months with automated alerts for rates above 20%.
 
 ## External Dependencies
 

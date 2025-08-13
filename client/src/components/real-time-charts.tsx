@@ -381,15 +381,17 @@ export default function RealtimeCharts() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={chartData?.categoryPerformance || []}>
+            <ResponsiveContainer width="100%" height={350}>
+              <BarChart data={chartData?.categoryPerformance || []} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1e40af" opacity={0.3} />
                 <XAxis 
                   dataKey="category" 
                   stroke="#93c5fd" 
-                  fontSize={12}
+                  fontSize={10}
                   angle={-45}
                   textAnchor="end"
+                  height={60}
+                  interval={0}
                 />
                 <YAxis 
                   stroke="#93c5fd" 
@@ -440,13 +442,14 @@ export default function RealtimeCharts() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={chartData?.kpiTrend || []}>
+            <ResponsiveContainer width="100%" height={350}>
+              <LineChart data={chartData?.kpiTrend || []} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1e40af" opacity={0.3} />
                 <XAxis 
                   dataKey="date" 
                   stroke="#93c5fd" 
                   fontSize={12}
+                  interval="preserveStartEnd"
                 />
                 <YAxis 
                   stroke="#93c5fd" 
