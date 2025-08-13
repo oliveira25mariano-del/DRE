@@ -335,31 +335,31 @@ export default function Contracts() {
             ) : (
               <div id="contracts-table-content" className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-blue-400/20">
-                  <thead className="bg-blue-700/60">
+                  <thead className="bg-gray-900/95">
                     <tr>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-white bg-blue-700/60 uppercase tracking-wider">
+                      <th className="px-4 py-2 text-left text-xs font-medium text-white bg-gray-900/95 uppercase tracking-wider">
                         Contrato
                       </th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-white bg-blue-700/60 uppercase tracking-wider">
+                      <th className="px-4 py-2 text-left text-xs font-medium text-white bg-gray-900/95 uppercase tracking-wider">
                         Cliente
                       </th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-white bg-blue-700/60 uppercase tracking-wider">
+                      <th className="px-4 py-2 text-left text-xs font-medium text-white bg-gray-900/95 uppercase tracking-wider">
                         Categoria
                       </th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-white bg-blue-700/60 uppercase tracking-wider">
+                      <th className="px-4 py-2 text-left text-xs font-medium text-white bg-gray-900/95 uppercase tracking-wider">
                         Valor Mensal
                       </th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-white bg-blue-700/60 uppercase tracking-wider">
+                      <th className="px-4 py-2 text-left text-xs font-medium text-white bg-gray-900/95 uppercase tracking-wider">
                         Status
                       </th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-white bg-blue-700/60 uppercase tracking-wider">
+                      <th className="px-4 py-2 text-left text-xs font-medium text-white bg-gray-900/95 uppercase tracking-wider">
                         Ações
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-blue-500/20 divide-y divide-blue-400/20">
+                  <tbody className="bg-gray-800/90 divide-y divide-gray-600/50">
                     {filteredContracts.map((contract: Contract) => (
-                      <tr key={contract.id} className="hover:bg-blue-500/30 transition-colors duration-200 bg-blue-500/15">
+                      <tr key={contract.id} className="hover:bg-gray-700/70 transition-colors duration-200 bg-gray-800/80">
                         <td className="px-4 py-2 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="flex-shrink-0 h-10 w-10">
