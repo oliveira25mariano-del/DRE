@@ -379,14 +379,14 @@ export default function Contracts() {
                               </div>
                             </div>
                             <div className="ml-4">
-                              <div className="text-sm font-medium text-white bg-blue-950/80 px-2 py-1 rounded border border-blue-700/30">{contract.name}</div>
-                              <div className="text-sm text-blue-100 bg-blue-900/70 px-2 py-1 rounded mt-1 border border-blue-700/20">{contract.description}</div>
+                              <div className="text-sm font-medium text-white bg-gray-600/60 px-2 py-1 rounded border border-gray-500/40">{contract.name}</div>
+                              <div className="text-sm text-gray-200 bg-gray-700/50 px-2 py-1 rounded mt-1 border border-gray-600/30">{contract.description}</div>
                             </div>
                           </div>
                         </td>
                         <td className="px-4 py-2 whitespace-nowrap">
-                          <div className="text-sm font-medium text-white bg-blue-950/80 px-2 py-1 rounded border border-blue-700/30">{contract.client}</div>
-                          <div className="text-sm text-blue-100 bg-blue-900/70 px-2 py-1 rounded mt-1 border border-blue-700/20">{contract.contact}</div>
+                          <div className="text-sm font-medium text-white bg-gray-600/60 px-2 py-1 rounded border border-gray-500/40">{contract.client}</div>
+                          <div className="text-sm text-gray-200 bg-gray-700/50 px-2 py-1 rounded mt-1 border border-gray-600/30">{contract.contact}</div>
                         </td>
                         <td className="px-4 py-2 whitespace-nowrap">
                           <Badge className={getCategoryColor(contract.category)}>
@@ -394,8 +394,8 @@ export default function Contracts() {
                           </Badge>
                         </td>
                         <td className="px-4 py-2 whitespace-nowrap text-sm">
-                          <div className="font-medium text-green-300 bg-blue-950/80 px-2 py-1 rounded border border-blue-700/30">{formatCurrency(contract.monthlyValue)}</div>
-                          <div className="text-blue-100 bg-blue-900/70 px-2 py-1 rounded mt-1 border border-blue-700/20">Total: {formatCurrency(contract.totalValue)}</div>
+                          <div className="font-medium text-green-300 bg-gray-600/60 px-2 py-1 rounded border border-gray-500/40">{formatCurrency(contract.monthlyValue)}</div>
+                          <div className="text-gray-200 bg-gray-700/50 px-2 py-1 rounded mt-1 border border-gray-600/30">Total: {formatCurrency(contract.totalValue)}</div>
                         </td>
                         <td className="px-4 py-2 whitespace-nowrap">
                           <Badge className={getStatusColor(contract.status)}>
