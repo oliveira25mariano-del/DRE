@@ -955,10 +955,14 @@ export class MemStorage implements IStorage {
   // Vagas methods
   async getVagas(contractId?: string): Promise<Vaga[]> {
     const allVagas = Array.from(this.vagas.values());
-    if (contractId) {
-      return allVagas.filter(vaga => vaga.contratoId === contractId);
-    }
-    return allVagas;
+    let filteredVagas = contractId ? allVagas.filter(vaga => vaga.contratoId === contractId) : allVagas;
+    
+    // Ordenar por data de criação, mais recentes primeiro
+    return filteredVagas.sort((a, b) => {
+      const dateA = new Date(a.createdAt || a.dataAbertura);
+      const dateB = new Date(b.createdAt || b.dataAbertura);
+      return dateB.getTime() - dateA.getTime();
+    });
   }
 
   async getVaga(id: string): Promise<Vaga | undefined> {
