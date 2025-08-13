@@ -325,12 +325,18 @@ export class MemStorage implements IStorage {
     sampleContracts.forEach(contractData => {
       const id = randomUUID();
       contractIds.push(id);
-      this.contracts.set(id, {
+      const contract: Contract = {
         ...contractData,
         id,
+        margin: contractData.margin || null,
+        description: contractData.description || null,
+        contact: contractData.contact || null,
+        categories: contractData.categories || null,
+        endDate: contractData.endDate || null,
         createdAt: now,
         updatedAt: now
-      } as Contract);
+      };
+      this.contracts.set(id, contract);
     });
 
     // Initialize sample vagas (job openings)
@@ -462,6 +468,9 @@ export class MemStorage implements IStorage {
     const budget: Budget = {
       ...insertBudget,
       id,
+      moe: insertBudget.moe ?? null,
+      fringe: insertBudget.fringe ?? null,
+      glosas: insertBudget.glosas ?? null,
       createdAt: new Date(),
     };
     this.budgets.set(id, budget);
@@ -496,6 +505,9 @@ export class MemStorage implements IStorage {
     const actual: Actual = {
       ...insertActual,
       id,
+      moe: insertActual.moe ?? null,
+      fringe: insertActual.fringe ?? null,
+      glosas: insertActual.glosas ?? null,
       createdAt: new Date(),
     };
     this.actuals.set(id, actual);
@@ -530,6 +542,9 @@ export class MemStorage implements IStorage {
     const employee: Employee = {
       ...insertEmployee,
       id,
+      active: insertEmployee.active ?? null,
+      hoursWorked: insertEmployee.hoursWorked ?? null,
+      hourlyRate: insertEmployee.hourlyRate ?? null,
       createdAt: new Date(),
     };
     this.employees.set(id, employee);
@@ -564,6 +579,9 @@ export class MemStorage implements IStorage {
     const glosa: Glosa = {
       ...insertGlosa,
       id,
+      status: insertGlosa.status || 'pending',
+      attestationCosts: insertGlosa.attestationCosts ?? null,
+      reason: insertGlosa.reason ?? null,
       createdAt: new Date(),
     };
     this.glosas.set(id, glosa);
@@ -598,6 +616,7 @@ export class MemStorage implements IStorage {
     const prediction: Prediction = {
       ...insertPrediction,
       id,
+      contractId: insertPrediction.contractId ?? null,
       createdAt: new Date(),
     };
     this.predictions.set(id, prediction);
@@ -630,6 +649,8 @@ export class MemStorage implements IStorage {
     const auditLog: AuditLog = {
       ...insertAuditLog,
       id,
+      oldData: insertAuditLog.oldData ?? null,
+      newData: insertAuditLog.newData ?? null,
       timestamp: new Date(),
     };
     this.auditLogs.set(id, auditLog);
@@ -650,6 +671,9 @@ export class MemStorage implements IStorage {
     const alert: Alert = {
       ...insertAlert,
       id,
+      contractId: insertAlert.contractId ?? null,
+      read: insertAlert.read ?? null,
+      resolved: insertAlert.resolved ?? null,
       createdAt: new Date(),
     };
     this.alerts.set(id, alert);
@@ -683,6 +707,14 @@ export class MemStorage implements IStorage {
     const report: Report = {
       ...insertReport,
       id,
+      status: insertReport.status || 'pending',
+      parameters: insertReport.parameters ?? null,
+      schedule: insertReport.schedule ?? null,
+      recipients: insertReport.recipients ?? null,
+      approvalStatus: insertReport.approvalStatus ?? null,
+      approvedBy: insertReport.approvedBy ?? null,
+      approvedAt: insertReport.approvedAt ?? null,
+      lastRun: insertReport.lastRun ?? null,
       createdAt: new Date(),
     };
     this.reports.set(id, report);
@@ -753,6 +785,11 @@ export class MemStorage implements IStorage {
     const cost: DirectCost = {
       ...insertDirectCost,
       id,
+      status: insertDirectCost.status || 'pending',
+      supplier: insertDirectCost.supplier ?? null,
+      costCenter: insertDirectCost.costCenter ?? null,
+      invoiceNumber: insertDirectCost.invoiceNumber ?? null,
+      dueDate: insertDirectCost.dueDate ?? null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -927,11 +964,11 @@ export class MemStorage implements IStorage {
       year: payrollData.year,
       month: payrollData.month,
       quarter: payrollData.quarter,
-      salarios: payrollData.salarios,
-      horasExtras: payrollData.horasExtras,
-      beneficios: payrollData.beneficios,
-      vt: payrollData.vt,
-      imestra: payrollData.imestra,
+      salarios: payrollData.salarios || '0',
+      horasExtras: payrollData.horaExtra || '0',
+      beneficios: payrollData.beneficios || '0',
+      vt: payrollData.vt || '0',
+      imestra: payrollData.imestra || '0',
       createdAt: now,
       updatedAt: now,
     };
@@ -975,6 +1012,13 @@ export class MemStorage implements IStorage {
     const newVaga: Vaga = {
       id,
       ...vaga,
+      status: vaga.status || 'aberta',
+      contratoId: vaga.contratoId ?? null,
+      descricao: vaga.descricao ?? null,
+      dataFechamento: vaga.dataFechamento ?? null,
+      tempoFechamentoDias: vaga.tempoFechamentoDias ?? null,
+      prioridade: vaga.prioridade ?? null,
+      departamento: vaga.departamento ?? null,
       createdAt: now,
       updatedAt: now,
     };

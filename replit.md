@@ -8,6 +8,8 @@ Preferred communication style: Simple, everyday language.
 Interface language: Portuguese (Brazil) - All system interfaces and documentation should be in Portuguese.
 User requires: Complete understanding of Replit configuration and navigation in Portuguese.
 Admin Panel Access: Ctrl + Alt + A shortcut for hidden administrative panel at /admin-panel-secreto
+Visual Standards: KPI cards must maintain consistent height, glass-effect styling, and blue color scheme throughout the application.
+Error Prevention: All TypeScript errors must be resolved to prevent application instability and ensure smooth operation.
 
 ## System Architecture
 
@@ -43,6 +45,7 @@ The platform incorporates:
 - **Payroll System:** Dedicated "Folha" tab with specific fields (Salaries, Overtime, Benefits, Transport, Impairment), mandatory filters (contract, year, period), and full PostgreSQL integration.
 - **Advanced Watermark System:** Customizable hexagon watermarks in the sidebar with a dedicated configuration file (`watermarkConfig.ts`), offering over 15 adjustable parameters (opacity, size, position, CSS filters, transformations, blend modes, optional animations) and four predefined presets.
 - **Job Management System (Vagas):** Complete job vacancy tracking system with CRUD operations, advanced filtering, and key performance metrics including TFV (Taxa de Fechamento de Vagas), TMF (Tempo Médio de Fechamento), Active Open Positions, and Turnover Rate calculated over the last 12 months with automated alerts for rates above 20%.
+- **TypeScript Error Resolution:** Complete resolution of all LSP diagnostics in server-side code, ensuring type safety for nullable fields, proper handling of undefined properties, and consistent data structure across all storage operations.
 
 ## External Dependencies
 
