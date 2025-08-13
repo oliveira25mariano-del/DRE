@@ -52,6 +52,7 @@ The platform incorporates several key features and design patterns:
 - **Sistema de Personalização Completo:** Interface de customização com 6 esquemas de cores (Azul Padrão, Verde Esmeralda, Roxo Real, Laranja Vibrante, Vermelho Energia, Índigo Profundo), configurações de layout, modo escuro forçado e opções avançadas
 - **Padronização Visual Completa (Agosto 2025):** Unificação total de todos os gráficos da aplicação para uso exclusivo de tonalidades de azul, garantindo consistência visual em 100% da interface - incluindo Financial Analysis, Dashboard Executivo, KPI Cards, Real-time Charts, e todos os componentes visuais
 - **Sistema de Análise Financeira:** Implementação completa com visões mensais, acumuladas e anuais por contrato, comparativo orçado vs. realizado com indicadores visuais e KPIs executivos funcionais
+- **Sistema de Permissões Granulares (Agosto 2025):** Controle de acesso por contrato específico no painel administrativo, permitindo que administradores definam quais contratos cada usuário pode visualizar, com campos `restrictToOwnContracts` e `allowedContracts` no schema
 - **Correção de Erros Críticos:** Resolução definitiva do erro yAxisId nos gráficos Recharts e eliminação de todos os erros LSP, garantindo aplicação 100% funcional
 
 ### Próximas Funcionalidades Sugeridas

@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import "./types"; // Import type extensions
 import { registerAdminRoutes } from "./adminRoutes";
 import { registerUserRoutes } from "./userRoutes";
 import { registerAnalyticsRoutes } from "./analyticsRoutes";

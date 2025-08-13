@@ -750,9 +750,17 @@ export class MemStorage implements IStorage {
     const now = new Date();
     const user: User = {
       id,
-      ...userData,
+      name: userData.name,
+      email: userData.email,
+      password: userData.password,
+      role: userData.role,
+      company: userData.company ?? null,
+      phone: userData.phone ?? null,
+      profilePhoto: userData.profilePhoto ?? null,
       active: userData.active ?? true,
       emailVerified: userData.emailVerified ?? false,
+      restrictToOwnContracts: userData.restrictToOwnContracts ?? false,
+      allowedContracts: userData.allowedContracts ?? [],
       lastLogin: null,
       createdAt: now,
       updatedAt: now,

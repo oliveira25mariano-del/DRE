@@ -109,8 +109,22 @@ Implementação completa da padronização visual em todos os gráficos da aplic
 ## Data de Implementação
 **13 de Agosto de 2025** - Padronização visual completa implementada e testada.
 
+## Sistema de Permissões por Contrato (Agosto 2025)
+
+### Nova Funcionalidade Implementada
+- ✅ **Campos de permissão** adicionados ao painel administrativo
+- ✅ **Controle granular** de acesso por usuário a contratos específicos
+- ✅ **Interface de seleção** múltipla para contratos permitidos
+- ✅ **Schema do banco** atualizado com campos `restrictToOwnContracts` e `allowedContracts`
+- ✅ **Rotas administrativas** atualizadas para suportar novos campos
+- ✅ **Formulários de criação/edição** de usuários aprimorados
+
+### Impacto Funcional
+O sistema agora permite que administradores definam quais contratos específicos cada usuário pode visualizar, oferecendo controle granular de acesso aos dados empresariais.
+
 ## Próximos Passos Recomendados
 1. Manter consistência azul em novos componentes
 2. Usar paleta definida para futuras funcionalidades
 3. Documentar novas cores caso necessário expandir paleta
 4. Preservar configuração atual para evitar regressões
+5. Implementar filtros baseados em permissões nos relatórios
