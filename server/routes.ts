@@ -277,6 +277,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put('/api/glosas/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const validatedData = insertGlosaSchema.parse(req.body);
+      const updatedGlosa = await storage.updateGlosa(id, validatedData);
+      
+      req.auditData = {
+        tableName: 'glosas',
+        recordId: id,
+        newData: updatedGlosa,
+      };
+      
+      res.json(updatedGlosa);
+    } catch (error) {
+      res.status(400).json({ message: error instanceof Error ? error.message : 'Error updating glosa' });
+    }
+  });
+
+  app.delete('/api/glosas/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteGlosa(id);
+      
+      req.auditData = {
+        tableName: 'glosas',
+        recordId: id,
+        action: 'delete',
+      };
+      
+      res.json({ message: 'Glosa deleted successfully' });
+    } catch (error) {
+      res.status(400).json({ message: error instanceof Error ? error.message : 'Error deleting glosa' });
+    }
+  });
+
   // Predictions
   app.get('/api/predictions', async (req, res) => {
     try {

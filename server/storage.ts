@@ -598,6 +598,32 @@ export class MemStorage implements IStorage {
     return glosa;
   }
 
+  async updateGlosa(id: string, updateData: Partial<InsertGlosa>): Promise<Glosa> {
+    const existingGlosa = this.glosas.get(id);
+    if (!existingGlosa) {
+      throw new Error('Glosa not found');
+    }
+
+    const updatedGlosa: Glosa = {
+      ...existingGlosa,
+      ...updateData,
+      id: existingGlosa.id,
+      createdAt: existingGlosa.createdAt,
+    };
+
+    this.glosas.set(id, updatedGlosa);
+    return updatedGlosa;
+  }
+
+  async deleteGlosa(id: string): Promise<void> {
+    const existingGlosa = this.glosas.get(id);
+    if (!existingGlosa) {
+      throw new Error('Glosa not found');
+    }
+    
+    this.glosas.delete(id);
+  }
+
   async updateGlosa(id: string, insertGlosa: Partial<InsertGlosa>): Promise<Glosa> {
     const existing = this.glosas.get(id);
     if (!existing) throw new Error("Glosa not found");
