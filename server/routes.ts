@@ -249,6 +249,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch('/api/employees/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const validatedData = insertEmployeeSchema.partial().parse(req.body);
+      const updatedEmployee = await storage.updateEmployee(id, validatedData);
+      
+      req.auditData = {
+        tableName: 'employees',
+        recordId: id,
+        newData: updatedEmployee,
+      };
+      
+      res.json(updatedEmployee);
+    } catch (error) {
+      res.status(400).json({ message: error instanceof Error ? error.message : 'Error updating employee' });
+    }
+  });
+
+  app.put('/api/employees/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const validatedData = insertEmployeeSchema.parse(req.body);
+      const updatedEmployee = await storage.updateEmployee(id, validatedData);
+      
+      req.auditData = {
+        tableName: 'employees',
+        recordId: id,
+        newData: updatedEmployee,
+      };
+      
+      res.json(updatedEmployee);
+    } catch (error) {
+      res.status(400).json({ message: error instanceof Error ? error.message : 'Error updating employee' });
+    }
+  });
+
+  app.delete('/api/employees/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteEmployee(id);
+      
+      req.auditData = {
+        tableName: 'employees',
+        recordId: id,
+        action: 'delete',
+      };
+      
+      res.json({ message: 'Employee deleted successfully' });
+    } catch (error) {
+      res.status(400).json({ message: error instanceof Error ? error.message : 'Error deleting employee' });
+    }
+  });
+
   // Glosas
   app.get('/api/glosas', async (req, res) => {
     try {
