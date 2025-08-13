@@ -712,22 +712,22 @@ export default function Folha() {
                             : item.year.toString()
                           }
                         </TableCell>
-                        <TableCell className="text-right text-blue-400 font-medium text-xs">
+                        <TableCell className="text-right text-blue-400 font-medium text-[10px] leading-tight">
                           {formatCompactCurrency(item.salarios)}
                         </TableCell>
-                        <TableCell className="text-right text-blue-400 font-medium text-xs">
+                        <TableCell className="text-right text-blue-400 font-medium text-[10px] leading-tight">
                           {formatCompactCurrency(item.horaExtra)}
                         </TableCell>
-                        <TableCell className="text-right text-blue-400 font-medium text-xs">
+                        <TableCell className="text-right text-blue-400 font-medium text-[10px] leading-tight">
                           {formatCompactCurrency(item.beneficios)}
                         </TableCell>
-                        <TableCell className="text-right text-blue-400 font-medium text-xs">
+                        <TableCell className="text-right text-blue-400 font-medium text-[10px] leading-tight">
                           {formatCompactCurrency(item.vt)}
                         </TableCell>
-                        <TableCell className="text-right text-blue-400 font-medium text-xs">
+                        <TableCell className="text-right text-blue-400 font-medium text-[10px] leading-tight">
                           {formatCompactCurrency(item.imestra)}
                         </TableCell>
-                        <TableCell className="text-right font-bold text-white dark:text-white text-xs">
+                        <TableCell className="text-right font-bold text-white dark:text-white text-[11px] leading-tight">
                           {formatCompactCurrency(total.toString())}
                         </TableCell>
                         <TableCell className="text-center">
