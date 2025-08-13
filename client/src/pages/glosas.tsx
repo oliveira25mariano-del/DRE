@@ -940,27 +940,30 @@ export default function Glosas() {
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart 
                     data={analysisData} 
-                    margin={{ top: 15, right: 30, left: 60, bottom: 65 }}
+                    margin={{ top: 15, right: 30, left: 75, bottom: 70 }}
                     barGap={4}
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke="#3B82F6" opacity={0.2} />
                     <XAxis 
                       dataKey="contract" 
-                      tick={{ fill: '#93C5FD', fontSize: 10, fontWeight: 500 }}
-                      angle={-25}
+                      tick={{ fill: '#DBEAFE', fontSize: 11, fontWeight: 600 }}
+                      angle={-20}
                       textAnchor="end"
-                      height={65}
+                      height={70}
                       interval={0}
                     />
                     <YAxis 
-                      tick={{ fill: '#93C5FD', fontSize: 11, fontWeight: 500 }}
+                      tick={{ fill: '#DBEAFE', fontSize: 12, fontWeight: 600 }}
                       tickFormatter={(value) => {
-                        if (value >= 1000) {
-                          return `${(value/1000).toFixed(0)}k`;
+                        if (value >= 1000000) {
+                          return `R$ ${(value/1000000).toFixed(1)}M`;
                         }
-                        return `${value.toFixed(0)}`;
+                        if (value >= 1000) {
+                          return `R$ ${(value/1000).toFixed(0)}k`;
+                        }
+                        return `R$ ${value.toFixed(0)}`;
                       }}
-                      width={60}
+                      width={75}
                     />
                     <Tooltip 
                       formatter={(value, name) => [

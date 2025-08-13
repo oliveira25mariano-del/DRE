@@ -121,24 +121,78 @@
   animation: pulse 3s infinite;
 }
 
-/* Remove hover effects from Recharts bars */
-.recharts-bar-rectangle:hover {
+/* Remove hover effects from Recharts bars and tooltips */
+.recharts-bar-rectangle:hover,
+.recharts-bar-rectangle:focus {
   filter: none !important;
   opacity: 1 !important;
+  stroke: none !important;
+  stroke-width: 0 !important;
 }
 
-.recharts-bar:hover .recharts-bar-rectangle {
+.recharts-bar:hover .recharts-bar-rectangle,
+.recharts-bar:focus .recharts-bar-rectangle {
   filter: none !important;
   opacity: 1 !important;
+  stroke: none !important;
+  stroke-width: 0 !important;
 }
 
-/* Ensure chart text is always visible */
+.recharts-active-bar {
+  filter: none !important;
+  opacity: 1 !important;
+  stroke: none !important;
+  stroke-width: 0 !important;
+}
+
+/* Remove all hover states */
+.recharts-bar rect:hover,
+.recharts-bar rect:focus {
+  filter: none !important;
+  opacity: 1 !important;
+  fill-opacity: 1 !important;
+}
+
+/* Ensure chart text is always visible and readable */
 .recharts-text {
   pointer-events: none;
+  font-weight: 600 !important;
 }
 
 .recharts-cartesian-axis-tick text {
   pointer-events: none;
+  font-weight: 600 !important;
+  fill: #DBEAFE !important;
+}
+
+.recharts-cartesian-grid line {
+  stroke: #3B82F6 !important;
+  stroke-opacity: 0.2 !important;
+}
+
+/* Force remove all white backgrounds and hover effects */
+.recharts-tooltip-cursor {
+  display: none !important;
+}
+
+.recharts-active-bar rect,
+.recharts-bar rect:active,
+.recharts-bar rect[class*="active"] {
+  stroke: none !important;
+  stroke-width: 0 !important;
+  fill-opacity: 1 !important;
+}
+
+/* Remove any white overlay or highlight */
+.recharts-bar-rectangle::before,
+.recharts-bar-rectangle::after {
+  display: none !important;
+}
+
+.recharts-layer > rect[fill="white"],
+.recharts-layer > rect[fill="#ffffff"],
+.recharts-layer > rect[fill="#fff"] {
+  display: none !important;
 }
 
 body { background: linear-gradient(135deg, hsl(220, 70%, 15%) 0%, hsl(220, 65%, 20%) 100%) !important; color: hsl(220, 15%, 85%) !important; }
