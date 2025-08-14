@@ -166,21 +166,13 @@ export default function Folha() {
 
 
 
-  // Função para formatar valores monetários com R$ SEMPRE na frente
-  const formatBRLCurrency = (value: any): string => {
-    // Converter para número, removendo qualquer formatação existente
-    const numValue = typeof value === 'number' ? value : parseFloat(String(value || '0').replace(/[^\d.-]/g, '')) || 0;
+  // Função DEFINITIVA para formatar valores em Real Brasileiro
+  const formatMoney = (value: any): string => {
+    const num = Number(String(value || 0).replace(/[^\d.-]/g, '')) || 0;
     
-    // Formatação compacta para valores grandes
-    if (numValue >= 1000000) {
-      return `R$ ${(numValue / 1000000).toFixed(2)}M`;
-    }
-    if (numValue >= 1000) {
-      return `R$ ${(numValue / 1000).toFixed(2)}K`;
-    }
-    
-    // Para valores menores que 1000, usar formatação padrão brasileira
-    return `R$ ${numValue.toFixed(2).replace('.', ',')}`;
+    if (num >= 1000000) return `R$ ${(num / 1000000).toFixed(2)}M`;
+    if (num >= 1000) return `R$ ${(num / 1000).toFixed(2)}K`;
+    return `R$ ${num.toFixed(2).replace('.', ',')}`;
   };
 
   const getContractName = (contractId: string) => {
@@ -596,7 +588,7 @@ export default function Folha() {
         <Card>
           <CardContent className="pt-6">
             <div className="text-sm font-bold text-blue-400">
-              {formatBRLCurrency(getTotalByField('salarios'))}
+              {formatMoney(getTotalByField('salarios'))}
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">Salários</p>
           </CardContent>
@@ -604,7 +596,7 @@ export default function Folha() {
         <Card>
           <CardContent className="pt-6">
             <div className="text-sm font-bold text-blue-400">
-              {formatBRLCurrency(getTotalByField('horaExtra'))}
+              {formatMoney(getTotalByField('horaExtra'))}
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">Hora Extra</p>
           </CardContent>
@@ -612,7 +604,7 @@ export default function Folha() {
         <Card>
           <CardContent className="pt-6">
             <div className="text-sm font-bold text-blue-400">
-              {formatBRLCurrency(getTotalByField('beneficios'))}
+              {formatMoney(getTotalByField('beneficios'))}
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">Benefícios</p>
           </CardContent>
@@ -620,7 +612,7 @@ export default function Folha() {
         <Card>
           <CardContent className="pt-6">
             <div className="text-sm font-bold text-blue-400">
-              {formatBRLCurrency(getTotalByField('vt'))}
+              {formatMoney(getTotalByField('vt'))}
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">VT</p>
           </CardContent>
@@ -628,7 +620,7 @@ export default function Folha() {
         <Card>
           <CardContent className="pt-6">
             <div className="text-sm font-bold text-blue-400">
-              {formatBRLCurrency(getTotalByField('imestra'))}
+              {formatMoney(getTotalByField('imestra'))}
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">Imestra</p>
           </CardContent>
@@ -636,7 +628,7 @@ export default function Folha() {
         <Card>
           <CardContent className="pt-6">
             <div className="text-sm font-bold text-white dark:text-white">
-              {formatBRLCurrency(
+              {formatMoney(
                 getTotalByField('salarios') +
                 getTotalByField('horaExtra') +
                 getTotalByField('beneficios') +
@@ -707,22 +699,22 @@ export default function Folha() {
                           }
                         </TableCell>
                         <TableCell className="text-right text-blue-400 font-medium text-sm">
-                          {formatBRLCurrency(item.salarios)}
+                          {formatMoney(item.salarios)}
                         </TableCell>
                         <TableCell className="text-right text-blue-400 font-medium text-sm">
-                          {formatBRLCurrency(item.horaExtra)}
+                          {formatMoney(item.horaExtra)}
                         </TableCell>
                         <TableCell className="text-right text-blue-400 font-medium text-sm">
-                          {formatBRLCurrency(item.beneficios)}
+                          {formatMoney(item.beneficios)}
                         </TableCell>
                         <TableCell className="text-right text-blue-400 font-medium text-sm">
-                          {formatBRLCurrency(item.vt)}
+                          {formatMoney(item.vt)}
                         </TableCell>
                         <TableCell className="text-right text-blue-400 font-medium text-sm">
-                          {formatBRLCurrency(item.imestra)}
+                          {formatMoney(item.imestra)}
                         </TableCell>
                         <TableCell className="text-right font-bold text-white dark:text-white text-sm">
-                          {formatBRLCurrency(total)}
+                          {formatMoney(total)}
                         </TableCell>
                         <TableCell className="text-center">
                           <div className="flex justify-center gap-2">
