@@ -175,15 +175,19 @@ export default function Folha() {
   };
 
   const formatCompactCurrency = (value: string | number) => {
-    const num = parseFloat(value?.toString() || '0') || 0;
+    const num = parseFloat(String(value).replace(/[^\d.-]/g, '')) || 0;
+    let result = '';
     
     if (num >= 1000000) {
-      return `R$ ${(num / 1000000).toFixed(1)}M`;
+      result = `R$ ${(num / 1000000).toFixed(2)}M`;
     } else if (num >= 1000) {
-      return `R$ ${(num / 1000).toFixed(1)}K`;
+      result = `R$ ${(num / 1000).toFixed(2)}K`;
+    } else {
+      result = `R$ ${num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     }
-    // Para valores pequenos, formato simples com R$ na frente
-    return `R$ ${num.toFixed(2).replace('.', ',')}`;
+    
+    console.log(`DEBUG: ${value} -> ${num} -> ${result}`);
+    return result;
   };
 
   const getContractName = (contractId: string) => {
