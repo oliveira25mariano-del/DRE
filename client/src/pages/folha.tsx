@@ -176,13 +176,18 @@ export default function Folha() {
 
   const formatCompactCurrency = (value: string) => {
     const num = parseFloat(value) || 0;
+    
+    // Debug: vamos ver os valores
+    console.log('Formatando valor:', value, 'Número:', num);
+    
     if (num >= 1000000) {
       return `R$ ${(num / 1000000).toFixed(1)}M`;
     } else if (num >= 1000) {
       return `R$ ${(num / 1000).toFixed(1)}K`;
     }
-    // Para valores menores que 1000, sempre mostrar com 2 casas decimais para consistência
-    return `R$ ${num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    // Para valores pequenos, formato simples com R$ na frente
+    const formatted = num.toFixed(2).replace('.', ',');
+    return `R$ ${formatted}`;
   };
 
   const getContractName = (contractId: string) => {
