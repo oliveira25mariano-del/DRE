@@ -164,30 +164,18 @@ export default function Folha() {
     }
   };
 
-  const formatCurrency = (value: string) => {
-    const num = parseFloat(value) || 0;
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(num);
-  };
+
 
   const formatCompactCurrency = (value: string | number) => {
     const num = parseFloat(String(value).replace(/[^\d.-]/g, '')) || 0;
-    let result = '';
     
     if (num >= 1000000) {
-      result = `R$ ${(num / 1000000).toFixed(2)}M`;
+      return `R$ ${(num / 1000000).toFixed(2)}M`;
     } else if (num >= 1000) {
-      result = `R$ ${(num / 1000).toFixed(2)}K`;
+      return `R$ ${(num / 1000).toFixed(2)}K`;
     } else {
-      result = `R$ ${num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      return `R$ ${num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     }
-    
-    console.log(`DEBUG: ${value} -> ${num} -> ${result}`);
-    return result;
   };
 
   const getContractName = (contractId: string) => {
