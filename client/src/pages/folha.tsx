@@ -166,16 +166,21 @@ export default function Folha() {
 
 
 
-  const formatCompactCurrency = (value: string | number) => {
-    const num = parseFloat(String(value).replace(/[^\d.-]/g, '')) || 0;
+  // Função para formatar valores monetários com R$ SEMPRE na frente
+  const formatBRLCurrency = (value: any): string => {
+    // Converter para número, removendo qualquer formatação existente
+    const numValue = typeof value === 'number' ? value : parseFloat(String(value || '0').replace(/[^\d.-]/g, '')) || 0;
     
-    if (num >= 1000000) {
-      return `R$ ${(num / 1000000).toFixed(2)}M`;
-    } else if (num >= 1000) {
-      return `R$ ${(num / 1000).toFixed(2)}K`;
-    } else {
-      return `R$ ${num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    // Formatação compacta para valores grandes
+    if (numValue >= 1000000) {
+      return `R$ ${(numValue / 1000000).toFixed(2)}M`;
     }
+    if (numValue >= 1000) {
+      return `R$ ${(numValue / 1000).toFixed(2)}K`;
+    }
+    
+    // Para valores menores que 1000, usar formatação padrão brasileira
+    return `R$ ${numValue.toFixed(2).replace('.', ',')}`;
   };
 
   const getContractName = (contractId: string) => {
@@ -591,7 +596,7 @@ export default function Folha() {
         <Card>
           <CardContent className="pt-6">
             <div className="text-sm font-bold text-blue-400">
-              {formatCompactCurrency(getTotalByField('salarios').toString())}
+              {formatBRLCurrency(getTotalByField('salarios'))}
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">Salários</p>
           </CardContent>
@@ -599,7 +604,7 @@ export default function Folha() {
         <Card>
           <CardContent className="pt-6">
             <div className="text-sm font-bold text-blue-400">
-              {formatCompactCurrency(getTotalByField('horaExtra').toString())}
+              {formatBRLCurrency(getTotalByField('horaExtra'))}
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">Hora Extra</p>
           </CardContent>
@@ -607,7 +612,7 @@ export default function Folha() {
         <Card>
           <CardContent className="pt-6">
             <div className="text-sm font-bold text-blue-400">
-              {formatCompactCurrency(getTotalByField('beneficios').toString())}
+              {formatBRLCurrency(getTotalByField('beneficios'))}
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">Benefícios</p>
           </CardContent>
@@ -615,7 +620,7 @@ export default function Folha() {
         <Card>
           <CardContent className="pt-6">
             <div className="text-sm font-bold text-blue-400">
-              {formatCompactCurrency(getTotalByField('vt').toString())}
+              {formatBRLCurrency(getTotalByField('vt'))}
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">VT</p>
           </CardContent>
@@ -623,7 +628,7 @@ export default function Folha() {
         <Card>
           <CardContent className="pt-6">
             <div className="text-sm font-bold text-blue-400">
-              {formatCompactCurrency(getTotalByField('imestra').toString())}
+              {formatBRLCurrency(getTotalByField('imestra'))}
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">Imestra</p>
           </CardContent>
@@ -631,13 +636,13 @@ export default function Folha() {
         <Card>
           <CardContent className="pt-6">
             <div className="text-sm font-bold text-white dark:text-white">
-              {formatCompactCurrency((
+              {formatBRLCurrency(
                 getTotalByField('salarios') +
                 getTotalByField('horaExtra') +
                 getTotalByField('beneficios') +
                 getTotalByField('vt') +
                 getTotalByField('imestra')
-              ).toString())}
+              )}
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">Total Geral</p>
           </CardContent>
@@ -702,22 +707,22 @@ export default function Folha() {
                           }
                         </TableCell>
                         <TableCell className="text-right text-blue-400 font-medium text-sm">
-                          {formatCompactCurrency(item.salarios)}
+                          {formatBRLCurrency(item.salarios)}
                         </TableCell>
                         <TableCell className="text-right text-blue-400 font-medium text-sm">
-                          {formatCompactCurrency(item.horaExtra)}
+                          {formatBRLCurrency(item.horaExtra)}
                         </TableCell>
                         <TableCell className="text-right text-blue-400 font-medium text-sm">
-                          {formatCompactCurrency(item.beneficios)}
+                          {formatBRLCurrency(item.beneficios)}
                         </TableCell>
                         <TableCell className="text-right text-blue-400 font-medium text-sm">
-                          {formatCompactCurrency(item.vt)}
+                          {formatBRLCurrency(item.vt)}
                         </TableCell>
                         <TableCell className="text-right text-blue-400 font-medium text-sm">
-                          {formatCompactCurrency(item.imestra)}
+                          {formatBRLCurrency(item.imestra)}
                         </TableCell>
                         <TableCell className="text-right font-bold text-white dark:text-white text-sm">
-                          {formatCompactCurrency(total.toString())}
+                          {formatBRLCurrency(total)}
                         </TableCell>
                         <TableCell className="text-center">
                           <div className="flex justify-center gap-2">
