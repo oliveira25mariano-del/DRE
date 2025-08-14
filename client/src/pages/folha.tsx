@@ -174,11 +174,8 @@ export default function Folha() {
     }).format(num);
   };
 
-  const formatCompactCurrency = (value: string) => {
-    const num = parseFloat(value) || 0;
-    
-    // Debug: vamos ver os valores
-    console.log('Formatando valor:', value, 'Número:', num);
+  const formatCompactCurrency = (value: string | number) => {
+    const num = parseFloat(value?.toString() || '0') || 0;
     
     if (num >= 1000000) {
       return `R$ ${(num / 1000000).toFixed(1)}M`;
@@ -186,8 +183,7 @@ export default function Folha() {
       return `R$ ${(num / 1000).toFixed(1)}K`;
     }
     // Para valores pequenos, formato simples com R$ na frente
-    const formatted = num.toFixed(2).replace('.', ',');
-    return `R$ ${formatted}`;
+    return `R$ ${num.toFixed(2).replace('.', ',')}`;
   };
 
   const getContractName = (contractId: string) => {
