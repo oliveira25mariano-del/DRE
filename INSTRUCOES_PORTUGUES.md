@@ -15,7 +15,7 @@ Para configurar o Replit em português:
 - **Dashboard** - Painel Principal com métricas e KPIs
 - **Contratos** - Gestão de contratos por cliente
 - **Glosas** - Gestão de glosas médicas e rejeições
-- **MOE** - Mão de obra efetiva (funcionários por contrato)
+- **Mão de obra extra** - Gestão de pessoal adicional (funcionários por contrato)
 - **Fringe** - Benefícios adicionais dos funcionários
 - **Previsões ML** - Análises preditivas com Machine Learning
 - **Auditoria** - Trilha de mudanças e logs do sistema

@@ -51,7 +51,7 @@ Tags: suporte, erp, 24x7, tecnico
 
 ---
 
-## 👥 2. FUNCIONÁRIOS (MOE) DE EXEMPLO
+## 👥 2. FUNCIONÁRIOS (MÃO DE OBRA EXTRA) DE EXEMPLO
 
 ### Para Contrato 1 - E-commerce
 ```

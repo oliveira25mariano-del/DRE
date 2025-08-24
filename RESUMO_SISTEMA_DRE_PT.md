@@ -38,7 +38,7 @@ O Sistema DRE (Demonstrativo do Resultado do Exercício) é uma aplicação comp
 - Histórico de glosas resolvidas
 - Relatórios específicos
 
-### 4. 👥 **MOE** (Mão de Obra Efetiva)
+### 4. 👥 **Mão de obra extra** (Gestão de pessoal adicional)
 - Cadastro de funcionários por contrato
 - Salários base e taxas horárias
 - Horas trabalhadas mensais
